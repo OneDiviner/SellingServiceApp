@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SellingServiceApp</string>
+    <string name="login">Вход</string>
+    <string name="registration">Регистрация</string>
+    <string name="next">Продолжить</string>
+    <string name="mail">Почта</string>
+    <string name="enter_mail">Введите почту</string>
+    <string name="password">Пароль</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
+    <string name="no_accaunt">Ещё нет аккаунта?\nЗарегестрируйтесь</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="signin">Войти</string>
+    <string name="or">или</string>
+    <string name="vk_id">Войти с VK ID</string>
+    <string name="yandex_id">Войти с Yandex ID</string>
+    <string name="policy">Используя настоящее приложение, вы соглашаетесь на Обработку персональных данных и обязуететсь соблюдать условия Пользовательского соглашения и Политики конфиденциальности</string>
+</resources>
