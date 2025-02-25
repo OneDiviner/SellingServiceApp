@@ -1,27 +1,25 @@
 package com.example.sellingserviceapp.ui.screen.authentication.userinfo
 
-import android.net.Uri
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import org.w3c.dom.Text
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 
 class UserInfoViewModel: ViewModel() {
-    var name by mutableStateOf("")
-        private set
+    private var _nameState = mutableStateOf(TextFieldState())
+    val nameState: State<TextFieldState> = _nameState
 
-    var secondName by mutableStateOf("")
-        private set
+    private var _secondNameState = mutableStateOf(TextFieldState())
+    val secondNameState: State<TextFieldState> = _secondNameState
 
-    var lastName by mutableStateOf("")
-        private set
+    private var _lastNameState = mutableStateOf(TextFieldState())
+    val lastNameState: State<TextFieldState> = _lastNameState
 
-    var phoneNumber by mutableStateOf(TextFieldValue(""))
-        private set
+    private var _phoneNumberState = mutableStateOf(TextFieldState())
+    val phoneNumberState: State<TextFieldState> = _phoneNumberState
 
     var isFinishRegistrationButtonEnabled by mutableStateOf(false)
         private set
@@ -33,19 +31,31 @@ class UserInfoViewModel: ViewModel() {
         _profileImageUri.value = uri
     }*/
 
-    fun onNameChanged(newName: String) {
-        name = newName
+    fun onNameChanged(name: String) {
+        _nameState.value = nameState.value.copy(
+            text = name,
+            error = ""
+        )
     }
 
-    fun onSecondNameChanged(newSecondName: String) {
-        secondName = newSecondName
+    fun onSecondNameChanged(secondName: String) {
+        _secondNameState.value = secondNameState.value.copy(
+            text = secondName,
+            error = ""
+        )
     }
 
-    fun onLastNameChanged(newLastName: String) {
-        lastName = newLastName
+    fun onLastNameChanged(lastName: String) {
+        _lastNameState.value = lastNameState.value.copy(
+            text = lastName,
+            error = ""
+        )
     }
 
-    fun onPhoneNumberChanged(newPhoneNumber: TextFieldValue) {
-        phoneNumber = newPhoneNumber
+    fun onPhoneNumberChanged(phoneNumber: String) {
+        _phoneNumberState.value = phoneNumberState.value.copy(
+            text = phoneNumber,
+            error = ""
+        )
     }
 }

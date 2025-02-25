@@ -17,15 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserInfoTextField(
     modifier: Modifier = Modifier,
-    value: String,
+    state: TextFieldState,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    errorMessage: String = ""
 ) {
     val borderColor = if (isSystemInDarkTheme()) {
         Color.White.copy(alpha = 0.3f)
@@ -35,8 +35,12 @@ fun UserInfoTextField(
 
     Column {
         OutlinedTextField(
-            value = value,
-            textStyle = MaterialTheme.typography.bodyMedium,
+            value = state.text,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color =
+                if (state.error.isNotEmpty()) Color.Red
+                else Color.Unspecified
+            ),
             onValueChange = { newText ->
                 val filteredText = newText.filter { it.isLetter() || it.isWhitespace() }
                 onValueChange(filteredText)
@@ -59,12 +63,12 @@ fun UserInfoTextField(
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
-        if (errorMessage.isNotEmpty()) {
+        if (state.error.isNotEmpty()) {
             Text(
                 modifier = Modifier
                     .padding(5.dp)
                 ,
-                text = errorMessage,
+                text = state.error,
                 color = Color.Red,
                 style = MaterialTheme.typography.titleSmall
             )

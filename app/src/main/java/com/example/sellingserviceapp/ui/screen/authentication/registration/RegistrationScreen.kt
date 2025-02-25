@@ -98,16 +98,15 @@ fun RegistrationScreen(
                         )
 
                         DigitOutlinedTextField(
+                            state = viewModel.emailConfirmCodeState.value,
                             placeholder = "Введите код подтверждения",
-                            value = viewModel.emailConfirmCode,
                             onValueChange = {
                                 viewModel.onEmailConfirmCodeChange(it)
                                 if (viewModel.isEnteredCodeCorrect) {
                                     viewModel.closeConfirmEmailSheet()
                                     navController.navigate("userInfo")
                                 }
-                            },
-                            errorMessage = viewModel.emailState.value.error
+                            }
                         )
 
                         LargeButton(

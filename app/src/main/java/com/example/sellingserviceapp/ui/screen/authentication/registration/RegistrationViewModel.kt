@@ -4,16 +4,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 import com.example.sellingserviceapp.util.validateEmail
 import com.example.sellingserviceapp.util.validatePasswords
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class RegistrationViewModel(): ViewModel() {
 
@@ -30,8 +25,8 @@ class RegistrationViewModel(): ViewModel() {
         private set
 
     private val confirmCode = "1234"
-    var emailConfirmCode by mutableStateOf("")
-        private set
+    private val _emailConfirmCodeState = mutableStateOf(TextFieldState())
+    val emailConfirmCodeState: State<TextFieldState> = _emailConfirmCodeState
 
     var isNextButtonEnabled by mutableStateOf(false)
         private set
@@ -84,8 +79,11 @@ class RegistrationViewModel(): ViewModel() {
     }
 
     fun onEmailConfirmCodeChange(code: String) {
-        emailConfirmCode = code
-        if(emailConfirmCode == confirmCode) {
+        _emailConfirmCodeState.value= emailConfirmCodeState.value.copy(
+            text = code,
+            error = ""
+        )
+        if(_emailConfirmCodeState.value.text == confirmCode) {
             isEnteredCodeCorrect = true
         }
         else {

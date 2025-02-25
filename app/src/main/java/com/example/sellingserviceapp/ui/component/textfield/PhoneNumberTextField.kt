@@ -16,14 +16,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 import org.w3c.dom.Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneNumberTextField(
     modifier: Modifier = Modifier,
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
+    state: TextFieldState,
+    onValueChange: (String) -> Unit,
     placeholder: String
 ) {
     val borderColor = if (isSystemInDarkTheme()) {
@@ -33,10 +34,10 @@ fun PhoneNumberTextField(
     }
 
     OutlinedTextField(
-        value = value,
+        value = state.text,
         textStyle = MaterialTheme.typography.bodyMedium,
         onValueChange = { newText ->
-            if (newText.text.all { it.isDigit() }) {
+            if (newText.all { it.isDigit() }) {
                 onValueChange(newText)
             }
         },

@@ -17,15 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DigitOutlinedTextField(
     modifier: Modifier = Modifier,
-    value: String,
+    state: TextFieldState,
     onValueChange: (String) -> Unit,
-    placeholder: String,
-    errorMessage: String = ""
+    placeholder: String
 ) {
     val borderColor = if (isSystemInDarkTheme()) {
         Color.White.copy(alpha = 0.3f)
@@ -35,8 +35,8 @@ fun DigitOutlinedTextField(
 
     Column {
         OutlinedTextField(
-            value = value,
-            textStyle = MaterialTheme.typography.bodyMedium.copy(color = if (errorMessage.isNotEmpty()) Color.Red else Color.Unspecified),
+            value = state.text,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = if (state.error.isNotEmpty()) Color.Red else Color.Unspecified),
             onValueChange = { newText ->
                 if (newText.all { it.isDigit() }) {
                     onValueChange(newText)
@@ -60,12 +60,12 @@ fun DigitOutlinedTextField(
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        if (errorMessage.isNotEmpty()) {
+        if (state.error.isNotEmpty()) {
             Text(
                 modifier = Modifier
                     .padding(5.dp)
                 ,
-                text = errorMessage,
+                text = state.error,
                 color = Color.Red,
                 style = MaterialTheme.typography.titleSmall
             )
