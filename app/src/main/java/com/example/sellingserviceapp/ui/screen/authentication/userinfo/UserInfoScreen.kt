@@ -21,6 +21,7 @@ import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.component.text.TittleLarge
 import com.example.sellingserviceapp.ui.component.textfield.UserInfoTextField
 import com.example.sellingserviceapp.ui.component.textfield.PhoneNumberTextField
+import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 
 //TODO: Do a util file for CropImage
 
@@ -76,7 +77,9 @@ fun UserInfoScreen(
 
             LargeButton(
                 text = "Завершить",
-                enabled = viewModel.isFinishRegistrationButtonEnabled
+                state = ButtonState(
+                    isClickable = true,
+                )
             ) {
 
             }

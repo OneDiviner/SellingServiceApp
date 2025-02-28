@@ -20,19 +20,29 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sellingserviceapp.R
+import com.example.sellingserviceapp.data.network.AuthApiService
+import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.component.text.TittleLarge
 import com.example.sellingserviceapp.ui.component.text.TittleSmall
 import com.example.sellingserviceapp.ui.component.textfield.DigitOutlinedTextField
 import com.example.sellingserviceapp.ui.component.textfield.MailOutlinedTextField
 import com.example.sellingserviceapp.ui.component.textfield.PasswordOutlinedTextField
+import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
-    viewModel: RegistrationViewModel = viewModel(),
+    /*viewModel: RegistrationViewModel = viewModel(),*/
     navController: NavController
 ) {
+    val apiService = AuthApiService.create() // Создаём API-сервис
+    val authRepository = AuthRepository(apiService) // Создаём репозиторий
+
+    val viewModel: RegistrationViewModel = viewModel(
+        factory = RegistrationViewModelFactory(authRepository)
+    )
+
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -71,9 +81,9 @@ fun RegistrationScreen(
 
             LargeButton(
                 text = stringResource(R.string.next),
-                enabled = viewModel.isNextButtonEnabled
+                state = ButtonState(isClickable = viewModel.isNextButtonEnabled)
             ) {
-                viewModel.openConfirmEmailSheet()
+                viewModel.firstStepRegister()
             }
 
             if(viewModel.showEmailConfirmSheet) {
@@ -111,7 +121,9 @@ fun RegistrationScreen(
 
                         LargeButton(
                             text = "Запросить новый код",
-                            enabled = viewModel.isGetNewCodeButtonEnabled
+                            state = ButtonState(
+                                isClickable = viewModel.isGetNewCodeButtonEnabled,
+                            )
                         ) {
                             viewModel.updateTimer()
                         }

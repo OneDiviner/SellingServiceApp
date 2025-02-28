@@ -9,11 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 
 @Composable
 fun LargeButton(
     text: String,
-    enabled: Boolean,
+    state: ButtonState,
     onClick: () -> Unit
 ) {
     Button(
@@ -22,10 +23,10 @@ fun LargeButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
-        enabled = enabled
+        enabled = state.isClickable
     ) {
         Text(
-            text = text,
+            text = if(state.isLoading) "Загрузка" else text,
             style = MaterialTheme.typography.bodyLarge
         )
     }

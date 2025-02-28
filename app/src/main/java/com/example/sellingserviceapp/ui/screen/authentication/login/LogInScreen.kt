@@ -27,6 +27,7 @@ import com.example.sellingserviceapp.ui.component.text.TittleLarge
 import com.example.sellingserviceapp.ui.component.text.TittleSmall
 import com.example.sellingserviceapp.ui.component.textfield.MailOutlinedTextField
 import com.example.sellingserviceapp.ui.component.textfield.PasswordOutlinedTextField
+import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -73,7 +74,9 @@ fun LogInScreen(
 
             LargeButton(
                 text = stringResource(R.string.signin),
-                enabled = true
+                state = ButtonState(
+                    isClickable = true,
+                )
             ) { }
 
             BorderlessLargeButton(
