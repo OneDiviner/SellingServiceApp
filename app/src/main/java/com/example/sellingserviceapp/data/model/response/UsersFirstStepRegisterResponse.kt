@@ -8,8 +8,8 @@ data class UsersFirstStepRegisterResponse(
     @SerializedName("message") val message: String,
     @SerializedName("id") val id: Long,
     @SerializedName("email") val email: String,
-    @SerializedName("created_at") val createdAt: LocalDateTime,
-    @SerializedName("updated_at") val updatedAt: LocalDateTime,
+    @SerializedName("created_at") val createdAt: String, // LocalDataTime
+    @SerializedName("updated_at") val updatedAt: String, // LocalDataTime
     @SerializedName("role") val role: String,
     @SerializedName("status") val status: String
 )

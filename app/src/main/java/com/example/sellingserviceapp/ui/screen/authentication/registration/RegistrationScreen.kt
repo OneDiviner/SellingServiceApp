@@ -12,11 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sellingserviceapp.R
@@ -29,19 +31,18 @@ import com.example.sellingserviceapp.ui.component.textfield.DigitOutlinedTextFie
 import com.example.sellingserviceapp.ui.component.textfield.MailOutlinedTextField
 import com.example.sellingserviceapp.ui.component.textfield.PasswordOutlinedTextField
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
+import com.example.sellingserviceapp.ui.screen.authentication.state.FirstStepRegisterUiState
+import androidx.hilt.navigation.compose.hiltViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
-    /*viewModel: RegistrationViewModel = viewModel(),*/
+    viewModel: RegistrationViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val apiService = AuthApiService.create() // Создаём API-сервис
-    val authRepository = AuthRepository(apiService) // Создаём репозиторий
-
-    val viewModel: RegistrationViewModel = viewModel(
-        factory = RegistrationViewModelFactory(authRepository)
-    )
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val buttonState by viewModel.nextButtonState
 
     Box(
         modifier = Modifier
@@ -80,10 +81,9 @@ fun RegistrationScreen(
             )
 
             LargeButton(
-                text = stringResource(R.string.next),
-                state = ButtonState(isClickable = viewModel.isNextButtonEnabled)
+                state = buttonState
             ) {
-                viewModel.firstStepRegister()
+                viewModel.userFirstStepRegister(viewModel.emailState.value.text, viewModel.passwordState.value.text)
             }
 
             if(viewModel.showEmailConfirmSheet) {
@@ -120,10 +120,7 @@ fun RegistrationScreen(
                         )
 
                         LargeButton(
-                            text = "Запросить новый код",
-                            state = ButtonState(
-                                isClickable = viewModel.isGetNewCodeButtonEnabled,
-                            )
+                            state = ButtonState.Default("Button", true)
                         ) {
                             viewModel.updateTimer()
                         }

@@ -76,10 +76,7 @@ fun UserInfoScreen(
             )
 
             LargeButton(
-                text = "Завершить",
-                state = ButtonState(
-                    isClickable = true,
-                )
+                state = ButtonState.Default("Button", true)
             ) {
 
             }

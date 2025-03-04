@@ -73,10 +73,7 @@ fun LogInScreen(
             )
 
             LargeButton(
-                text = stringResource(R.string.signin),
-                state = ButtonState(
-                    isClickable = true,
-                )
+                state = ButtonState.Default("Button", true)
             ) { }
 
             BorderlessLargeButton(

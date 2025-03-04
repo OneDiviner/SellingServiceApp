@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-
+    alias(libs.plugins.compose.compiler)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
     /*id("com.google.gms.google-services")*/
 }
 
@@ -23,6 +25,13 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            buildConfigField("String", "BASE_URL", "\"http://192.168.31.190:8080/\"")
+        }
+        getByName("release") {
+            buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -40,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -52,6 +62,14 @@ android {
 }
 
 dependencies {
+
+    //implementation("androidx.compose.compiler:compiler:2.1.0")
+
+    // Hilt dependencies
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation(libs.accessibility.test.framework)
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

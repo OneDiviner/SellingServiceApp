@@ -19,12 +19,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 @Composable
 fun BackTopBar(navController: NavController) {
 
-    val canNavigateBack = navController.previousBackStackEntry
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val canNavigateBack = navBackStackEntry != null && navController.previousBackStackEntry != null
 
     TopAppBar(
         title = { },
         navigationIcon = {
-            if (canNavigateBack != null) {
+            if (canNavigateBack) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

@@ -9,7 +9,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.sellingserviceapp.ui.screen.authentication.AuthenticationSellingServiceApp
 import com.example.sellingserviceapp.ui.screen.authentication.registration.RegistrationScreen
 import com.example.sellingserviceapp.ui.theme.SellingServiceAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
