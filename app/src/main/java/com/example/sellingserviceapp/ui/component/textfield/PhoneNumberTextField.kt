@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -16,16 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
-import org.w3c.dom.Text
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneNumberTextField(
-    modifier: Modifier = Modifier,
-    state: TextFieldState,
-    onValueChange: (String) -> Unit,
-    placeholder: String
+    model: TextFieldModel,
+    onValueChange: (String) -> Unit
 ) {
     val borderColor = if (isSystemInDarkTheme()) {
         Color.White.copy(alpha = 0.3f)
@@ -34,7 +29,7 @@ fun PhoneNumberTextField(
     }
 
     OutlinedTextField(
-        value = state.text,
+        value = model.value,
         textStyle = MaterialTheme.typography.bodyMedium,
         onValueChange = { newText ->
             if (newText.all { it.isDigit() }) {
@@ -43,7 +38,7 @@ fun PhoneNumberTextField(
         },
         placeholder = {
             Text(
-                placeholder,
+                model.placeholder,
                 color = borderColor,
                 style = MaterialTheme.typography.bodyMedium)
         },
@@ -51,7 +46,7 @@ fun PhoneNumberTextField(
             keyboardType = KeyboardType.Phone
         ),
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
         colors = TextFieldDefaults.colors(

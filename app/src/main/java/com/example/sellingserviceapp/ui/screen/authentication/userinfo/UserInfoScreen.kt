@@ -14,20 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sellingserviceapp.R
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.component.text.TittleLarge
-import com.example.sellingserviceapp.ui.component.textfield.UserInfoTextField
 import com.example.sellingserviceapp.ui.component.textfield.PhoneNumberTextField
-import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
+import com.example.sellingserviceapp.ui.component.textfield.UserInfoTextField
 
 //TODO: Do a util file for CropImage
 
 @Composable
 fun UserInfoScreen(
-    viewModel: UserInfoViewModel = viewModel(),
+    viewModel: UserInfoViewModel = hiltViewModel(),
     navController: NavController
 ) {
     Box(
@@ -52,34 +52,35 @@ fun UserInfoScreen(
             //CropImage(viewModel) Uncomment if need it
 
             UserInfoTextField(
-                state = viewModel.secondNameState.value,
-                placeholder = "Фамилия",
-                onValueChange = { viewModel.onSecondNameChanged(it) }
+                model = viewModel.secondName,
+                onValueChange = {viewModel.onSecondNameChanged(it)}
             )
 
             UserInfoTextField(
-                state = viewModel.nameState.value,
-                placeholder = "Имя",
-                onValueChange = { viewModel.onNameChanged(it) }
+                model = viewModel.name,
+                onValueChange = {viewModel.onNameChanged(it)}
             )
 
             UserInfoTextField(
-                state = viewModel.lastNameState.value,
-                placeholder = "Отчество",
-                onValueChange = { viewModel.onLastNameChanged(it) }
+                model = viewModel.lastName,
+                onValueChange = {viewModel.onLastNameChanged(it)}
             )
 
             PhoneNumberTextField(
+                model = viewModel.phoneNumber,
+                onValueChange = {viewModel.onPhoneNumberChanged(it)}
+            )
+
+            /*PhoneNumberTextField(
                 state = viewModel.phoneNumberState.value,
                 placeholder = "Номер телефона",
                 onValueChange = { viewModel.onPhoneNumberChanged(it) }
-            )
+            )*/
 
             LargeButton(
-                state = ButtonState.Default("Button", true)
-            ) {
-
-            }
+                model = viewModel.finishRegisterButton,
+                onClick = {viewModel.onFinishRegisterButtonClick()}
+            )
         }
     }
 }

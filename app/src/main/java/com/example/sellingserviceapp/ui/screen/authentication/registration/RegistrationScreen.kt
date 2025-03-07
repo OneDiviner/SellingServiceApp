@@ -12,26 +12,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.sellingserviceapp.R
-import com.example.sellingserviceapp.data.network.AuthApiService
-import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.component.text.TittleLarge
 import com.example.sellingserviceapp.ui.component.text.TittleSmall
 import com.example.sellingserviceapp.ui.component.textfield.DigitOutlinedTextField
 import com.example.sellingserviceapp.ui.component.textfield.MailOutlinedTextField
 import com.example.sellingserviceapp.ui.component.textfield.PasswordOutlinedTextField
-import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
-import com.example.sellingserviceapp.ui.screen.authentication.state.FirstStepRegisterUiState
 import androidx.hilt.navigation.compose.hiltViewModel
 
 
@@ -42,7 +36,11 @@ fun RegistrationScreen(
     navController: NavController
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val buttonState by viewModel.nextButtonState
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { route ->
+            navController.navigate(route) // Выполняем навигацию
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -63,34 +61,27 @@ fun RegistrationScreen(
             )
 
             MailOutlinedTextField(
-                state = viewModel.emailState.value,
-                placeholder = "Введите почту",
+                model = viewModel.email,
                 onValueChange = { viewModel.onEmailChanged(it) }
             )
 
             PasswordOutlinedTextField(
-                state = viewModel.passwordState.value,
-                placeholder = stringResource(R.string.enter_password),
+                model = viewModel.password,
                 onValueChange = { viewModel.onPasswordChanged(it) }
             )
 
             PasswordOutlinedTextField(
-                state = viewModel.confirmPasswordState.value,
-                placeholder = stringResource(R.string.confirm_password),
+                model = viewModel.confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChanged(it) }
             )
 
             LargeButton(
-                state = buttonState
-            ) {
-                viewModel.userFirstStepRegister(viewModel.emailState.value.text, viewModel.passwordState.value.text)
-            }
+                model = viewModel.nextButton,
+                onClick = { viewModel.onNextButtonClick() }
+            )
 
-            if(viewModel.showEmailConfirmSheet) {
-                LaunchedEffect(viewModel.remainingTime) {
-                    viewModel.startGetNewCodeTimer()
-                }
-                ModalBottomSheet(onDismissRequest = { viewModel.closeConfirmEmailSheet() }) {
+           if(viewModel.bottomSheetState) {
+                ModalBottomSheet(onDismissRequest = { viewModel.bottomSheetStateUpdater(false) }) {
                     Column(
                         Modifier.padding(top = 15.dp, start = 25.dp, end = 25.dp, bottom = 50.dp),
                         verticalArrangement = Arrangement.spacedBy(15.dp)
@@ -102,31 +93,23 @@ fun RegistrationScreen(
                         )
 
                         TittleSmall(
-                            text = "Отправили код на почту ${viewModel.emailState.value.text}.\nПроверьте указанный почтовый адресс.",
+                            text = "Отправили код на почту ${viewModel.email.value}.\nПроверьте указанный почтовый адресс.",
                             padding = PaddingValues(top = 15.dp),
                             textAlign = TextAlign.Start
                         )
 
                         DigitOutlinedTextField(
-                            state = viewModel.emailConfirmCodeState.value,
-                            placeholder = "Введите код подтверждения",
-                            onValueChange = {
-                                viewModel.onEmailConfirmCodeChange(it)
-                                if (viewModel.isEnteredCodeCorrect) {
-                                    viewModel.closeConfirmEmailSheet()
-                                    navController.navigate("userInfo")
-                                }
-                            }
+                            model = viewModel.emailConfirmCode,
+                            onValueChange = { viewModel.onEmailConfirmCodeChanged(it) }
                         )
 
                         LargeButton(
-                            state = ButtonState.Default("Button", true)
-                        ) {
-                            viewModel.updateTimer()
-                        }
+                            model = viewModel.requestNewCodeButton,
+                            onClick = { viewModel.onRequestNewCodeButtonClick() }
+                        )
 
                         TittleSmall(
-                            text = "Запросить новый код можно через: ${viewModel.remainingTime} сек.",
+                            text = "Запросить новый код можно через: ${viewModel.timeLeft} сек.",
                             padding = PaddingValues(0.dp),
                             textAlign = TextAlign.Center
                         )

@@ -18,14 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserInfoTextField(
-    modifier: Modifier = Modifier,
-    state: TextFieldState,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
+    model: TextFieldModel,
+    onValueChange: (String) -> Unit
 ) {
     val borderColor = if (isSystemInDarkTheme()) {
         Color.White.copy(alpha = 0.3f)
@@ -35,24 +34,22 @@ fun UserInfoTextField(
 
     Column {
         OutlinedTextField(
-            value = state.text,
+            value = model.value,
             textStyle = MaterialTheme.typography.bodyMedium.copy(
-                color =
-                if (state.error.isNotEmpty()) Color.Red
-                else Color.Unspecified
+                color = when (model.state) {
+                    is TextFieldState.Error -> Color.Red
+                    else -> Color.Unspecified
+                }
             ),
-            onValueChange = { newText ->
-                val filteredText = newText.filter { it.isLetter() || it.isWhitespace() }
-                onValueChange(filteredText)
-            },
+            onValueChange = onValueChange,
             placeholder = {
                 Text(
-                    placeholder,
+                    model.placeholder,
                     color = borderColor,
                     style = MaterialTheme.typography.bodyMedium)
             },
             shape = RoundedCornerShape(8.dp),
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = TextFieldDefaults.colors(
@@ -60,15 +57,14 @@ fun UserInfoTextField(
                 focusedContainerColor = Color.Transparent,
                 unfocusedIndicatorColor = borderColor,
                 focusedIndicatorColor = borderColor
-            ),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
         )
-        if (state.error.isNotEmpty()) {
+        if (model.state is TextFieldState.Error) {
             Text(
                 modifier = Modifier
                     .padding(5.dp)
                 ,
-                text = state.error,
+                text = model.state.error,
                 color = Color.Red,
                 style = MaterialTheme.typography.titleSmall
             )

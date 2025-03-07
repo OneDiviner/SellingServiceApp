@@ -4,25 +4,45 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.example.sellingserviceapp.TokenManager
+import com.example.sellingserviceapp.data.repository.AuthRepository
+import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
+import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
+import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
+import com.example.sellingserviceapp.util.extension.secondStepRegisterRequest
+import com.example.sellingserviceapp.util.extension.validateFields
+import com.example.sellingserviceapp.util.extension.validateUserInfo
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class UserInfoViewModel: ViewModel() {
-    private var _nameState = mutableStateOf(TextFieldState())
-    val nameState: State<TextFieldState> = _nameState
+//TODO: Сделать валидацию полей используя Extensions //COMPLETE
+//TODO: Сделать валидацию самих полей //COMPLETE
+//TODO: Сделать ошибки полей красивыми //IN_PROGRESS
+//TODO: Сделать состояние кнопки как у TextField //IN_PROGRESS
 
-    private var _secondNameState = mutableStateOf(TextFieldState())
-    val secondNameState: State<TextFieldState> = _secondNameState
+@HiltViewModel
+class UserInfoViewModel@Inject constructor(
+    private val authRepository: AuthRepository,
+    private val tokenManager: TokenManager
+): ViewModel() {
 
-    private var _lastNameState = mutableStateOf(TextFieldState())
-    val lastNameState: State<TextFieldState> = _lastNameState
-
-    private var _phoneNumberState = mutableStateOf(TextFieldState())
-    val phoneNumberState: State<TextFieldState> = _phoneNumberState
-
-    var isFinishRegistrationButtonEnabled by mutableStateOf(false)
+    var secondName by mutableStateOf(TextFieldModel(placeholder = "Фамилия"))
         private set
+
+    var name by mutableStateOf(TextFieldModel(placeholder = "Имя"))
+        private set
+
+    var lastName by mutableStateOf(TextFieldModel(placeholder = "Отчество"))
+        private set
+
+    var phoneNumber by mutableStateOf(TextFieldModel(placeholder = "Номер телефона"))
+        private set
+
+    var finishRegisterButton by mutableStateOf(ButtonModel("Завершить"))
+        private set
+
 
     /*private val _profileImageUri = MutableStateFlow<Uri?>(null)
     val profileImageUri: StateFlow<Uri?> = _profileImageUri
@@ -31,31 +51,31 @@ class UserInfoViewModel: ViewModel() {
         _profileImageUri.value = uri
     }*/
 
-    fun onNameChanged(name: String) {
-        _nameState.value = nameState.value.copy(
-            text = name,
-            error = ""
-        )
+    fun onSecondNameChanged(value: String) {
+        secondName = secondName.copy(value = value)
+        secondName = secondName.copy(state = validateUserInfo(secondName.value))
+        finishRegisterButton = finishRegisterButton.copy(state = validateFields())
     }
 
-    fun onSecondNameChanged(secondName: String) {
-        _secondNameState.value = secondNameState.value.copy(
-            text = secondName,
-            error = ""
-        )
+    fun onNameChanged(value: String) {
+        name = name.copy(value = value)
+        name = name.copy(state = validateUserInfo(name.value))
+        finishRegisterButton = finishRegisterButton.copy(state = validateFields())
     }
 
-    fun onLastNameChanged(lastName: String) {
-        _lastNameState.value = lastNameState.value.copy(
-            text = lastName,
-            error = ""
-        )
+    fun onLastNameChanged(value: String) {
+        lastName = lastName.copy(value = value)
+        lastName = lastName.copy(state = validateUserInfo(lastName.value))
+        finishRegisterButton = finishRegisterButton.copy(state = validateFields())
     }
 
-    fun onPhoneNumberChanged(phoneNumber: String) {
-        _phoneNumberState.value = phoneNumberState.value.copy(
-            text = phoneNumber,
-            error = ""
-        )
+    fun onPhoneNumberChanged(value: String) {
+        phoneNumber = phoneNumber.copy(value = value)
+        //phoneNumber = phoneNumber.copy() //TODO: Сделать валидатор либо преобразовывать ввод
+        finishRegisterButton = finishRegisterButton.copy(state = validateFields())
+    }
+
+    fun onFinishRegisterButtonClick() {
+        secondStepRegisterRequest(authRepository = authRepository, tokenManager)
     }
 }

@@ -63,6 +63,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.datastore:datastore-preferences:1.1.3")
+
     //implementation("androidx.compose.compiler:compiler:2.1.0")
 
     // Hilt dependencies

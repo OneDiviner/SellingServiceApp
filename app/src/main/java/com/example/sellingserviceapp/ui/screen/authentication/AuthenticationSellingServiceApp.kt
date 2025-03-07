@@ -45,7 +45,7 @@ fun AuthenticationSellingServiceApp() {
             ) {
                 NavHost(
                     navController,
-                    startDestination = "login",
+                    startDestination = "login", // start screen must be login
                     enterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { it }) },
                     exitTransition = { fadeOut() + slideOutHorizontally(targetOffsetX = { -it }) },
                     popEnterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { -it }) },
