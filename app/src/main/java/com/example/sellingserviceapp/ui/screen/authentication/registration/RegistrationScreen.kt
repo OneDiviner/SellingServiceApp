@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -23,9 +25,9 @@ import com.example.sellingserviceapp.R
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.component.text.TittleLarge
 import com.example.sellingserviceapp.ui.component.text.TittleSmall
-import com.example.sellingserviceapp.ui.component.textfield.DigitOutlinedTextField
-import com.example.sellingserviceapp.ui.component.textfield.MailOutlinedTextField
-import com.example.sellingserviceapp.ui.component.textfield.PasswordOutlinedTextField
+import com.example.sellingserviceapp.ui.component.textfield.LargeDigitTextField
+import com.example.sellingserviceapp.ui.component.textfield.LargeMailTextField
+import com.example.sellingserviceapp.ui.component.textfield.LargePasswordTextField
 import androidx.hilt.navigation.compose.hiltViewModel
 
 
@@ -49,7 +51,7 @@ fun RegistrationScreen(
         contentAlignment = Alignment.TopStart
     ) {
         Column(modifier = Modifier
-            .padding(horizontal = 25.dp)
+            .padding(horizontal = 15.dp)
             .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(15.dp)
@@ -60,17 +62,19 @@ fun RegistrationScreen(
                 padding = PaddingValues(0.dp)
             )
 
-            MailOutlinedTextField(
+            LargeMailTextField(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
                 model = viewModel.email,
-                onValueChange = { viewModel.onEmailChanged(it) }
+                onValueChange = { viewModel.onEmailChanged(it) },
+                modifier = Modifier
             )
 
-            PasswordOutlinedTextField(
+            LargePasswordTextField(
                 model = viewModel.password,
                 onValueChange = { viewModel.onPasswordChanged(it) }
             )
 
-            PasswordOutlinedTextField(
+            LargePasswordTextField(
                 model = viewModel.confirmPassword,
                 onValueChange = { viewModel.onConfirmPasswordChanged(it) }
             )
@@ -81,9 +85,12 @@ fun RegistrationScreen(
             )
 
            if(viewModel.bottomSheetState) {
-                ModalBottomSheet(onDismissRequest = { viewModel.bottomSheetStateUpdater(false) }) {
+                ModalBottomSheet(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    onDismissRequest = { viewModel.bottomSheetStateUpdater(false) }
+                ) {
                     Column(
-                        Modifier.padding(top = 15.dp, start = 25.dp, end = 25.dp, bottom = 50.dp),
+                        Modifier.padding(top = 15.dp, start = 15.dp, end = 15.dp, bottom = 30.dp),
                         verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         TittleLarge(
@@ -98,7 +105,7 @@ fun RegistrationScreen(
                             textAlign = TextAlign.Start
                         )
 
-                        DigitOutlinedTextField(
+                        LargeDigitTextField(
                             model = viewModel.emailConfirmCode,
                             onValueChange = { viewModel.onEmailConfirmCodeChanged(it) }
                         )
@@ -107,6 +114,8 @@ fun RegistrationScreen(
                             model = viewModel.requestNewCodeButton,
                             onClick = { viewModel.onRequestNewCodeButtonClick() }
                         )
+
+
 
                         TittleSmall(
                             text = "Запросить новый код можно через: ${viewModel.timeLeft} сек.",

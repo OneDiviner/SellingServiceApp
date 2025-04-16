@@ -1,7 +1,7 @@
 package com.example.sellingserviceapp.data.di
 
 import android.content.Context
-import com.example.sellingserviceapp.TokenManager
+import com.example.sellingserviceapp.UserAuthManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 object TokenManagerModule {
     @Provides
     @Singleton
-    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
-        return TokenManager(context)
+    fun provideTokenManager(@ApplicationContext context: Context): UserAuthManager {
+        return UserAuthManager(context)
     }
 }

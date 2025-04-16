@@ -18,22 +18,15 @@ fun BorderlessLargeButton(
     text: String,
     onClick: () -> Unit
 ) {
-
-    val borderColor = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.7f)
-    } else {
-        Color.Black.copy(alpha = 0.7f)
-    }
-
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.Transparent,
-            contentColor = borderColor
+            contentColor = MaterialTheme.colorScheme.onBackground
         )
     ) {
         Text(

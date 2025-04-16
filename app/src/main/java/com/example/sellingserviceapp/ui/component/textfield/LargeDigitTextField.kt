@@ -1,6 +1,5 @@
 package com.example.sellingserviceapp.ui.component.textfield
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,16 +23,10 @@ import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldSta
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DigitOutlinedTextField(
+fun LargeDigitTextField(
     model: TextFieldModel,
     onValueChange: (String) -> Unit
 ) {
-    val borderColor = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.3f)
-    } else {
-        Color.Black.copy(alpha = 0.3f)
-    }
-
     Column {
         OutlinedTextField(
             value = model.value,
@@ -50,18 +43,18 @@ fun DigitOutlinedTextField(
             placeholder = {
                 Text(
                     model.placeholder,
-                    color = borderColor,
-                    style = MaterialTheme.typography.bodyMedium)
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                    style = MaterialTheme.typography.bodyMedium) //TODO: Сделать стиль текста для placeholder
             },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedIndicatorColor = borderColor,
-                focusedIndicatorColor = borderColor
+                unfocusedContainerColor = MaterialTheme.colorScheme.background.copy(0.7f),
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             trailingIcon = {
@@ -69,7 +62,7 @@ fun DigitOutlinedTextField(
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp,
-                        color = borderColor
+                        color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
                     )
                 }
             }

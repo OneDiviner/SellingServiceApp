@@ -63,7 +63,12 @@ android {
 
 dependencies {
 
+    implementation("me.onebone:toolbar-compose:2.3.5")
+
     implementation("androidx.datastore:datastore-preferences:1.1.3")
+
+    //implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("androidx.compose.material3:material3:1.3.1")
 
     //implementation("androidx.compose.compiler:compiler:2.1.0")
 

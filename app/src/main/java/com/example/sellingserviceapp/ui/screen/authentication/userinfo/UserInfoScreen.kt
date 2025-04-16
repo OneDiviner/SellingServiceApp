@@ -38,7 +38,7 @@ fun UserInfoScreen(
     ) {
         Column(
             modifier = Modifier
-                .padding(horizontal = 25.dp)
+                .padding(horizontal = 15.dp)
                 .background(MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(15.dp)
@@ -73,7 +73,7 @@ fun UserInfoScreen(
 
             /*PhoneNumberTextField(
                 state = viewModel.phoneNumberState.value,
-                placeholder = "Номер телефона",
+                label = "Номер телефона",
                 onValueChange = { viewModel.onPhoneNumberChanged(it) }
             )*/
 

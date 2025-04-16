@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -24,8 +25,9 @@ import com.example.sellingserviceapp.ui.screen.authentication.registration.Regis
 import com.example.sellingserviceapp.ui.screen.authentication.userinfo.UserInfoScreen
 
 @Composable
-fun AuthenticationSellingServiceApp() {
-
+fun AuthenticationSellingServiceApp(
+    innerPadding: PaddingValues
+) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -51,7 +53,7 @@ fun AuthenticationSellingServiceApp() {
                     popEnterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { -it }) },
                     popExitTransition = { fadeOut() + slideOutHorizontally(targetOffsetX = { it }) }
                 ) {
-                    composable("login") { LogInScreen(navController = navController) }
+                    composable("login") { LogInScreen(navController = navController, paddingValues = innerPadding) }
                     composable("registration") { RegistrationScreen(navController = navController) }
                     composable("userInfo") { UserInfoScreen(navController = navController) }
                 }

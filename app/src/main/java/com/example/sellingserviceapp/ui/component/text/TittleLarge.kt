@@ -17,18 +17,13 @@ fun TittleLarge(
     textAlign: TextAlign,
     padding: PaddingValues
 ) {
-    val color = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.7f)
-    } else {
-        Color.Black.copy(alpha = 0.7f)
-    }
     Text(
         modifier = Modifier
             .padding(padding)
             .fillMaxWidth(),
         text = text,
         style = MaterialTheme.typography.titleLarge,
-        color = color,
+        color = MaterialTheme.colorScheme.onBackground,
         textAlign = textAlign
     )
 }

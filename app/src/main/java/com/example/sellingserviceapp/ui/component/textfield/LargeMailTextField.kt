@@ -1,6 +1,5 @@
 package com.example.sellingserviceapp.ui.component.textfield
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -8,34 +7,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MailOutlinedTextField(
+fun LargeMailTextField(
+    iconID: Int? = null,
     model: TextFieldModel,
-    onValueChange: (String) -> Unit
+    containerColor: Color,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier
 ) {
-    val borderColor = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.3f)
-    } else {
-        Color.Black.copy(alpha = 0.3f)
-    }
-
-    Column {
-        OutlinedTextField(
+    Column(
+        modifier = modifier
+    ) {
+        TextField(
+            modifier = Modifier.height(56.dp).fillMaxWidth(),
             value = model.value,
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 color = when (model.state) {
@@ -47,28 +45,28 @@ fun MailOutlinedTextField(
             placeholder = {
                 Text(
                     model.placeholder,
-                    color = borderColor,
-                    style = MaterialTheme.typography.bodyMedium)
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                    style = MaterialTheme.typography.bodyMedium) //TODO: Сделать стиль текста для placeholder
             },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            shape = RoundedCornerShape(20.dp),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedIndicatorColor = borderColor,
-                focusedIndicatorColor = borderColor
+                unfocusedContainerColor = containerColor.copy(0.7f),
+                focusedContainerColor = containerColor,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            trailingIcon = {
-                if(model.state is TextFieldState.Loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = borderColor
+            trailingIcon = if (iconID != null) {
+                {
+                    Icon(
+                        modifier = Modifier.size(28.dp),
+                        painter = painterResource(id = iconID),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onBackground.copy(0.7f)
                     )
                 }
+            } else {
+                null
             }
         )
         if (model.state is TextFieldState.Error) {

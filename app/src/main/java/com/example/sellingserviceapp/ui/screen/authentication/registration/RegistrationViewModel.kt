@@ -1,13 +1,12 @@
 package com.example.sellingserviceapp.ui.screen.authentication.registration
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.TokenManager
+import com.example.sellingserviceapp.UserAuthManager
 import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
@@ -16,23 +15,19 @@ import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldSta
 import com.example.sellingserviceapp.util.extension.firstStepRegisterRequest
 import com.example.sellingserviceapp.util.extension.nextButtonValidateFields
 import com.example.sellingserviceapp.util.extension.sendCodeToVerificationRequest
-import com.example.sellingserviceapp.util.extension.startTimer
 import com.example.sellingserviceapp.util.extension.updateTimer
 import com.example.sellingserviceapp.util.extension.validateEmail
 import com.example.sellingserviceapp.util.extension.validatePasswords
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val tokenManager: TokenManager
+    private val userAuthManager: UserAuthManager
 ): ViewModel(), StateUpdater {
 
     private val _navigationEvents = MutableSharedFlow<String>(replay = 0)
@@ -87,14 +82,14 @@ class RegistrationViewModel @Inject constructor(
     }
 
     fun onNextButtonClick() {
-        firstStepRegisterRequest(authRepository = authRepository, stateUpdater = this)
+        firstStepRegisterRequest(authRepository = authRepository, stateUpdater = this, userAuthManager = userAuthManager)
     }
 
     fun onEmailConfirmCodeChanged(value: String) {
         emailConfirmCode = emailConfirmCode.copy(value = value)
         //TODO: Сделать валидацию по таймеру
         if (emailConfirmCode.value.length == 8) {
-            sendCodeToVerificationRequest(authRepository = authRepository, stateUpdater = this, tokenManager)
+            sendCodeToVerificationRequest(authRepository = authRepository, stateUpdater = this, userAuthManager)
         }
     }
 

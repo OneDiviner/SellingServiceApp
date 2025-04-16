@@ -1,15 +1,12 @@
 package com.example.sellingserviceapp.ui.screen.authentication.userinfo
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.sellingserviceapp.TokenManager
+import com.example.sellingserviceapp.UserAuthManager
 import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
-import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
-import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldState
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
 import com.example.sellingserviceapp.util.extension.secondStepRegisterRequest
 import com.example.sellingserviceapp.util.extension.validateFields
@@ -25,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserInfoViewModel@Inject constructor(
     private val authRepository: AuthRepository,
-    private val tokenManager: TokenManager
+    private val userAuthManager: UserAuthManager
 ): ViewModel() {
 
     var secondName by mutableStateOf(TextFieldModel(placeholder = "Фамилия"))
@@ -76,6 +73,6 @@ class UserInfoViewModel@Inject constructor(
     }
 
     fun onFinishRegisterButtonClick() {
-        secondStepRegisterRequest(authRepository = authRepository, tokenManager)
+        secondStepRegisterRequest(authRepository = authRepository, userAuthManager)
     }
 }

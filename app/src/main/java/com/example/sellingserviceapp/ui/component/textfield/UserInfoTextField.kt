@@ -26,11 +26,7 @@ fun UserInfoTextField(
     model: TextFieldModel,
     onValueChange: (String) -> Unit
 ) {
-    val borderColor = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.3f)
-    } else {
-        Color.Black.copy(alpha = 0.3f)
-    }
+
 
     Column {
         OutlinedTextField(
@@ -45,18 +41,18 @@ fun UserInfoTextField(
             placeholder = {
                 Text(
                     model.placeholder,
-                    color = borderColor,
-                    style = MaterialTheme.typography.bodyMedium)
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                    style = MaterialTheme.typography.bodyMedium) //TODO: Сделать стиль текста для placeholder
             },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedIndicatorColor = borderColor,
-                focusedIndicatorColor = borderColor
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(0.7f),
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
             )
         )
         if (model.state is TextFieldState.Error) {

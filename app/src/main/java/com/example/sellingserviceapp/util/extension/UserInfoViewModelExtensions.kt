@@ -2,16 +2,15 @@ package com.example.sellingserviceapp.util.extension
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.TokenManager
+import com.example.sellingserviceapp.UserAuthManager
 import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.userinfo.UserInfoViewModel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-fun UserInfoViewModel.secondStepRegisterRequest(authRepository: AuthRepository, tokenManager: TokenManager) {
+fun UserInfoViewModel.secondStepRegisterRequest(authRepository: AuthRepository, userAuthManager: UserAuthManager) {
     viewModelScope.launch {
 
-        val token = tokenManager.getToken.first()
+        val token = userAuthManager.getToken()
         val result = token?.let {
             authRepository.secondStepRegister(
                 token = it,

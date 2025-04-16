@@ -1,19 +1,19 @@
 package com.example.sellingserviceapp.ui.component.textfield
 
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,20 +33,14 @@ import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldSta
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordOutlinedTextField(
+fun LargePasswordTextField(
     model: TextFieldModel,
     onValueChange: (String) -> Unit
 ) {
-    val borderColor = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.3f)
-    } else {
-        Color.Black.copy(alpha = 0.3f)
-    }
-
     var passwordVisible by remember { mutableStateOf(false) }
 
     Column {
-        OutlinedTextField(
+        TextField(
             value = model.value,
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 color = when (model.state) {
@@ -58,27 +52,28 @@ fun PasswordOutlinedTextField(
             placeholder = {
                 Text(
                     model.placeholder,
-                    color = borderColor,
-                    style = MaterialTheme.typography.bodyMedium)
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                    style = MaterialTheme.typography.bodyMedium) //TODO: Сделать стиль текста для placeholder
             },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedIndicatorColor = borderColor,
-                focusedIndicatorColor = borderColor
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(0.7f),
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
             ),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 val image = if (passwordVisible) R.drawable.visibility_off else R.drawable.visibility
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
+                        modifier = Modifier.size(28.dp),
                         painter = painterResource(id = image),
                         contentDescription = if (passwordVisible) "Скрыть пароль" else "Показать пароль",
-                        tint = borderColor
+                        tint = MaterialTheme.colorScheme.onBackground.copy(0.7f)
                     )
                 }
             },

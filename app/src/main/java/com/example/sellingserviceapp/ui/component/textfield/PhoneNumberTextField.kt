@@ -22,12 +22,6 @@ fun PhoneNumberTextField(
     model: TextFieldModel,
     onValueChange: (String) -> Unit
 ) {
-    val borderColor = if (isSystemInDarkTheme()) {
-        Color.White.copy(alpha = 0.3f)
-    } else {
-        Color.Black.copy(alpha = 0.3f)
-    }
-
     OutlinedTextField(
         value = model.value,
         textStyle = MaterialTheme.typography.bodyMedium,
@@ -39,21 +33,21 @@ fun PhoneNumberTextField(
         placeholder = {
             Text(
                 model.placeholder,
-                color = borderColor,
-                style = MaterialTheme.typography.bodyMedium)
+                color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                style = MaterialTheme.typography.bodyMedium) //TODO: Сделать стиль текста для placeholder
         },
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Phone
         ),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            unfocusedIndicatorColor = borderColor,
-            focusedIndicatorColor = borderColor
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer.copy(0.7f),
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent
         )
     )
 }

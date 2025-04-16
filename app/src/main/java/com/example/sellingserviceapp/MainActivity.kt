@@ -6,10 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.sellingserviceapp.ui.screen.authentication.AuthenticationSellingServiceApp
-import com.example.sellingserviceapp.ui.screen.authentication.registration.RegistrationScreen
+import com.example.sellingserviceapp.ui.SellingServiceApp
 import com.example.sellingserviceapp.ui.theme.SellingServiceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+
+//TODO: Продумать какая информация может быть в профиле пользователя как поставщика услуги
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -18,9 +19,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SellingServiceAppTheme() {
-                //LogInScreen()
-                //RegistrationScreen()
-                AuthenticationSellingServiceApp()
+                //AuthenticationSellingServiceApp()
+                //SettingsSellingServiceApp()
+                SellingServiceApp()
             }
         }
     }
@@ -29,7 +30,6 @@ class MainActivity : ComponentActivity() {
 @Preview(showSystemUi = true)
 @Composable
 fun Preview() {
-    //LogInScreen()
-    //RegistrationScreen()
-    AuthenticationSellingServiceApp()
+    //AuthenticationSellingServiceApp()
+    //SettingsSellingServiceApp()
 }
