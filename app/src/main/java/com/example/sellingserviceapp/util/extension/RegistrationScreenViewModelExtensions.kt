@@ -65,8 +65,8 @@ fun RegistrationViewModel.sendCodeToVerificationRequest(authRepository: AuthRepo
 
         result.onSuccess { response ->
             //TODO: Сохранить токен для перехода ко 2 этапу
-            stateUpdater.tokenUpdater(response.emailToken)
-            userAuthManager.saveAuthData(email = email.value, response.emailToken)
+            stateUpdater.tokenUpdater(response.email.token)
+            userAuthManager.saveAuthData(email = email.value, password = password.value, token = response.email.token)
             Log.d("SAVE_TOKEN", "TOKEN_SAVED: ${userAuthManager.getToken()}, ${userAuthManager.getEmail()}")
             stateUpdater.emailConfirmCodeUpdater(TextFieldState.Default)
             stateUpdater.bottomSheetStateUpdater(false)

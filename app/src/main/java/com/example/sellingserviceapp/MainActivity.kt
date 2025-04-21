@@ -4,9 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.sellingserviceapp.ui.SellingServiceApp
+import com.example.sellingserviceapp.ui.screen.settings.ProfileUI
+import com.example.sellingserviceapp.ui.screen.settings.clientProfile.ClientProfileUI
 import com.example.sellingserviceapp.ui.theme.SellingServiceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,6 +25,7 @@ class MainActivity : ComponentActivity() {
                 //AuthenticationSellingServiceApp()
                 //SettingsSellingServiceApp()
                 SellingServiceApp()
+                //ProfileUI(PaddingValues())
             }
         }
     }

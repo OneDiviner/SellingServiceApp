@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sellingserviceapp.data.di.AppState
+import com.example.sellingserviceapp.data.di.GlobalAppState
+import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
@@ -19,7 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val globalAppState: GlobalAppState,
+    private val secureTokenStorage: SecureTokenStorage
 ): ViewModel() {
 
     var email by mutableStateOf(TextFieldModel(placeholder = "Почта"))
@@ -57,9 +62,11 @@ class LoginViewModel @Inject constructor(
             loginButton = loginButton.copy(state = ButtonState.Loading)
             val result = authRepository.login(email = email.value, password = password.value)
 
-            result.onSuccess {
+            result.onSuccess { success ->
                 loginButton = loginButton.copy(state = ButtonState.Ready)
                 Log.d("LOGIN", "SUCCESS")
+                globalAppState.appState = AppState.MainAppState
+                secureTokenStorage.saveTokens(accessToken = success.access.token, refreshToken = success.refresh.token)
             }.onFailure {
                 Log.d("LOGIN", "FAILURE")
             }

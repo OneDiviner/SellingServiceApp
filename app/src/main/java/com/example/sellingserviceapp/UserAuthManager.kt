@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.map
 
 data class UserAuthData(
     val email: String,
+    val password: String,
     val token: String
 )
 
@@ -24,12 +26,17 @@ class UserAuthManager(private val context: Context) {
 
     companion object {
         val USER_EMAIL = stringPreferencesKey("user_email")
+        val USER_PASSWORD = stringPreferencesKey("user_password")
         val USER_TOKEN = stringPreferencesKey("user_token")
     }
 
     // Сохранить токен и почту
-    suspend fun saveAuthData(email: String, token: String) {
+    suspend fun saveAuthData(password: String, email: String, token: String) {
         context.dataStore.edit { preferences ->
+            Log.d("SAVE_AUTH_DATA", "PASSWORD: [$password]")
+            Log.d("SAVE_AUTH_DATA", "EMAIL: [$email]")
+            Log.d("SAVE_AUTH_DATA", "TOKEN: [$token]")
+            preferences[USER_PASSWORD] = password
             preferences[USER_EMAIL] = email
             preferences[USER_TOKEN] = token
         }
@@ -38,6 +45,12 @@ class UserAuthManager(private val context: Context) {
     suspend fun getEmail(): String? {
         return context.dataStore.data.map { preferences ->
             preferences[USER_EMAIL]
+        }.first()
+    }
+
+    suspend fun getPassword(): String? {
+        return context.dataStore.data.map { preferences ->
+            preferences[USER_PASSWORD]
         }.first()
     }
 
@@ -55,6 +68,7 @@ class UserAuthManager(private val context: Context) {
 
     suspend fun clearAuthData() {
         context.dataStore.edit { preferences ->
+            preferences.remove(USER_PASSWORD)
             preferences.remove(USER_EMAIL)
             preferences.remove(USER_TOKEN)
         }

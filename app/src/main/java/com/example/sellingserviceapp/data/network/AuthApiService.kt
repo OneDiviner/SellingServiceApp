@@ -5,6 +5,7 @@ import com.example.sellingserviceapp.data.model.request.LoginRequest
 import com.example.sellingserviceapp.data.model.request.SendCodeToVerificationRequest
 import com.example.sellingserviceapp.data.model.request.SecondStepRegisterRequest
 import com.example.sellingserviceapp.data.model.request.FirstStepRegisterRequest
+import com.example.sellingserviceapp.data.model.response.GetUserResponse
 import com.example.sellingserviceapp.data.model.request.RefreshPasswordRequest
 import com.example.sellingserviceapp.data.model.request.SendVerificationResetPasswordCodeRequest
 import com.example.sellingserviceapp.data.model.request.VerifyResetPasswordCodeRequest
@@ -46,10 +47,10 @@ interface AuthApiService {
     @GET("/api/users/public/status")
     suspend fun userStatus(@Query("email") email: String): Response<UserStatusResponse>
 
-    @PATCH("/api/users/public/second-step-register")
+    @POST("/api/public/user/second-step-register")
     suspend fun secondStepRegister(@Body request: SecondStepRegisterRequest): Response<UserSecondStepRegisterResponse>
 
-    @POST("/api/users/public/login")
+    @POST("/api/public/user/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     @POST("/api/public/code/send-verification-reset-password")
@@ -61,8 +62,13 @@ interface AuthApiService {
     @POST("/api/public/user/reset-password")
     suspend fun resetPassword(@Body request: RefreshPasswordRequest): Response<RefreshPasswordResponse>
 
+    @GET("/api/private/user/profile")
+    suspend fun getUser(
+        @Header("Authorization") accessToken: String
+    ): Response<GetUserResponse>
+
     @Multipart
-    @POST("/api/users/private/update-avatar")
+    @PATCH("/api/private/user/update-avatar")
     suspend fun updateAvatar(
         @Header("Authorization") token: String,
         @Part file: MultipartBody.Part

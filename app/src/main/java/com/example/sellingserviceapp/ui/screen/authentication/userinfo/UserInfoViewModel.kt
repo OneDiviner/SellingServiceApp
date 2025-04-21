@@ -1,10 +1,15 @@
 package com.example.sellingserviceapp.ui.screen.authentication.userinfo
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.UserAuthManager
+import com.example.sellingserviceapp.data.di.AppState
+import com.example.sellingserviceapp.data.di.GlobalAppState
+import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
@@ -12,6 +17,9 @@ import com.example.sellingserviceapp.util.extension.secondStepRegisterRequest
 import com.example.sellingserviceapp.util.extension.validateFields
 import com.example.sellingserviceapp.util.extension.validateUserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 //TODO: Сделать валидацию полей используя Extensions //COMPLETE
@@ -22,8 +30,13 @@ import javax.inject.Inject
 @HiltViewModel
 class UserInfoViewModel@Inject constructor(
     private val authRepository: AuthRepository,
-    private val userAuthManager: UserAuthManager
+    private val userAuthManager: UserAuthManager,
+    private val globalAppState: GlobalAppState,
+    private val secureTokenStorage: SecureTokenStorage
 ): ViewModel() {
+
+    private val _navigationEvents = MutableSharedFlow<String>(replay = 0)
+    val navigationEvents: SharedFlow<String> = _navigationEvents
 
     var secondName by mutableStateOf(TextFieldModel(placeholder = "Фамилия"))
         private set
@@ -72,7 +85,28 @@ class UserInfoViewModel@Inject constructor(
         finishRegisterButton = finishRegisterButton.copy(state = validateFields())
     }
 
+    private fun navigate(screen: String) {
+        viewModelScope.launch {
+            _navigationEvents.emit(screen)
+        }
+    }
+
     fun onFinishRegisterButtonClick() {
-        secondStepRegisterRequest(authRepository = authRepository, userAuthManager)
+        viewModelScope.launch {
+
+            secondStepRegisterRequest(authRepository = authRepository, userAuthManager)
+
+            val result = authRepository.login(email = userAuthManager.getEmail()?: "NO_EMAIL", password = userAuthManager.getPassword()?: "NO_PASSWORD")
+
+            result.onSuccess { success ->
+                userAuthManager.clearAuthData()
+                globalAppState.appState = AppState.MainAppState
+                secureTokenStorage.saveTokens(accessToken = success.access.token, refreshToken = success.refresh.token)
+                Log.d("LOGIN", "SUCCESS")
+            }.onFailure {
+                navigate("login")
+                Log.d("LOGIN", "FAILURE")
+            }
+        }
     }
 }

@@ -1,5 +1,8 @@
 package com.example.sellingserviceapp.data.repository
 
+import com.example.sellingserviceapp.data.di.SecureTokenStorage
+import com.example.sellingserviceapp.data.local.UserDataStore
+import com.example.sellingserviceapp.data.local.UserName
 import com.example.sellingserviceapp.data.model.AuthApiError
 import com.example.sellingserviceapp.data.model.request.CreateVerificationEmailRequest
 import com.example.sellingserviceapp.data.model.request.LoginRequest
@@ -11,6 +14,7 @@ import com.example.sellingserviceapp.data.model.request.SendVerificationResetPas
 import com.example.sellingserviceapp.data.model.request.VerifyResetPasswordCodeRequest
 import com.example.sellingserviceapp.data.model.response.CreateVerificationEmailResponse
 import com.example.sellingserviceapp.data.model.response.GetUserData
+import com.example.sellingserviceapp.data.model.response.GetUserResponse
 import com.example.sellingserviceapp.data.model.response.LoginResponse
 import com.example.sellingserviceapp.data.model.response.RefreshPasswordResponse
 import com.example.sellingserviceapp.data.model.response.SendCodeToVerificationResponse
@@ -29,7 +33,8 @@ import javax.inject.Inject
 
 
 class AuthRepositoryImpl @Inject constructor(
-    private val authApiService: AuthApiService
+    private val authApiService: AuthApiService,
+    private val secureTokenStorage: SecureTokenStorage,
 ): AuthRepository {
 
     override suspend fun firstStepRegister(
@@ -184,25 +189,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     }
 
-
-
-    override suspend fun updateAvatar(token: String, file: MultipartBody.Part): Result<UpdateAvatarResponse> {
-        return try {
-            val response = authApiService.updateAvatar(token, file)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
-            }
-        } catch (e: Exception) {
-            when (e) {
-                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
-                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
-                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
-            }
-        }
-    }
-
     override suspend fun getUserData(token: String): Result<GetUserData> {
         return try {
             val response = authApiService.getUserData(token)
@@ -279,6 +265,41 @@ class AuthRepositoryImpl @Inject constructor(
                 is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
                 else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
             }
+        }
+    }
+
+    override suspend fun updateAvatar(file: MultipartBody.Part): Result<UpdateAvatarResponse> {
+        return try {
+            val token = secureTokenStorage.getAccessToken()?: return Result.failure(IllegalStateException("No access token"))
+            val response = authApiService.updateAvatar(token = "Bearer $token", file)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun getUser(): Result<GetUserResponse> {
+        return try {
+            val token = secureTokenStorage.getAccessToken()
+                ?: return Result.failure(IllegalStateException("No access token"))
+
+            val response = authApiService.getUser(accessToken = "Bearer $token")
+
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(HttpException(response))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

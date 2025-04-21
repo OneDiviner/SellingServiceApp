@@ -63,14 +63,14 @@ android {
 
 dependencies {
 
+    implementation("androidx.security:security-crypto:1.1.0-alpha07")
+    implementation("androidx.security:security-identity-credential:1.0.0-alpha03")
+
     implementation("me.onebone:toolbar-compose:2.3.5")
 
     implementation("androidx.datastore:datastore-preferences:1.1.3")
 
-    //implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.material3:material3:1.3.1")
-
-    //implementation("androidx.compose.compiler:compiler:2.1.0")
 
     // Hilt dependencies
     implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -109,8 +109,6 @@ dependencies {
 
     implementation ("androidx.compose.material3:material3:1.3.1")
 
-    /*implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-    implementation("com.google.firebase:firebase-auth")*/
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

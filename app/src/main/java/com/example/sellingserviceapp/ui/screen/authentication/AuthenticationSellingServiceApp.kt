@@ -25,9 +25,7 @@ import com.example.sellingserviceapp.ui.screen.authentication.registration.Regis
 import com.example.sellingserviceapp.ui.screen.authentication.userinfo.UserInfoScreen
 
 @Composable
-fun AuthenticationSellingServiceApp(
-    innerPadding: PaddingValues
-) {
+fun AuthenticationSellingServiceApp() {
     val navController = rememberNavController()
 
     Scaffold(
@@ -53,7 +51,7 @@ fun AuthenticationSellingServiceApp(
                     popEnterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { -it }) },
                     popExitTransition = { fadeOut() + slideOutHorizontally(targetOffsetX = { it }) }
                 ) {
-                    composable("login") { LogInScreen(navController = navController, paddingValues = innerPadding) }
+                    composable("login") { LogInScreen(navController = navController, paddingValues = paddingValues) }
                     composable("registration") { RegistrationScreen(navController = navController) }
                     composable("userInfo") { UserInfoScreen(navController = navController) }
                 }

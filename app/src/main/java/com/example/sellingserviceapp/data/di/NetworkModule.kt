@@ -1,8 +1,6 @@
 package com.example.sellingserviceapp.data.di
 
 
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import com.example.sellingserviceapp.AccessTokenManager
 import com.example.sellingserviceapp.BuildConfig
 import com.example.sellingserviceapp.data.network.AuthApiService
 import dagger.Provides

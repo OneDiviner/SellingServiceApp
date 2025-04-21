@@ -1,5 +1,6 @@
 package com.example.sellingserviceapp.data.repository
 
+import com.example.sellingserviceapp.data.model.response.GetUserResponse
 import com.example.sellingserviceapp.data.model.response.CreateVerificationEmailResponse
 import com.example.sellingserviceapp.data.model.response.GetUserData
 import com.example.sellingserviceapp.data.model.response.LoginResponse
@@ -29,6 +30,8 @@ interface AuthRepository {
 
     suspend fun resetPassword(resetPasswordToken: String, password: String): Result<RefreshPasswordResponse>
 
+    suspend fun getUser(): Result<GetUserResponse>
+
     suspend fun secondStepRegister(
         token: String,
         firstName: String,
@@ -39,7 +42,7 @@ interface AuthRepository {
 
     suspend fun login(email: String, password: String): Result<LoginResponse>
 
-    suspend fun updateAvatar(token: String, file: MultipartBody.Part): Result<UpdateAvatarResponse>
+    suspend fun updateAvatar(file: MultipartBody.Part): Result<UpdateAvatarResponse>
 
     suspend fun getUserData(token: String):Result<GetUserData>
 

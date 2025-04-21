@@ -2,8 +2,12 @@ package com.example.sellingserviceapp.data.model.response
 
 import com.google.gson.annotations.SerializedName
 
+data class Email(
+    @SerializedName("token") val token: String,
+    @SerializedName("expires_at") val expiresAt: String
+)
+
 data class SendCodeToVerificationResponse(
-    @SerializedName("is_success") val isSuccess: Boolean,
-    @SerializedName("message") val message: String,
-    @SerializedName("email_token") val emailToken: String
+    @SerializedName("response") val response: Response,
+    @SerializedName("email") val email: Email
 )
