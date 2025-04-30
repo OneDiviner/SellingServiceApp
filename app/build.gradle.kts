@@ -63,6 +63,8 @@ android {
 
 dependencies {
 
+    //implementation("androidx.core:core-splashscreen:1.1.0")
+
     implementation("androidx.security:security-crypto:1.1.0-alpha07")
     implementation("androidx.security:security-identity-credential:1.0.0-alpha03")
 

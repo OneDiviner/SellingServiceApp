@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sellingserviceapp.ui.screen.settings.model.SpecialistProfileDataModel
+import com.example.sellingserviceapp.ui.screen.profile.model.SpecialistProfileDataModel
 
 @Composable
 fun SpecialistProfileDataCard(

@@ -1,17 +1,18 @@
 package com.example.sellingserviceapp.data.repository
 
-import com.example.sellingserviceapp.data.model.response.GetUserResponse
-import com.example.sellingserviceapp.data.model.response.CreateVerificationEmailResponse
-import com.example.sellingserviceapp.data.model.response.GetUserData
-import com.example.sellingserviceapp.data.model.response.LoginResponse
-import com.example.sellingserviceapp.data.model.response.RefreshPasswordResponse
-import com.example.sellingserviceapp.data.model.response.SendCodeToVerificationResponse
-import com.example.sellingserviceapp.data.model.response.SendVerificationRefreshPasswordCodeResponse
-import com.example.sellingserviceapp.data.model.response.UpdateAvatarResponse
-import com.example.sellingserviceapp.data.model.response.UserSecondStepRegisterResponse
-import com.example.sellingserviceapp.data.model.response.UserStatusResponse
-import com.example.sellingserviceapp.data.model.response.UsersFirstStepRegisterResponse
-import com.example.sellingserviceapp.data.model.response.VerifyResetPasswordCodeResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.GetUserResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.CreateVerificationEmailResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.LoginResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.RefreshAccessTokenResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.RefreshPasswordResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.SendCodeToVerificationResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.SendVerificationRefreshPasswordCodeResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UpdateAvatarResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UpdateUserResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UserSecondStepRegisterResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UserStatusResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UsersFirstStepRegisterResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.VerifyResetPasswordCodeResponse
 import okhttp3.MultipartBody
 
 interface AuthRepository {
@@ -32,6 +33,16 @@ interface AuthRepository {
 
     suspend fun getUser(): Result<GetUserResponse>
 
+    suspend fun refreshAccessToken(refreshToken: String): Result<RefreshAccessTokenResponse>
+
+    suspend fun updateUser(
+        password: String,
+        firstName: String,
+        secondName: String,
+        lastName: String,
+        phoneNumber: String
+    ): Result<UpdateUserResponse>
+
     suspend fun secondStepRegister(
         token: String,
         firstName: String,
@@ -43,8 +54,6 @@ interface AuthRepository {
     suspend fun login(email: String, password: String): Result<LoginResponse>
 
     suspend fun updateAvatar(file: MultipartBody.Part): Result<UpdateAvatarResponse>
-
-    suspend fun getUserData(token: String):Result<GetUserData>
 
 }
 

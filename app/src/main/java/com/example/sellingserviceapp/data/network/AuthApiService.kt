@@ -1,30 +1,33 @@
 package com.example.sellingserviceapp.data.network
 
-import com.example.sellingserviceapp.data.model.request.CreateVerificationEmailRequest
-import com.example.sellingserviceapp.data.model.request.LoginRequest
-import com.example.sellingserviceapp.data.model.request.SendCodeToVerificationRequest
-import com.example.sellingserviceapp.data.model.request.SecondStepRegisterRequest
-import com.example.sellingserviceapp.data.model.request.FirstStepRegisterRequest
-import com.example.sellingserviceapp.data.model.response.GetUserResponse
-import com.example.sellingserviceapp.data.model.request.RefreshPasswordRequest
-import com.example.sellingserviceapp.data.model.request.SendVerificationResetPasswordCodeRequest
-import com.example.sellingserviceapp.data.model.request.VerifyResetPasswordCodeRequest
-import com.example.sellingserviceapp.data.model.response.CreateVerificationEmailResponse
-import com.example.sellingserviceapp.data.model.response.GetUserData
-import com.example.sellingserviceapp.data.model.response.LoginResponse
-import com.example.sellingserviceapp.data.model.response.RefreshPasswordResponse
-import com.example.sellingserviceapp.data.model.response.SendCodeToVerificationResponse
-import com.example.sellingserviceapp.data.model.response.SendVerificationRefreshPasswordCodeResponse
-import com.example.sellingserviceapp.data.model.response.UpdateAvatarResponse
-import com.example.sellingserviceapp.data.model.response.UserSecondStepRegisterResponse
-import com.example.sellingserviceapp.data.model.response.UserStatusResponse
-import com.example.sellingserviceapp.data.model.response.UsersFirstStepRegisterResponse
-import com.example.sellingserviceapp.data.model.response.VerifyResetPasswordCodeResponse
+import com.example.sellingserviceapp.data.model.authApiRequest.CreateVerificationEmailRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.LoginRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.SendCodeToVerificationRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.SecondStepRegisterRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.FirstStepRegisterRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.RefreshAccessTokenRequest
+import com.example.sellingserviceapp.data.model.AuthApiResponse.GetUserResponse
+import com.example.sellingserviceapp.data.model.authApiRequest.RefreshPasswordRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.SendVerificationResetPasswordCodeRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.UpdateUserRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.VerifyResetPasswordCodeRequest
+import com.example.sellingserviceapp.data.model.AuthApiResponse.CreateVerificationEmailResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.LoginResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.RefreshAccessTokenResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.RefreshPasswordResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.SendCodeToVerificationResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.SendVerificationRefreshPasswordCodeResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UpdateAvatarResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UpdateUserResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UserSecondStepRegisterResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UserStatusResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UsersFirstStepRegisterResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.VerifyResetPasswordCodeResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -63,20 +66,23 @@ interface AuthApiService {
     suspend fun resetPassword(@Body request: RefreshPasswordRequest): Response<RefreshPasswordResponse>
 
     @GET("/api/private/user/profile")
-    suspend fun getUser(
-        @Header("Authorization") accessToken: String
-    ): Response<GetUserResponse>
+    @Headers("Token: true")
+    suspend fun getUser(): Response<GetUserResponse>
+
+    @POST("/api/public/user/refresh-access-token")
+    suspend fun refreshAccessToken(@Body request: RefreshAccessTokenRequest): Response<RefreshAccessTokenResponse>
+
+    @PATCH("/api/private/user/update")
+    @Headers("Token: true")
+    suspend fun updateUser(
+        @Body request: UpdateUserRequest
+    ): Response<UpdateUserResponse>
 
     @Multipart
     @PATCH("/api/private/user/update-avatar")
+    @Headers("Token: true")
     suspend fun updateAvatar(
-        @Header("Authorization") token: String,
         @Part file: MultipartBody.Part
     ): Response<UpdateAvatarResponse>
-
-    @GET("/api/users/private/profile")
-    suspend fun getUserData(
-        @Header("Authorization") token: String
-    ):Response<GetUserData>
 
 }

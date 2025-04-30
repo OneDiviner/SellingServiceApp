@@ -100,7 +100,7 @@ class UserInfoViewModel@Inject constructor(
 
             result.onSuccess { success ->
                 userAuthManager.clearAuthData()
-                globalAppState.appState = AppState.MainAppState
+                globalAppState.setMainAppState()
                 secureTokenStorage.saveTokens(accessToken = success.access.token, refreshToken = success.refresh.token)
                 Log.d("LOGIN", "SUCCESS")
             }.onFailure {

@@ -1,29 +1,30 @@
 package com.example.sellingserviceapp.data.repository
 
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
-import com.example.sellingserviceapp.data.local.UserDataStore
-import com.example.sellingserviceapp.data.local.UserName
 import com.example.sellingserviceapp.data.model.AuthApiError
-import com.example.sellingserviceapp.data.model.request.CreateVerificationEmailRequest
-import com.example.sellingserviceapp.data.model.request.LoginRequest
-import com.example.sellingserviceapp.data.model.request.SendCodeToVerificationRequest
-import com.example.sellingserviceapp.data.model.request.SecondStepRegisterRequest
-import com.example.sellingserviceapp.data.model.request.FirstStepRegisterRequest
-import com.example.sellingserviceapp.data.model.request.RefreshPasswordRequest
-import com.example.sellingserviceapp.data.model.request.SendVerificationResetPasswordCodeRequest
-import com.example.sellingserviceapp.data.model.request.VerifyResetPasswordCodeRequest
-import com.example.sellingserviceapp.data.model.response.CreateVerificationEmailResponse
-import com.example.sellingserviceapp.data.model.response.GetUserData
-import com.example.sellingserviceapp.data.model.response.GetUserResponse
-import com.example.sellingserviceapp.data.model.response.LoginResponse
-import com.example.sellingserviceapp.data.model.response.RefreshPasswordResponse
-import com.example.sellingserviceapp.data.model.response.SendCodeToVerificationResponse
-import com.example.sellingserviceapp.data.model.response.SendVerificationRefreshPasswordCodeResponse
-import com.example.sellingserviceapp.data.model.response.UpdateAvatarResponse
-import com.example.sellingserviceapp.data.model.response.UserSecondStepRegisterResponse
-import com.example.sellingserviceapp.data.model.response.UserStatusResponse
-import com.example.sellingserviceapp.data.model.response.UsersFirstStepRegisterResponse
-import com.example.sellingserviceapp.data.model.response.VerifyResetPasswordCodeResponse
+import com.example.sellingserviceapp.data.model.authApiRequest.CreateVerificationEmailRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.LoginRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.SendCodeToVerificationRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.SecondStepRegisterRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.FirstStepRegisterRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.RefreshAccessTokenRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.RefreshPasswordRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.SendVerificationResetPasswordCodeRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.UpdateUserRequest
+import com.example.sellingserviceapp.data.model.authApiRequest.VerifyResetPasswordCodeRequest
+import com.example.sellingserviceapp.data.model.AuthApiResponse.CreateVerificationEmailResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.GetUserResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.LoginResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.RefreshAccessTokenResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.RefreshPasswordResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.SendCodeToVerificationResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.SendVerificationRefreshPasswordCodeResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UpdateAvatarResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UpdateUserResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UserSecondStepRegisterResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UserStatusResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.UsersFirstStepRegisterResponse
+import com.example.sellingserviceapp.data.model.AuthApiResponse.VerifyResetPasswordCodeResponse
 import com.example.sellingserviceapp.data.network.AuthApiService
 import okhttp3.MultipartBody
 import retrofit2.HttpException
@@ -189,23 +190,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun getUserData(token: String): Result<GetUserData> {
-        return try {
-            val response = authApiService.getUserData(token)
-            if (response.isSuccessful) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
-            }
-        } catch (e: Exception) {
-            when (e) {
-                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
-                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
-                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
-            }
-        }
-    }
-
     override suspend fun sendVerificationResetPasswordCode(email: String): Result<SendVerificationRefreshPasswordCodeResponse> {
         return try {
             val response = authApiService.sendVerificationResetPasswordCode(SendVerificationResetPasswordCodeRequest(email = email))
@@ -270,8 +254,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun updateAvatar(file: MultipartBody.Part): Result<UpdateAvatarResponse> {
         return try {
-            val token = secureTokenStorage.getAccessToken()?: return Result.failure(IllegalStateException("No access token"))
-            val response = authApiService.updateAvatar(token = "Bearer $token", file)
+            val response = authApiService.updateAvatar(file)
             if (response.isSuccessful) {
                 Result.success(response.body()!!)
             } else {
@@ -288,10 +271,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun getUser(): Result<GetUserResponse> {
         return try {
-            val token = secureTokenStorage.getAccessToken()
-                ?: return Result.failure(IllegalStateException("No access token"))
 
-            val response = authApiService.getUser(accessToken = "Bearer $token")
+            val response = authApiService.getUser()
 
             if (response.isSuccessful) {
                 Result.success(response.body()!!)
@@ -300,6 +281,54 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    override suspend fun updateUser(
+        password: String,
+        firstName: String,
+        secondName: String,
+        lastName: String,
+        phoneNumber: String
+    ): Result<UpdateUserResponse> {
+        return try {
+
+            val response = authApiService.updateUser(request = UpdateUserRequest(
+                password = password,
+                firstName = firstName,
+                middleName = secondName,
+                lastName = lastName,
+                phoneNumber = phoneNumber
+            ))
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun refreshAccessToken(refreshToken: String): Result<RefreshAccessTokenResponse> {
+        return try {
+
+            val response = authApiService.refreshAccessToken(RefreshAccessTokenRequest(refreshToken))
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
         }
     }
 

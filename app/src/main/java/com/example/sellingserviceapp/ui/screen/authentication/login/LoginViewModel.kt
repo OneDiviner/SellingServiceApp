@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.di.AppState
 import com.example.sellingserviceapp.data.di.GlobalAppState
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
+import com.example.sellingserviceapp.data.local.UserDataStorage
 import com.example.sellingserviceapp.data.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val globalAppState: GlobalAppState,
+    private val userDataStorage: UserDataStorage,
     private val secureTokenStorage: SecureTokenStorage
 ): ViewModel() {
 
@@ -65,8 +67,10 @@ class LoginViewModel @Inject constructor(
             result.onSuccess { success ->
                 loginButton = loginButton.copy(state = ButtonState.Ready)
                 Log.d("LOGIN", "SUCCESS")
-                globalAppState.appState = AppState.MainAppState
                 secureTokenStorage.saveTokens(accessToken = success.access.token, refreshToken = success.refresh.token)
+
+                userDataStorage.updateUserData()
+                globalAppState.setMainAppState()
             }.onFailure {
                 Log.d("LOGIN", "FAILURE")
             }
