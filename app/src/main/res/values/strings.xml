@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SellingServiceApp</string>
+    <string name="app_name">BookIt</string>
     <string name="login">Вход</string>
     <string name="registration">Регистрация</string>
     <string name="next">Продолжить</string>

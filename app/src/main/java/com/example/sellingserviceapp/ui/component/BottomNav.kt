@@ -36,10 +36,10 @@ fun BottomNav(navController: NavController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val items = listOf(
-        BottomNavItem("Услуги", Icons.Default.Home, "service"),
+        BottomNavItem("Главная", Icons.Default.Home, "main"),
         BottomNavItem("Создать услугу", Icons.Default.Add, "createService"),
         BottomNavItem("Создать запись", Icons.Default.Edit, "createBooking"),
-        BottomNavItem("Настройки", Icons.Default.Settings, "settings")
+        BottomNavItem("Профиль", Icons.Default.Person , "profile")
     )
 
     NavigationBar (

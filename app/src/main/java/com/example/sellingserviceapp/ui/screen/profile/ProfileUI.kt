@@ -1,12 +1,13 @@
 package com.example.sellingserviceapp.ui.screen.profile
 
-import android.graphics.BitmapFactory
-import android.util.Base64
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,29 +15,22 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -50,19 +44,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.R
-import com.example.sellingserviceapp.data.local.UserData
-import com.example.sellingserviceapp.ui.component.circularProgressIndicator.FullScreenCircularProgressIndicator
+import com.example.sellingserviceapp.domain.UserDomain
 import com.example.sellingserviceapp.ui.screen.profile.clientProfile.ClientProfileUI
+import com.example.sellingserviceapp.ui.screen.profile.component.ActiveOrderItemButton
+import com.example.sellingserviceapp.ui.screen.profile.component.HorizontalPagerItem
+import com.example.sellingserviceapp.ui.screen.profile.component.Order
+import com.example.sellingserviceapp.ui.screen.profile.component.ProfileIconButton
+import com.example.sellingserviceapp.ui.screen.profile.component.SectionButton
+import com.example.sellingserviceapp.ui.screen.profile.component.Setting
+import com.example.sellingserviceapp.ui.screen.profile.component.SettingItemButton
+import com.example.sellingserviceapp.ui.screen.profile.editProfile.EditProfileUI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,1063 +73,285 @@ fun ProfileUI(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-   val user by viewModel.userFlow.collectAsState(
-        initial = UserData("", "", "", "", "")
-    )
+   val user by viewModel.userFLow.collectAsState(initial = UserDomain.EMPTY)
 
-    when(viewModel.profileState) {
-        is ProfileState.Loading -> {
-            FullScreenCircularProgressIndicator()
-        }
-        is ProfileState.Error -> {}
-        is ProfileState.Success -> {
-            if(isOpen) {
-                ModalBottomSheet(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .displayCutoutPadding(),
-                    containerColor = MaterialTheme.colorScheme.background,
-                    sheetState = sheetState,
-                    onDismissRequest = {isOpen = false},
-                    dragHandle = null
-                ) {
-                    ClientProfileUI(paddingValues)
+    if(isOpen) {
+        ModalBottomSheet(
+            modifier = Modifier
+                .displayCutoutPadding(),
+            containerColor = MaterialTheme.colorScheme.background,
+            sheetState = sheetState,
+            onDismissRequest = {isOpen = false},
+            scrimColor = Color.Black.copy(0.6f),
+            dragHandle = null
+        ) {
+            AnimatedContent(
+                targetState = viewModel.profileSheetState,
+                transitionSpec = {
+                    fadeIn(tween(500)) togetherWith fadeOut(tween(500))
                 }
+            ) {
+                when(it) {
+                    is ProfileSheetState.Profile -> {
+                        ClientProfileUI(paddingValues)
+                    }
+                    is ProfileSheetState.EditProfile -> {
+                        EditProfileUI()
+                    }
+                }
+            }
+        }
+    }
+    val activeOrderList by remember {
+        mutableStateOf(
+            listOf(
+                Order(
+                    tittle = "Ремонт и обслуживание АКПП",
+                    category = "Ремонт",
+                    subcategory = "Ремонт автомобилей",
+                    icon = R.drawable.car_gear
+                ),
+                Order(
+                    tittle = "Курс младшего механика",
+                    category = "Образование",
+                    subcategory = "Курс",
+                    icon = R.drawable.school
+                ),
+                Order(
+                    tittle = "Комплексный ремонт и обслуживание автомобилей",
+                    category = "Ремонт",
+                    subcategory = "Ремонт автомобилей",
+                    icon = R.drawable.car_gear
+                ),
+            )
+        )
+    }
+    LazyColumn (
+        modifier = Modifier
+            .padding(bottom = paddingValues.calculateBottomPadding())
+            .blur( if (sheetState.isVisible) 3.dp else 0.dp )
+            .background(MaterialTheme.colorScheme.background),
+        verticalArrangement = Arrangement.spacedBy(15.dp)
+    ) {
+        item {
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+                    )
+                    .systemBarsPadding()
+            ) {
+                Column(
+                    modifier = Modifier.padding(bottom = 15.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 15.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            Text(
+                                text = "${user.firstName} ${user.secondName}", // Поле с именем пользователя
+                                fontSize = 28.sp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Card(
+                                modifier = Modifier,
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.onBackground
+                                    )
+                                    Text(
+                                        text = "5.00",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
+                            }
+                        }
+                        ProfileIconButton(
+                            onClick = {isOpen = true},
+                            photoBase64 = user.avatar?: ""
+                        )
+                    }
+                    val notifications = listOf(
+                        Note("Системное уведомление", "У вас 3 новых чего-то там заюерите сейчас пока у вас не забрали и куча ошибок"),
+                        Note("Новый заказ", "Вам пришел новый заказа от пользователя"),
+                        Note("Имя записи", "Специалист подтвердил вашу запись")
+                    )
+                    val pagerState = rememberPagerState(initialPage = 0, pageCount = {notifications.size})
+                    // Карусель уведомлений
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        HorizontalPager(
+                            pageSpacing = 5.dp,
+                            state = pagerState,
+                            contentPadding = PaddingValues(horizontal = 15.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { page ->
+                            HorizontalPagerItem(
+                                notifications = notifications,
+                                page = page
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 15.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            repeat(notifications.size) { index ->
+                                val size by animateDpAsState(
+                                    targetValue = if (pagerState.currentPage == index) 10.dp else 8.dp
+                                )
+                                val color by animateColorAsState(
+                                    targetValue = if (pagerState.currentPage == index)
+                                        MaterialTheme.colorScheme.onBackground
+                                    else
+                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(size)
+                                        .background(color, CircleShape)
+                                        .padding(2.dp)
+                                )
+                                if (index < notifications.size - 1) Spacer(modifier = Modifier.width(4.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Row(
+                modifier = Modifier.padding(horizontal = 15.dp),
+                horizontalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
+                SectionButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = {},
+                    icon = painterResource(R.drawable.contacts),
+                    title = "Клиенты"
+                )
+                SectionButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = {},
+                    icon = painterResource(R.drawable.group),
+                    title = "Специалисты"
+                )
+            }
+        }
+
+        item {
+            Row(
+                modifier = Modifier.padding(horizontal = 15.dp),
+                horizontalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
+                SectionButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = {},
+                    icon = painterResource(R.drawable.work_history),
+                    title = "История"
+                )
+                SectionButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = {},
+                    icon = painterResource(R.drawable.notifications),
+                    title = "Уведомления"
+                )
+            }
+        }
+
+        item {
+            Text(
+                modifier = Modifier.padding(end = 15.dp, start = 15.dp),
+                text = "Активные заказы",
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        items(activeOrderList) { order ->
+            ActiveOrderItemButton(
+                onClick = {},
+                order = order
+            )
+        }
+        item {
+            var settingsList by remember { mutableStateOf(
+                listOf(
+                    Setting(
+                        tittle = "Маркетинг",
+                        description = "Отзывы•Напоминания•Сертификаты"
+                    ),
+                    Setting(
+                        tittle = "Поддержка",
+                        description = "Ответим на ваши вопросы"
+                    ),
+                    Setting(
+                        tittle = "Профиль",
+                        description = "Управление профилем"
+                    ),
+                )
+            )
             }
             Box(
                 modifier = Modifier
-                    .padding(paddingValues)
-                    .background(MaterialTheme.colorScheme.background)
-                    .fillMaxSize()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(15.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-                            .fillMaxWidth()
-                            .background(Color(0xFFFF7043)),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(top = 15.dp, bottom = 15.dp, ),
-                            verticalArrangement = Arrangement.spacedBy(15.dp)
-                        ) {
-
-                            //region Имя, рейтинг, фото профиля(appBar)
-                            Row(
-                                modifier = Modifier
-                                    .padding(horizontal = 15.dp)
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                                ) {
-                                    Text(
-                                        text = "${user.firstName} ${user.middleName}", // Поле с именем пользователя
-                                        fontSize = 28.sp,
-                                        color = MaterialTheme.colorScheme.onBackground
-                                    )
-                                    Card(
-                                        modifier = Modifier,
-                                        shape = RoundedCornerShape(20.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                        )
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(vertical = 5.dp, horizontal = 10.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Star,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp),
-                                                tint = MaterialTheme.colorScheme.onBackground
-                                            )
-                                            Text(
-                                                text = "5.00",
-                                                fontSize = 14.sp,
-                                                color = MaterialTheme.colorScheme.onBackground
-                                            )
-                                        }
-                                    }
-                                }
-                                Button(
-                                    onClick = {
-                                        isOpen = true
-                                    },
-                                    modifier = Modifier
-                                        .border(
-                                            width = 2.dp,
-                                            color = MaterialTheme.colorScheme.background,
-                                            shape = RoundedCornerShape(20.dp)
-                                        )
-                                        .size(60.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                    ),
-                                    shape = RoundedCornerShape(20.dp),
-                                    contentPadding = PaddingValues(0.dp)
-                                ) {
-                                    if (!viewModel.photoBase64.isNullOrBlank()) {
-                                        val bitmap = remember(viewModel.photoBase64) {
-                                            try {
-                                                val bytes = Base64.decode(viewModel.photoBase64, Base64.DEFAULT)
-                                                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                                            } catch (e: Exception) {
-                                                null
-                                            }
-                                        }
-
-                                        bitmap?.let {
-                                            Image(
-                                                bitmap = it.asImageBitmap(),
-                                                contentDescription = "Аватар пользователя",
-                                                modifier = Modifier
-                                                    .fillMaxSize(),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                        }
-                                    } else {
-                                        Icon(
-                                            modifier = Modifier
-                                                .padding(10.dp)
-                                                .fillMaxSize(),
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-
-                                }
-                            }
-                            //endregion
-
-                            //region Карусель уведомлений
-                            val notifications = listOf(
-                                Note("Системное уведомление", "У вас 3 новых чего-то там заюерите сейчас пока у вас не забрали и куча ошибок"),
-                                Note("Системное уведомление", "У вас 3 новых чего-то там заюерите сейчас пока у вас не забрали и куча ошибок"),
-                                Note("Системное уведомление", "У вас 3 новых чего-то там заюерите сейчас пока у вас не забрали и куча ошибок")
-                            )
-                            val pagerState = rememberPagerState(initialPage = 0, pageCount = {notifications.size})
-                            // Карусель уведомлений
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(5.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                HorizontalPager(
-                                    pageSpacing = 5.dp,
-                                    state = pagerState,
-                                    contentPadding = PaddingValues(horizontal = 15.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) { page ->
-                                    Card(
-                                        modifier = Modifier
-
-                                            .fillMaxWidth()
-                                            .height(120.dp),
-                                        shape = RoundedCornerShape(20.dp),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                        )
-                                    ) {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(15.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Notifications,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(50.dp),
-                                                tint = Color(0xFFF5F5F5)
-                                            )
-                                            Column {
-                                                Text(
-                                                    text = notifications[page].title,
-                                                    fontSize = 20.sp,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    text = notifications[page].text,
-                                                    fontSize = 14.sp,
-                                                    fontWeight = FontWeight.Normal,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 15.dp),
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    repeat(notifications.size) { index ->
-                                        val size by animateDpAsState(
-                                            targetValue = if (pagerState.currentPage == index) 10.dp else 8.dp
-                                        )
-                                        val color by animateColorAsState(
-                                            targetValue = if (pagerState.currentPage == index)
-                                                MaterialTheme.colorScheme.onBackground
-                                            else
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                                        )
-
-                                        Box(
-                                            modifier = Modifier
-                                                .size(size)
-                                                .background(color, CircleShape)
-                                                .padding(2.dp)
-                                        )
-                                        if (index < notifications.size - 1) Spacer(modifier = Modifier.width(4.dp))
-                                    }
-                                }
-                            }
-                            //endregion
-
-                        }
-                    }
-
-                    //region 4 кнопки клиенты, специалисты, история, уведомления
-                    Column(
-                        modifier = Modifier.padding(horizontal = 15.dp),
-                        verticalArrangement = Arrangement.spacedBy(15.dp)
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(15.dp)
-                        ) {
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(100.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Column(
-                                        modifier = Modifier.align(Alignment.Center),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.contacts),
-                                            modifier = Modifier
-                                                .size(40.dp),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            text = "Клиенты",
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-                                }
-                            }
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(100.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Column(
-                                        modifier = Modifier.align(Alignment.Center),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.group),
-                                            modifier = Modifier
-                                                .size(40.dp),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            text = "Специалисты",
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(15.dp)
-                        ) {
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(100.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Column(
-                                        modifier = Modifier.align(Alignment.Center),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.work_history),
-                                            modifier = Modifier
-                                                .size(40.dp),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            text = "История",
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-                                }
-                            }
-
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(100.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Column(
-                                        modifier = Modifier.align(Alignment.Center),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Notifications,
-                                            modifier = Modifier
-                                                .size(40.dp),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            text = "Уведомления",
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    //endregion
-
-                    //region Активные услуги
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(end = 15.dp, start = 15.dp),
-                            text = "Активные заказы",
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.onBackground
+                Column {
+                    Text(
+                        modifier = Modifier.padding(top = 15.dp, start = 15.dp, end = 15.dp),
+                        text = "Настройки",
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    settingsList.forEach { setting ->
+                        SettingItemButton(
+                            onClick = {},
+                            setting = setting,
+                            divider = setting != settingsList.last()
                         )
-                        Button(
-                            onClick = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(70.dp)
-                                .padding(horizontal = 15.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ),
-                            shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.construction),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(30.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                    Column() {
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Установка фасадов",
-                                            fontSize = 16.sp,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Ремонт•Сборка мебели",
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                        )
-                                    }
-                                }
-                                Icon(
-                                    painter = painterResource(R.drawable.arrow_forward_ios),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color(0xFFFFFFFF)
-                                )
-                            }
-
-                        }
-                        Button(
-                            onClick = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(70.dp)
-                                .padding(horizontal = 15.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ),
-                            shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.construction),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(30.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                    Column() {
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Установка фасадов",
-                                            fontSize = 16.sp,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Ремонт•Сборка мебели",
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                        )
-                                    }
-                                }
-                                Icon(
-                                    painter = painterResource(R.drawable.arrow_forward_ios),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color(0xFFFFFFFF)
-                                )
-                            }
-
-                        }
-                        Button(
-                            onClick = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(70.dp)
-                                .padding(horizontal = 15.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ),
-                            shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.construction),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(30.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                    Column() {
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Установка фасадов",
-                                            fontSize = 16.sp,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Ремонт•Сборка мебели",
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                        )
-                                    }
-                                }
-                                Icon(
-                                    painter = painterResource(R.drawable.arrow_forward_ios),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color(0xFFFFFFFF)
-                                )
-                            }
-
-                        }
-                        Button(
-                            onClick = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(70.dp)
-                                .padding(horizontal = 15.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ),
-                            shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.construction),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(30.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                    Column() {
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Установка фасадов",
-                                            fontSize = 16.sp,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Ремонт•Сборка мебели",
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                        )
-                                    }
-                                }
-                                Icon(
-                                    painter = painterResource(R.drawable.arrow_forward_ios),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color(0xFFFFFFFF)
-                                )
-                            }
-
-                        }
-                        Button(
-                            onClick = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(70.dp)
-                                .padding(horizontal = 15.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ),
-                            shape = RoundedCornerShape(20.dp),
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.construction),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(30.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                    Column() {
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Установка фасадов",
-                                            fontSize = 16.sp,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                        Text(
-                                            modifier = Modifier,
-                                            text = "Ремонт•Сборка мебели",
-                                            fontSize = 12.sp,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                        )
-                                    }
-                                }
-                                Icon(
-                                    painter = painterResource(R.drawable.arrow_forward_ios),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color(0xFFFFFFFF)
-                                )
-                            }
-
-                        }
                     }
-                    //endregion
-
-                    //region Настройки
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                            .fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(15.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Настройки",
-                                fontSize = 18.sp,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(70.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxSize(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier = Modifier,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.construction),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = Color(0xFFFFFFFF)
-                                        )
-                                        Box {
-                                            Column {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Установка фасадов",
-                                                    fontSize = 16.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Ремонт•Сборка мебели",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                            // Подчеркивание
-                                            HorizontalDivider(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .fillMaxWidth()
-                                                    .padding(top = 50.dp), // Отступ от текста
-                                                thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-                                            )
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_forward_ios),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                }
-                            }
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(70.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxSize(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier = Modifier,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.construction),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = Color(0xFFFFFFFF)
-                                        )
-                                        Box {
-                                            Column {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Установка фасадов",
-                                                    fontSize = 16.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Ремонт•Сборка мебели",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                            // Подчеркивание
-                                            HorizontalDivider(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .fillMaxWidth()
-                                                    .padding(top = 50.dp), // Отступ от текста
-                                                thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-                                            )
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_forward_ios),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                }
-                            }
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(70.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxSize(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier = Modifier,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.construction),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = Color(0xFFFFFFFF)
-                                        )
-                                        Box {
-                                            Column {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Установка фасадов",
-                                                    fontSize = 16.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Ремонт•Сборка мебели",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                            // Подчеркивание
-                                            HorizontalDivider(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .fillMaxWidth()
-                                                    .padding(top = 50.dp), // Отступ от текста
-                                                thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-                                            )
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_forward_ios),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                }
-                            }
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(70.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxSize(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier = Modifier,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.construction),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = Color(0xFFFFFFFF)
-                                        )
-                                        Box {
-                                            Column {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Установка фасадов",
-                                                    fontSize = 16.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Ремонт•Сборка мебели",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                            // Подчеркивание
-                                            HorizontalDivider(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .fillMaxWidth()
-                                                    .padding(top = 50.dp), // Отступ от текста
-                                                thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-                                            )
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_forward_ios),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                }
-                            }
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(70.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxSize(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier = Modifier,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.construction),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = Color(0xFFFFFFFF)
-                                        )
-                                        Box {
-                                            Column {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Установка фасадов",
-                                                    fontSize = 16.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Ремонт•Сборка мебели",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                            // Подчеркивание
-                                            HorizontalDivider(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .fillMaxWidth()
-                                                    .padding(top = 50.dp), // Отступ от текста
-                                                thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-                                            )
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_forward_ios),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                }
-                            }
-                            Button(
-                                onClick = {},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(70.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                                shape = RoundedCornerShape(20.dp),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(15.dp)
-                                        .fillMaxSize(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Row(
-                                        modifier = Modifier,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.construction),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = Color(0xFFFFFFFF)
-                                        )
-                                        Box {
-                                            Column {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Установка фасадов",
-                                                    fontSize = 16.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground
-                                                )
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = "Ремонт•Сборка мебели",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
-                                                )
-                                            }
-                                            // Подчеркивание
-                                            /*HorizontalDivider(
-                                                modifier = Modifier
-                                                    .align(Alignment.BottomStart)
-                                                    .fillMaxWidth()
-                                                    .padding(top = 50.dp), // Отступ от текста
-                                                thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-                                            )*/
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_forward_ios),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp),
-                                        tint = Color(0xFFFFFFFF)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    //endregion
                 }
             }
+        }
+
+        item {
+            SettingItemButton(
+                onClick = {viewModel.logout()},
+                setting = Setting(
+                    tittle = "Выйти",
+                    description = "Выход из профиля",
+                    icon = R.drawable.logout
+                ),
+                divider = false
+            )
         }
     }
 }

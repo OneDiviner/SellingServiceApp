@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    /*id("com.google.gms.google-services")*/
 }
 
 android {
@@ -21,6 +20,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        kapt {
+            arguments{ arg("room.schemaLocation", "$projectDir/schemas") }
         }
     }
 
@@ -63,7 +65,10 @@ android {
 
 dependencies {
 
-    //implementation("androidx.core:core-splashscreen:1.1.0")
+    //Room
+    implementation("androidx.room:room-runtime:2.7.1")
+    kapt("androidx.room:room-compiler:2.7.1")
+    implementation("androidx.room:room-ktx:2.7.1")
 
     implementation("androidx.security:security-crypto:1.1.0-alpha07")
     implementation("androidx.security:security-identity-credential:1.0.0-alpha03")

@@ -2,9 +2,9 @@ package com.example.sellingserviceapp.data.di
 
 
 import com.example.sellingserviceapp.BuildConfig
-import com.example.sellingserviceapp.data.model.authApiRequest.RefreshAccessTokenRequest
-import com.example.sellingserviceapp.data.network.AuthApiService
-import com.example.sellingserviceapp.data.network.OfferApiService
+import com.example.sellingserviceapp.data.network.authorization.request.RefreshAccessTokenRequest
+import com.example.sellingserviceapp.data.network.authorization.AuthApiService
+import com.example.sellingserviceapp.data.network.offer.OfferApiService
 import dagger.Provides
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -104,7 +104,7 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .addInterceptor(tokenInterceptor)
             .authenticator(tokenAuthenticator)
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()

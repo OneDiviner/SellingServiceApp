@@ -1,9 +1,8 @@
 package com.example.sellingserviceapp.util.extension
 
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.UserAuthManager
-import com.example.sellingserviceapp.data.repository.AuthRepository
+import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.userinfo.UserInfoViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch

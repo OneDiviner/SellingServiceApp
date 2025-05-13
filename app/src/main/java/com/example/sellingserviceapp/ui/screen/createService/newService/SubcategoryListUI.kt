@@ -1,0 +1,61 @@
+package com.example.sellingserviceapp.ui.screen.createService.newService
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.ui.screen.createService.CreateServiceViewModel
+import com.example.sellingserviceapp.ui.screen.createService.SheetContentState
+import com.example.sellingserviceapp.ui.screen.createService.component.CategoryButton
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SubcategoryListUI(
+    viewModel: CreateServiceViewModel = hiltViewModel()
+) {
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(start = 15.dp, end = 15.dp, bottom = 15.dp)
+    ) {
+        LazyColumn (
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            item {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    BottomSheetDefaults.DragHandle(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                    )
+                }
+            }
+            item {
+                Text("Подкатегория", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+            }
+            items(viewModel.subcategoryList) { subcategory ->
+                CategoryButton(
+                    category = subcategory.subcategoryName,
+                    onClick = {
+                        viewModel.sheetContentState = SheetContentState.Description
+                        viewModel.serviceData = viewModel.serviceData.copy(subcategoryId = subcategory.id)
+                    }
+                )
+            }
+        }
+    }
+}

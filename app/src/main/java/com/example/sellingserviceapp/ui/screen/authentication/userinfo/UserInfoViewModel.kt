@@ -7,10 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.UserAuthManager
-import com.example.sellingserviceapp.data.di.AppState
 import com.example.sellingserviceapp.data.di.GlobalAppState
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
-import com.example.sellingserviceapp.data.repository.AuthRepository
+import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.TextFieldModel
 import com.example.sellingserviceapp.util.extension.secondStepRegisterRequest

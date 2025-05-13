@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.example.sellingserviceapp.data.repository.AuthRepository
+import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -56,11 +56,11 @@ class UserDataStorage @Inject constructor(
             val user = authRepository.getUser()
             user.onSuccess { success ->
                 context.dataStore.edit { prefs ->
-                    prefs[FIRST_NAME] = success.user.firstName
-                    prefs[MIDDLE_NAME] = success.user.middleName
-                    prefs[LAST_NAME] = success.user.lastName // Пометить как Null
-                    prefs[EMAIL] = success.user.email
-                    prefs[AVATAR_BASE64] = success.user.avatar
+                    prefs[FIRST_NAME] = success.firstName
+                    prefs[MIDDLE_NAME] = success.secondName
+                    prefs[LAST_NAME] = success.lastName?: "" // Пометить как Null
+                    prefs[EMAIL] = success.email
+                    prefs[AVATAR_BASE64] = success.avatarPath?: ""
                 }
             }
         }
