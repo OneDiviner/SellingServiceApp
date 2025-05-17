@@ -27,6 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.R
+import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.ui.screen.createService.CreateServiceViewModel
 import com.example.sellingserviceapp.ui.screen.createService.SheetContentState
 import com.example.sellingserviceapp.ui.screen.createService.component.ServiceInfoRow
@@ -45,11 +48,14 @@ import com.example.sellingserviceapp.util.extension.imagePicker.pickImageLaunche
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceUI(
-    viewModel: CreateServiceViewModel = hiltViewModel()
+    onEditButtonClick: () -> Unit,
+    viewModel: ServiceViewModel = hiltViewModel()
 ) {
 
+    val service by viewModel.serviceFlow.collectAsState()
+
     val pickImageLauncher = pickImageLauncher {
-        viewModel.onPhotoSelected(it)
+        viewModel.onPhotoSelected(service?.id?: 0, it)
     }
 
     Box(
@@ -88,16 +94,14 @@ fun ServiceUI(
                         )
                     ) {
                         Text(
-                            text = viewModel.service.status,
+                            text = service?.statusName?: "",
                             fontSize = 16.sp,
                             modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
                         )
                     }
                     ImageContent(
-                        photoBase64 = viewModel.photoBase64 ?: "",
-                        onEditButtonClick = {
-                            viewModel.sheetContentState = SheetContentState.EditService
-                        },
+                        photoBase64 = service?.photo ?: "",
+                        onEditButtonClick = onEditButtonClick,
                         onMoreButtonClick = {},
                         onPickImageButtonClick = pickImageLauncher
                     )
@@ -109,29 +113,29 @@ fun ServiceUI(
                     modifier = Modifier.padding(horizontal = 15.dp)
                 ) {
                     Text(
-                        viewModel.service.tittle,
+                        service?.tittle?: "",
                         fontSize = 26.sp,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     ServiceInfoRow(
                         title = "Категория",
-                        value = viewModel.service.category
+                        value = service?.categoryName?: ""
                     )
                     ServiceInfoRow(
                         title = "Подкатегория",
-                        value = viewModel.service.subcategory
+                        value = service?.subcategoryName?: ""
                     )
                     ServiceInfoRow(
                         title = "Цена",
-                        value = "${viewModel.service.price} ${viewModel.service.priceType}"
+                        value = "${service?.price} ${service?.priceTypeName}"
                     )
                     ServiceInfoRow(
                         title = "Длительность",
-                        value = viewModel.service.duration
+                        value = service?.duration.toString()
                     )
                     ServiceInfoRow(
                         title = "Формат оказания услуги",
-                        values = viewModel.service.locationTypes
+                        values = service?.formats?: emptyList()
                     )
                 }
             }
@@ -142,7 +146,7 @@ fun ServiceUI(
                 ) {
                     Text("Описание")
                     Text(
-                        text = viewModel.service.description,
+                        text = service?.description?: "Error",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.ExtraLight,
                         color = MaterialTheme.colorScheme.onBackground.copy(0.7f),

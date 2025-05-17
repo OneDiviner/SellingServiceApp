@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.sellingserviceapp.data.local.entity.CategoryEntity
-import com.example.sellingserviceapp.data.local.entity.SubcategoryEntity
+import com.example.sellingserviceapp.model.entity.CategoryEntity
+import com.example.sellingserviceapp.model.entity.SubcategoryEntity
 
 @Dao
 interface CategoriesDao {

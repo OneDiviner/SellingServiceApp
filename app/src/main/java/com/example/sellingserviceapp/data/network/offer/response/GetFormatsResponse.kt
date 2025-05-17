@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.data.network.offer.response
 
 import com.example.sellingserviceapp.data.network.authorization.response.Response
+import com.example.sellingserviceapp.model.dto.FormatsDto
 import com.google.gson.annotations.SerializedName
 
 data class LocationTypes(
@@ -9,7 +10,7 @@ data class LocationTypes(
     @SerializedName("is_physical") val isPhysical: Boolean
 )
 
-data class GetLocationTypesResponse(
+data class GetFormatsResponse(
     @SerializedName("response") val response: Response,
-    @SerializedName("location_types") val locationTypes: List<LocationTypes>
+    @SerializedName("location_types") val formats: List<FormatsDto>
 )

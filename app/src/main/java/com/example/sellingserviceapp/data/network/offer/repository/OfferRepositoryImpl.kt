@@ -3,10 +3,11 @@ package com.example.sellingserviceapp.data.network.offer.repository
 import android.util.Log
 import com.example.sellingserviceapp.data.network.AuthApiError
 import com.example.sellingserviceapp.data.network.Mapper
+import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
-import com.example.sellingserviceapp.data.network.offer.response.SearchUserServiceResponse
 import com.example.sellingserviceapp.data.network.offer.OfferApiService
+import com.example.sellingserviceapp.model.dto.FormatsDto
 import com.example.sellingserviceapp.ui.screen.createService.model.Address
 import com.example.sellingserviceapp.ui.screen.createService.model.Category
 import com.example.sellingserviceapp.ui.screen.createService.model.LocationType
@@ -15,6 +16,7 @@ import com.example.sellingserviceapp.ui.screen.createService.model.Service
 import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 import com.example.sellingserviceapp.ui.screen.createService.model.toRequest
+import okhttp3.MultipartBody
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -54,35 +56,13 @@ class OfferRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getService(serviceId: Int): Result<Service> {
+    override suspend fun getService(serviceId: Int): Result<ServiceDto> {
         return try {
             val response = offerApiService.getService(serviceId = serviceId)
 
             if (response.isSuccessful) {
-                Result.success(
-                    Service(
-                        id = response.body()!!.service.id,
-                        userId = response.body()!!.service.user_id,
-                        tittle = response.body()!!.service.tittle,
-                        description = response.body()!!.service.description,
-                        duration = response.body()!!.service.duration.toString(),
-                        photoPath = response.body()!!.service.photoPath,
-                        price = response.body()!!.service.price.toString(),
-                        createdAt = response.body()!!.service.createdAt,
-                        updatedAt = response.body()!!.service.updatedAt,
-                        locationTypes = response.body()!!.service.locationTypes.map {
-                            Address(
-                                name = mapper.locationMap(it.name),
-                                location = it.location
-                            )
-                        },
-                        priceType = mapper.priceMap(response.body()!!.service.priceType),
-                        status = mapper.statusMap(response.body()!!.service.status),
-                        category = mapper.categoryMap(response.body()!!.service.category),
-                        subcategory = mapper.subcategoryMap(response.body()!!.service.subcategory)
-
-                    )
-                )
+                Log.d("GET_SERVICE_RESPONSE", response.body()!!.serviceDto.formats.toString())
+                Result.success(response.body()!!.serviceDto)
             } else {
                 Log.d("RESULT_FAILURE", response.message())
                 Result.failure(HttpException(response))
@@ -108,13 +88,14 @@ class OfferRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getLocationTypes(): Result<List<LocationType>> {
+    override suspend fun getFormats(): Result<List<FormatsDto>> {
         return try {
 
             val response = offerApiService.getLocationTypes()
 
             if (response.isSuccessful) {
-                Result.success(mapper.map(response.body()!!))
+                Log.d("GET_FORMATS", response.body()?.formats.toString())
+                Result.success(response.body()!!.formats)
             } else {
                 Result.failure(HttpException(response))
             }
@@ -201,7 +182,7 @@ class OfferRepositoryImpl @Inject constructor(
         priceTypeId: Long?,
         categoryId: Long?,
         subcategoryId: Long?
-    ): Result<SearchUserServiceResponse> {
+    ): Result<List<ServiceDto>> {
         return try {
             val response = offerApiService.searchUserServices(
                 page = page,
@@ -220,7 +201,8 @@ class OfferRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
-                    Result.success(it)
+                    Log.d("OFFER_REPOSITORY", it.services.toString())
+                    Result.success(it.services)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
                 //Добавить обработчик кодов ошибки
@@ -229,6 +211,44 @@ class OfferRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             when (e) {
                 is IOException -> Result.failure(AuthApiError.NetworkError("Нет интернет соединения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun getServiceImage(photoPath: String): Result<String> {
+        return try {
+            val response = offerApiService.getServiceImage(photoPath)
+            if (response.isSuccessful) {
+                Result.success(
+                    response.body()?.byteStream()?.use { stream ->
+                        val bytes = stream.readBytes()
+                        android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT)
+                    } ?: throw IOException("Empty avatar response")
+                )
+            } else {
+                Result.failure(HttpException(response))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateServiceImage(
+        serviceId: Int,
+        file: MultipartBody.Part
+    ): Result<ServiceDto> {
+        return try {
+            val response = offerApiService.updateServiceImage(serviceId, file)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!.service)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
                 is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
                 else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
             }

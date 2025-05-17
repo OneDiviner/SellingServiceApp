@@ -71,7 +71,7 @@ fun EditServiceUI(
                     )
                     IconButton(
                         onClick = {
-                            viewModel.sheetContentState = SheetContentState.Service
+                            //viewModel.sheetContentState = SheetContentState.Service
                         },
                         modifier = Modifier
                             .align(Alignment.TopStart)
@@ -353,7 +353,7 @@ fun EditServiceUI(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(location.locationName)
+                                Text(location.code)
                                 Icon(
                                     imageVector = if (isSelected) { Icons.Default.Check } else { Icons.Default.Add },
                                     contentDescription = null,

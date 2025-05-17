@@ -10,7 +10,7 @@ import com.example.sellingserviceapp.data.network.authorization.response.UserSec
 import com.example.sellingserviceapp.data.network.authorization.response.UserStatusResponse
 import com.example.sellingserviceapp.data.network.authorization.response.UsersFirstStepRegisterResponse
 import com.example.sellingserviceapp.data.network.authorization.response.VerifyResetPasswordCodeResponse
-import com.example.sellingserviceapp.data.network.dto.UserDto
+import com.example.sellingserviceapp.model.dto.UserDto
 import okhttp3.MultipartBody
 
 

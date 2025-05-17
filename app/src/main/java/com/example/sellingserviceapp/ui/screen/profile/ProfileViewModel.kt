@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.DataManager
 import com.example.sellingserviceapp.data.local.repository.user.UserRepository
 import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
-import com.example.sellingserviceapp.domain.UserDomain
+import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

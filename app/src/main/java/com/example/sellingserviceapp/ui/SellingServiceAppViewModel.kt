@@ -2,6 +2,7 @@ package com.example.sellingserviceapp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.sellingserviceapp.data.DataManager
 import com.example.sellingserviceapp.data.di.GlobalAppState
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,14 +16,12 @@ import javax.inject.Inject
 @HiltViewModel
 class SellingServiceAppViewModel @Inject constructor(
     val globalAppState: GlobalAppState,
+    private val dataManager: DataManager,
     private val secureTokenStorage: SecureTokenStorage
 ): ViewModel() {
 
-    //TODO: Разобраться с глобальным состоянием с хранилищем данных
-
     init {
         viewModelScope.launch {
-            //userDataStorage.updateUserData()
             if (secureTokenStorage.hasTokens()) {
                 globalAppState.setMainAppState()
             } else {

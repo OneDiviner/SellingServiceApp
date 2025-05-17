@@ -1,4 +1,4 @@
-package com.example.sellingserviceapp.domain
+package com.example.sellingserviceapp.model.domain
 
 data class UserDomain(
     val firstName: String,

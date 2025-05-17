@@ -177,7 +177,7 @@ fun ParametersUI(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(location.locationName)
+                                Text(location.code)
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = null,

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.R
-import com.example.sellingserviceapp.domain.UserDomain
+import com.example.sellingserviceapp.model.domain.UserDomain
 import com.example.sellingserviceapp.ui.screen.profile.clientProfile.ClientProfileUI
 import com.example.sellingserviceapp.ui.screen.profile.component.ActiveOrderItemButton
 import com.example.sellingserviceapp.ui.screen.profile.component.Order
@@ -52,42 +52,16 @@ import com.example.sellingserviceapp.ui.screen.profile.editProfile.EditProfileUI
 @Composable
 fun ProfileTestUI(
     paddingValues: PaddingValues,
-    viewModel: ProfileViewModel = hiltViewModel()
+    //viewModel: ProfileViewModel = hiltViewModel()
 ) {
     var isOpen by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val user by viewModel.userFLow.collectAsState(initial = UserDomain.EMPTY)
+    //val user by viewModel.userFLow.collectAsState(initial = UserDomain.EMPTY)
 
 
-            if(isOpen) {
-                ModalBottomSheet(
-                    modifier = Modifier
-                        .displayCutoutPadding(),
-                    containerColor = MaterialTheme.colorScheme.background,
-                    sheetState = sheetState,
-                    onDismissRequest = {isOpen = false},
-                    scrimColor = Color.Black.copy(0.6f),
-                    dragHandle = null
-                ) {
-                    AnimatedContent(
-                        targetState = viewModel.profileSheetState,
-                        transitionSpec = {
-                            fadeIn(tween(500)) togetherWith fadeOut(tween(500))
-                        }
-                    ) {
-                        when(it) {
-                            is ProfileSheetState.Profile -> {
-                                ClientProfileUI(paddingValues)
-                            }
-                            is ProfileSheetState.EditProfile -> {
-                                EditProfileUI()
-                            }
-                        }
-                    }
-                }
-            }
+
             val activeOrderList by remember {
                 mutableStateOf(
                     listOf(

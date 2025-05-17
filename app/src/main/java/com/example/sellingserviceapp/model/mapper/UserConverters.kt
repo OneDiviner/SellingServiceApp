@@ -1,8 +1,8 @@
-package com.example.sellingserviceapp.domain.converter
+package com.example.sellingserviceapp.model.mapper
 
-import com.example.sellingserviceapp.data.local.entity.UserEntity
-import com.example.sellingserviceapp.data.network.dto.UserDto
-import com.example.sellingserviceapp.domain.UserDomain
+import com.example.sellingserviceapp.model.entity.UserEntity
+import com.example.sellingserviceapp.model.dto.UserDto
+import com.example.sellingserviceapp.model.domain.UserDomain
 
 object UserConverters {
     fun UserDto.toEntity(avatar: String? = null): UserEntity {

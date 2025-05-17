@@ -41,7 +41,7 @@ fun AppUI() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "profile",
+            startDestination = "main",
             enterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { it }) },
             exitTransition = { fadeOut() + slideOutHorizontally(targetOffsetX = { -it }) },
             popEnterTransition = { fadeIn() + slideInHorizontally(initialOffsetX = { -it }) },
@@ -54,27 +54,7 @@ fun AppUI() {
         }
     }
 }
-@Composable
-fun ServiceScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(50.dp)
-    ) {
-        Text("ShortService Screen")
-    }
-}
 
-@Composable
-fun CreateService() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(50.dp)
-    ) {
-        Text("Create ShortService Screen")
-    }
-}
 
 @Composable
 fun CreateBooking() {

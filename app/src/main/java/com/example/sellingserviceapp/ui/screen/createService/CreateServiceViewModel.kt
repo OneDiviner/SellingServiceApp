@@ -12,6 +12,8 @@ import com.example.sellingserviceapp.data.local.UserData
 import com.example.sellingserviceapp.data.local.UserDataStorage
 import com.example.sellingserviceapp.data.network.offer.response.ShortServiceData
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepository
+import com.example.sellingserviceapp.model.domain.ServiceDomain
+import com.example.sellingserviceapp.model.dto.FormatsDto
 import com.example.sellingserviceapp.ui.screen.createService.model.Category
 import com.example.sellingserviceapp.ui.screen.createService.model.LocationType
 import com.example.sellingserviceapp.ui.screen.createService.model.PriceType
@@ -20,39 +22,37 @@ import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
-/*data class UserData(
-    var firstName: String,
-    var middleName: String,
-    var lastName: String?,
-    var email: String, //TODO: Обязательно вынести в защищенный модуль
-    var avatarBase64: String?
-)*/
-
-
 @HiltViewModel
 class CreateServiceViewModel @Inject constructor(
     private val offerRepository: OfferRepository,
-    private val userDataStorage: UserDataStorage,
     private val dataManager: DataManager
 ): ViewModel() {
 
     //TODO: Сделать хранилище для услуг!!!!
 
-    var photoBase64 by mutableStateOf("")
+    val serviceListFlow: StateFlow<List<ServiceDomain>> =
+        dataManager.getServices()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    val userFlow: Flow<UserData> = userDataStorage.getUser()
+    var photoBase64 by mutableStateOf("")
 
     var isOpen by mutableStateOf(false)
 
     var sheetContentState by mutableStateOf<SheetContentState>(SheetContentState.Categories)
-
-    var shortServiceData by mutableStateOf<List<ShortServiceData>>(emptyList())
 
     var isRefreshing by mutableStateOf(false)
 
@@ -69,6 +69,8 @@ class CreateServiceViewModel @Inject constructor(
         )
     )
 
+    //val service by
+
     var categoryList by mutableStateOf<List<Category>>(emptyList())
         private set
 
@@ -78,7 +80,7 @@ class CreateServiceViewModel @Inject constructor(
     var priceTypeList by mutableStateOf<List<PriceType>>(emptyList())
         private set
 
-    var locationTypeList by mutableStateOf<List<LocationType>>(emptyList())
+    var locationTypeList by mutableStateOf<List<FormatsDto>>(emptyList())
         private set
 
     var service by mutableStateOf<Service>(
@@ -104,9 +106,14 @@ class CreateServiceViewModel @Inject constructor(
         getCategories()
         getPriceTypes()
         getLocationTypes()
-        searchUserServices()
         viewModelScope.launch {
             dataManager.updateCategoriesWithSubcategories()
+        }
+        viewModelScope.launch {
+            dataManager.insertAllServices()
+        }
+        viewModelScope.launch {
+            dataManager.getFormats()
         }
     }
 
@@ -136,7 +143,7 @@ class CreateServiceViewModel @Inject constructor(
     }
     fun getLocationTypes() {
         viewModelScope.launch {
-            val subcategory = offerRepository.getLocationTypes()
+            val subcategory = offerRepository.getFormats()
             subcategory.onSuccess { success->
                 locationTypeList = success
             }
@@ -152,43 +159,15 @@ class CreateServiceViewModel @Inject constructor(
             }
         }
     }
-    fun searchUserServices() {
+
+
+    fun updateService(serviceId: Int) {
         viewModelScope.launch {
-            isRefreshing = true
-            val result = offerRepository.searchUserServices(0, 10)
-            result.onSuccess { success ->
-                Log.d("CREATE_SERVICE_DATA_TITTLE", success.services.toString())
-                shortServiceData = success.services
-            }
-            isRefreshing = false
+            dataManager.updateService(serviceId)
         }
     }
 
-    fun getService(id: Int) {
-        viewModelScope.launch {
-            val result = offerRepository.getService(id)
-            result.onSuccess { success ->
-                service = service.copy(
-                    id = success.id,
-                    userId = success.userId,
-                    tittle = success.tittle,
-                    description = success.description,
-                    duration = success.duration,
-                    photoPath = success.photoPath,
-                    price = success.price,
-                    createdAt = success.createdAt,
-                    updatedAt = success.updatedAt,
-                    locationTypes = success.locationTypes,
-                    priceType = success.priceType,
-                    status = success.status,
-                    category = success.category,
-                    subcategory = success.subcategory
-                )
-            }.onFailure { failure ->
-                Log.d("GET_SERVICE_VIEW_MODEL_FAILURE", failure.message?: "")
-            }
-        }
-    }
+
     fun onPhotoSelected(base64: String?) {
         photoBase64 = base64?: ""
         viewModelScope.launch {

@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.sellingserviceapp.domain.UserDomain
+import com.example.sellingserviceapp.model.domain.UserDomain
 import com.example.sellingserviceapp.ui.screen.profile.ProfileSheetState
 import com.example.sellingserviceapp.ui.screen.profile.ProfileViewModel
 import com.example.sellingserviceapp.util.extension.imagePicker.ImageContent

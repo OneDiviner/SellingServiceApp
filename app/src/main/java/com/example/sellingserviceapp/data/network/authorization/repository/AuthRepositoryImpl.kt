@@ -23,7 +23,7 @@ import com.example.sellingserviceapp.data.network.authorization.response.UserSta
 import com.example.sellingserviceapp.data.network.authorization.response.UsersFirstStepRegisterResponse
 import com.example.sellingserviceapp.data.network.authorization.response.VerifyResetPasswordCodeResponse
 import com.example.sellingserviceapp.data.network.authorization.AuthApiService
-import com.example.sellingserviceapp.data.network.dto.UserDto
+import com.example.sellingserviceapp.model.dto.UserDto
 import okhttp3.MultipartBody
 import retrofit2.HttpException
 import java.io.IOException

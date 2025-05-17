@@ -1,21 +1,24 @@
 package com.example.sellingserviceapp.data.network.offer.repository
 
+import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
-import com.example.sellingserviceapp.data.network.offer.response.SearchUserServiceResponse
+import com.example.sellingserviceapp.model.dto.FormatsDto
+import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.ui.screen.createService.model.Category
 import com.example.sellingserviceapp.ui.screen.createService.model.LocationType
 import com.example.sellingserviceapp.ui.screen.createService.model.PriceType
 import com.example.sellingserviceapp.ui.screen.createService.model.Service
 import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
+import okhttp3.MultipartBody
 
 interface OfferRepository {
     suspend fun getCategories(): Result<List<Category>>
     suspend fun getSubcategories(categoryId: Int): Result<List<Subcategory>>
-    suspend fun getService(serviceId: Int): Result<Service>
+    suspend fun getService(serviceId: Int): Result<ServiceDto>
     suspend fun getPriceTypes(): Result<List<PriceType>>
-    suspend fun getLocationTypes(): Result<List<LocationType>>
+    suspend fun getFormats(): Result<List<FormatsDto>>
     suspend fun createServiceRequest(shortService: ShortService): Result<CreateServiceResponse>
 
     suspend fun searchServices(
@@ -44,5 +47,9 @@ interface OfferRepository {
         priceTypeId: Long? = null,
         categoryId: Long? = null,
         subcategoryId: Long? = null
-    ): Result<SearchUserServiceResponse>
+    ): Result<List<ServiceDto>>
+
+    suspend fun getServiceImage(photoPath: String): Result<String>
+
+    suspend fun updateServiceImage(serviceId: Int, file: MultipartBody.Part): Result<ServiceDto>
 }

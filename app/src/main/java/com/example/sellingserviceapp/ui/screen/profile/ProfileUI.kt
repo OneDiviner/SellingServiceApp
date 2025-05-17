@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.R
-import com.example.sellingserviceapp.domain.UserDomain
+import com.example.sellingserviceapp.model.domain.UserDomain
 import com.example.sellingserviceapp.ui.screen.profile.clientProfile.ClientProfileUI
 import com.example.sellingserviceapp.ui.screen.profile.component.ActiveOrderItemButton
 import com.example.sellingserviceapp.ui.screen.profile.component.HorizontalPagerItem

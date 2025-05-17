@@ -4,12 +4,14 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.Update
-import com.example.sellingserviceapp.data.local.entity.ServiceEntity
+import com.example.sellingserviceapp.model.entity.ServiceEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ServiceDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(serviceEntity: ServiceEntity)
 
     @Update
@@ -20,4 +22,18 @@ interface ServiceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(serviceEntities: List<ServiceEntity>)
+
+    @Query("SELECT * FROM services")
+    fun getServices(): Flow<List<ServiceEntity>>
+
+    @Query("SELECT * FROM services WHERE id = :serviceId")
+    fun getService(serviceId: Int): Flow<ServiceEntity>
+
+    @Query("UPDATE services SET photo = :photo, photo_path = :photoPath WHERE id = :serviceId")
+    suspend fun updateServiceImage(
+        photo: String?,
+        photoPath: String?,
+        serviceId: Int
+    )
+
 }

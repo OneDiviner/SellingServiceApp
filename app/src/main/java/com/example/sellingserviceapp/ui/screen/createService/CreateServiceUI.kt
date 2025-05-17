@@ -35,6 +35,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.ui.screen.createService.component.CategoryButton
 import com.example.sellingserviceapp.ui.screen.createService.editService.EditServiceUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.CategoryListUI
@@ -49,6 +52,7 @@ import com.example.sellingserviceapp.ui.screen.createService.newService.Descript
 import com.example.sellingserviceapp.ui.screen.createService.newService.ParametersUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.SubcategoryListUI
 import com.example.sellingserviceapp.ui.screen.createService.service.ServiceUI
+import com.example.sellingserviceapp.ui.screen.createService.service.ServiceViewModel
 
 sealed class CreateServiceUIState {
     object Loading: CreateServiceUIState()
@@ -60,7 +64,7 @@ sealed class SheetContentState {
     object Subcategories: SheetContentState()
     object Description: SheetContentState()
     object Parameters: SheetContentState()
-    object Service: SheetContentState()
+    data object Service: SheetContentState()
     object EditService: SheetContentState()
 }
 
@@ -68,8 +72,12 @@ sealed class SheetContentState {
 @Composable
 fun CreateServiceUI(
     innerPaddingValues: PaddingValues,
-    viewModel: CreateServiceViewModel = hiltViewModel()
+    viewModel: CreateServiceViewModel = hiltViewModel(),
+    serviceViewModel: ServiceViewModel = hiltViewModel()
 ) {
+
+    val services by viewModel.serviceListFlow.collectAsState()
+
     Box(
         modifier = Modifier
             .padding(paddingValues = innerPaddingValues)
@@ -78,7 +86,7 @@ fun CreateServiceUI(
     ) {
         PullToRefreshBox(
             isRefreshing = viewModel.isRefreshing,
-            onRefresh = {viewModel.searchUserServices()},
+            onRefresh = {/*viewModel.searchUserServices()*/}, //TODO: Сделать Refresh
             modifier = Modifier.fillMaxSize()
         ) {
             Box(
@@ -161,11 +169,12 @@ fun CreateServiceUI(
                             }
                         }
                     }
-                    items(viewModel.shortServiceData) { shortData ->
+                    items(services) { service ->
                         CategoryButton(
-                            category = shortData.title,
+                            category = service.tittle,
                             onClick = {
-                                viewModel.getService(shortData.id)
+                                viewModel.updateService(service.id)
+                                serviceViewModel.getServiceById(service.id)
                                 viewModel.sheetContentState = SheetContentState.Service
                                 viewModel.isOpen = true
                             }
@@ -215,7 +224,9 @@ fun CreateServiceUI(
                             ParametersUI()
                         }
                         is SheetContentState.Service -> {
-                            ServiceUI()
+                            ServiceUI(
+                                onEditButtonClick = { viewModel.sheetContentState = SheetContentState.EditService }
+                            )
                         }
                         is SheetContentState.EditService -> {
                             EditServiceUI()

@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.data.network.offer.response
 
 import com.example.sellingserviceapp.data.network.authorization.response.Response
+import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.google.gson.annotations.SerializedName
 
 data class GetLocationType(
@@ -27,5 +28,5 @@ data class Service(
 
 data class GetServiceResponse(
     @SerializedName("response") val response: Response,
-    @SerializedName("offer") val service: Service
+    @SerializedName("offer") val serviceDto: ServiceDto
 )

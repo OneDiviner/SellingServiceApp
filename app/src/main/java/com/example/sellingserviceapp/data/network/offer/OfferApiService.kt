@@ -1,19 +1,26 @@
 package com.example.sellingserviceapp.data.network.offer
 
+import com.example.sellingserviceapp.data.network.authorization.response.UpdateAvatarResponse
 import com.example.sellingserviceapp.data.network.offer.request.CreateServiceRequest
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.GetCategoriesResponse
-import com.example.sellingserviceapp.data.network.offer.response.GetLocationTypesResponse
+import com.example.sellingserviceapp.data.network.offer.response.GetFormatsResponse
 import com.example.sellingserviceapp.data.network.offer.response.GetPriceTypesResponse
 import com.example.sellingserviceapp.data.network.offer.response.GetServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.GetSubcategoriesResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchUserServiceResponse
+import com.example.sellingserviceapp.data.network.offer.response.UpdateServiceImageResponse
+import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -34,7 +41,7 @@ interface OfferApiService {
 
     @GET("/api/private/location-types")
     @Headers("Token: true")
-    suspend fun getLocationTypes(): Response<GetLocationTypesResponse>
+    suspend fun getLocationTypes(): Response<GetFormatsResponse>
 
     @GET("/api/private/offer/{id}")
     @Headers("Token: true")
@@ -77,4 +84,16 @@ interface OfferApiService {
         @Query("categoryId") categoryId: Long? = null,
         @Query("subcategoryId") subcategoryId: Long? = null
     ): Response<SearchUserServiceResponse>
+
+    @GET("/api/private/offer/photo")
+    @Headers("Token: true")
+    suspend fun getServiceImage(@Query("photoPath") photoPath: String): Response<ResponseBody>
+
+    @Multipart
+    @PATCH("/api/private/offer/update-photo/{id}")
+    @Headers("Token: true")
+    suspend fun updateServiceImage(
+        @Path("id") serviceId: Int,
+        @Part file: MultipartBody.Part
+    ): Response<UpdateServiceImageResponse>
 }

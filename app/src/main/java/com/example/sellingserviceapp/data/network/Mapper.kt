@@ -2,7 +2,7 @@ package com.example.sellingserviceapp.data.network
 
 import android.util.Log
 import com.example.sellingserviceapp.data.network.offer.response.GetCategoriesResponse
-import com.example.sellingserviceapp.data.network.offer.response.GetLocationTypesResponse
+import com.example.sellingserviceapp.data.network.offer.response.GetFormatsResponse
 import com.example.sellingserviceapp.data.network.offer.response.GetPriceTypesResponse
 import com.example.sellingserviceapp.data.network.offer.response.GetSubcategoriesResponse
 import com.example.sellingserviceapp.ui.screen.createService.model.Category
@@ -113,12 +113,12 @@ class Mapper: IMapper {
                 }
             }
 
-            is GetLocationTypesResponse -> {
-                dtoModel.locationTypes.map {
+            is GetFormatsResponse -> {
+                dtoModel.formats.map {
                     LocationType(
                         id = it.id,
-                        locationCode = it.name,
-                        locationName =  locationMap[it.name]?: it.name,
+                        locationCode = it.code,
+                        locationName =  locationMap[it.code]?: it.code,
                         isPhysical = it.isPhysical
                     ) as R
                 }

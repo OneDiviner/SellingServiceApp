@@ -1,6 +1,6 @@
 package com.example.sellingserviceapp.data.network.authorization.response
 
-import com.example.sellingserviceapp.data.network.dto.UserDto
+import com.example.sellingserviceapp.model.dto.UserDto
 import com.google.gson.annotations.SerializedName
 
 data class UpdateUserResponse(

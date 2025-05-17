@@ -6,13 +6,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.sellingserviceapp.model.domain.FormatsDomain
 import com.example.sellingserviceapp.ui.screen.createService.model.Address
 
 @Composable
 fun ServiceInfoRow(
     title: String,
     value: String = "",
-    values: List<Address> = emptyList()
+    values: List<FormatsDomain> = emptyList()
 ) {
     if (values.isEmpty()) {
         FlowRow() {
@@ -45,8 +46,8 @@ fun ServiceInfoRow(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                if (!value.location.isNullOrBlank()) {
-                    address = value.location
+                if (!value.address.isNullOrBlank()) {
+                    address = value.address
                 }
             }
             if (address.isNotBlank()) {

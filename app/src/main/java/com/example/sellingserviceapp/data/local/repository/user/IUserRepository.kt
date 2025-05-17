@@ -1,6 +1,6 @@
 package com.example.sellingserviceapp.data.local.repository.user
 
-import com.example.sellingserviceapp.data.local.entity.UserEntity
+import com.example.sellingserviceapp.model.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 interface IUserRepository {
