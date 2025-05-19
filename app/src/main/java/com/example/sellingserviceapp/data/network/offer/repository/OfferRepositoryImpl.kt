@@ -2,19 +2,15 @@ package com.example.sellingserviceapp.data.network.offer.repository
 
 import android.util.Log
 import com.example.sellingserviceapp.data.network.AuthApiError
-import com.example.sellingserviceapp.data.network.Mapper
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
 import com.example.sellingserviceapp.data.network.offer.OfferApiService
+import com.example.sellingserviceapp.model.dto.CategoryDto
 import com.example.sellingserviceapp.model.dto.FormatsDto
-import com.example.sellingserviceapp.ui.screen.createService.model.Address
-import com.example.sellingserviceapp.ui.screen.createService.model.Category
-import com.example.sellingserviceapp.ui.screen.createService.model.LocationType
-import com.example.sellingserviceapp.ui.screen.createService.model.PriceType
-import com.example.sellingserviceapp.ui.screen.createService.model.Service
+import com.example.sellingserviceapp.model.dto.PriceTypeDto
+import com.example.sellingserviceapp.model.dto.SubcategoryDto
 import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
-import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 import com.example.sellingserviceapp.ui.screen.createService.model.toRequest
 import okhttp3.MultipartBody
 import retrofit2.HttpException
@@ -25,14 +21,12 @@ class OfferRepositoryImpl @Inject constructor(
     private val offerApiService: OfferApiService
 ): OfferRepository {
 
-    private val mapper = Mapper()
-
-    override suspend fun getCategories(): Result<List<Category>> {
+    override suspend fun getCategories(): Result<List<CategoryDto>> {
         return try {
             val response = offerApiService.getCategories()
 
             if (response.isSuccessful) {
-                Result.success(mapper.map(response.body()!!))
+                Result.success(response.body()!!.categories)
             } else {
                 Log.d("GET_CATEGORY_REPOSITORY", "FAILURE")
                 Result.failure(HttpException(response))
@@ -42,12 +36,12 @@ class OfferRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSubcategories(categoryId: Int): Result<List<Subcategory>> {
+    override suspend fun getSubcategories(categoryId: Int): Result<List<SubcategoryDto>> {
         return try {
             val response = offerApiService.getSubcategories(categoryId = categoryId)
 
             if (response.isSuccessful) {
-                Result.success(mapper.map(response.body()!!))
+                Result.success(response.body()!!.subcategories)
             } else {
                 Result.failure(HttpException(response))
             }
@@ -72,14 +66,13 @@ class OfferRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPriceTypes(): Result<List<PriceType>> {
+    override suspend fun getPriceTypes(): Result<List<PriceTypeDto>> {
         return try {
 
             val response = offerApiService.getPriceTypes()
 
             if (response.isSuccessful) {
-                Log.d("GET_PRICE_TYPE_REPOSITORY", response.body()!!.priceTypes.toString())
-                Result.success(mapper.map(response.body()!!))
+                Result.success(response.body()!!.priceTypes)
             } else {
                 Result.failure(HttpException(response))
             }

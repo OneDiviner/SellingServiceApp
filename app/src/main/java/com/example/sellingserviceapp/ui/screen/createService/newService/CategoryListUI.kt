@@ -35,7 +35,7 @@ import com.example.sellingserviceapp.ui.screen.createService.model.Category
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListUI(
-    viewModel: CreateServiceViewModel = hiltViewModel()
+    viewModel: NewServiceViewModel = hiltViewModel()
 ) {
     Box(
         modifier = Modifier
@@ -56,11 +56,11 @@ fun CategoryListUI(
             item {
                 Text("Категория", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
             }
-            items(viewModel.categoryList) { category ->
+            items(viewModel.categories) { category ->
                 CategoryButton(
-                    category = category.categoryName,
+                    category = category.name,
                     onClick = {
-                        viewModel.sheetContentState = SheetContentState.Subcategories
+                        viewModel.newServiceUIState = NewServiceUIState.Subcategories
                         viewModel.getSubcategories(categoryId = category.id)
                     }
                 )

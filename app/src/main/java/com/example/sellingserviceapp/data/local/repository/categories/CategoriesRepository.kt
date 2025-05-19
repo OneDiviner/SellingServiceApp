@@ -10,32 +10,12 @@ import javax.inject.Inject
 class CategoriesRepository @Inject constructor (
     private val categoryDao: CategoriesDao
 ): ICategoriesRepository {
-    override suspend fun insertCategories(categories: List<CategoryEntity>) {
-        categoryDao.insertCategories(categories)
+    override suspend fun insertCategories(categoriesEntity: List<CategoryEntity>) {
+        categoryDao.insertCategories(categoriesEntity)
     }
 
-
-    override suspend fun insertSubcategories(subcategories: List<SubcategoryEntity>) {
-        categoryDao.insertSubcategories(subcategories)
+    override suspend fun getCategories(): List<CategoryEntity> {
+        return categoryDao.getCategories()
     }
 
-    override suspend fun getCategories(): List<Category> {
-        return categoryDao.getCategories().map { categoryEntity ->
-            Category(
-                id = categoryEntity.id,
-                categoryName = categoryEntity.name,
-                categoryCode = categoryEntity.code
-            )
-        }
-    }
-
-    override suspend fun getSubcategories(categoryId: Int): List<Subcategory> {
-        return categoryDao.getSubcategories(categoryId).map { subcategoryEntity ->
-            Subcategory(
-                id = subcategoryEntity.id,
-                subcategoryName = subcategoryEntity.name,
-                subcategoryCode = subcategoryEntity.code
-            )
-        }
-    }
 }

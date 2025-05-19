@@ -10,7 +10,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.sellingserviceapp.data.local.AppDataBase
 import com.example.sellingserviceapp.data.local.dao.CategoriesDao
 import com.example.sellingserviceapp.data.local.dao.FormatsDao
+import com.example.sellingserviceapp.data.local.dao.PriceTypeDao
 import com.example.sellingserviceapp.data.local.dao.ServiceDao
+import com.example.sellingserviceapp.data.local.dao.SubcategoriesDao
 import com.example.sellingserviceapp.data.local.dao.UserDao
 import com.example.sellingserviceapp.data.local.migration.MIGRATION_1_2
 import com.example.sellingserviceapp.data.local.migration.MIGRATION_2_3
@@ -56,6 +58,11 @@ object LocalDataBaseModule {
     }
 
     @Provides
+    fun provideSubcategoriesDao(dataBase: AppDataBase): SubcategoriesDao {
+        return dataBase.SubcategoriesDao()
+    }
+
+    @Provides
     fun provideServiceDao(dataBase: AppDataBase): ServiceDao {
         return dataBase.ServiceDao()
     }
@@ -63,5 +70,10 @@ object LocalDataBaseModule {
     @Provides
     fun provideFormatsDao(dataBase: AppDataBase): FormatsDao {
         return dataBase.FormatsDao()
+    }
+
+    @Provides
+    fun providePriceTypesDao(dataBase: AppDataBase): PriceTypeDao {
+        return dataBase.PriceTypeDao()
     }
 }

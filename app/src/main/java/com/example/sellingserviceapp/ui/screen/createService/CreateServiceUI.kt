@@ -49,6 +49,7 @@ import com.example.sellingserviceapp.ui.screen.createService.component.CategoryB
 import com.example.sellingserviceapp.ui.screen.createService.editService.EditServiceUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.CategoryListUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.DescriptionUI
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.ParametersUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.SubcategoryListUI
 import com.example.sellingserviceapp.ui.screen.createService.service.ServiceUI
@@ -60,12 +61,9 @@ sealed class CreateServiceUIState {
 }
 
 sealed class SheetContentState {
-    object Categories: SheetContentState()
-    object Subcategories: SheetContentState()
-    object Description: SheetContentState()
-    object Parameters: SheetContentState()
+    data object NewService: SheetContentState()
     data object Service: SheetContentState()
-    object EditService: SheetContentState()
+    data object EditService: SheetContentState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,7 +138,7 @@ fun CreateServiceUI(
                             Text("Услуги", fontSize = 32.sp)
                             Button(
                                 onClick = {
-                                    viewModel.sheetContentState = SheetContentState.Categories
+                                    viewModel.sheetContentState = SheetContentState.NewService
                                     viewModel.isOpen = true
                                 },
                                 shape = RoundedCornerShape(20.dp),
@@ -211,17 +209,8 @@ fun CreateServiceUI(
                     }
                 ) {
                     when(it) {
-                        is SheetContentState.Categories -> {
-                            CategoryListUI()
-                        }
-                        is SheetContentState.Subcategories -> {
-                            SubcategoryListUI()
-                        }
-                        is SheetContentState.Description -> {
-                            DescriptionUI()
-                        }
-                        is SheetContentState.Parameters -> {
-                            ParametersUI()
+                        is SheetContentState.NewService -> {
+                            NewServiceUI()
                         }
                         is SheetContentState.Service -> {
                             ServiceUI(
@@ -229,7 +218,7 @@ fun CreateServiceUI(
                             )
                         }
                         is SheetContentState.EditService -> {
-                            EditServiceUI()
+                            //EditServiceUI()
                         }
                     }
                 }

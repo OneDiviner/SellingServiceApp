@@ -3,7 +3,10 @@ package com.example.sellingserviceapp.data.network.offer.repository
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
+import com.example.sellingserviceapp.model.dto.CategoryDto
 import com.example.sellingserviceapp.model.dto.FormatsDto
+import com.example.sellingserviceapp.model.dto.PriceTypeDto
+import com.example.sellingserviceapp.model.dto.SubcategoryDto
 import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.ui.screen.createService.model.Category
 import com.example.sellingserviceapp.ui.screen.createService.model.LocationType
@@ -14,10 +17,10 @@ import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 import okhttp3.MultipartBody
 
 interface OfferRepository {
-    suspend fun getCategories(): Result<List<Category>>
-    suspend fun getSubcategories(categoryId: Int): Result<List<Subcategory>>
+    suspend fun getCategories(): Result<List<CategoryDto>>
+    suspend fun getSubcategories(categoryId: Int): Result<List<SubcategoryDto>>
     suspend fun getService(serviceId: Int): Result<ServiceDto>
-    suspend fun getPriceTypes(): Result<List<PriceType>>
+    suspend fun getPriceTypes(): Result<List<PriceTypeDto>>
     suspend fun getFormats(): Result<List<FormatsDto>>
     suspend fun createServiceRequest(shortService: ShortService): Result<CreateServiceResponse>
 

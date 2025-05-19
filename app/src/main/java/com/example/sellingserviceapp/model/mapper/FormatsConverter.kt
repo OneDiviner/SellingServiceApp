@@ -35,8 +35,8 @@ object FormatsConverters {
         }
     }
 
-    fun FormatsDto.toEntity(codeToNameMap: Map<String, String>): FormatsEntity {
-        val name = codeToNameMap[code] ?: this.code
+    fun FormatsDto.toEntity(): FormatsEntity {
+        val name = formatMap[code] ?: this.code
         return FormatsEntity(
             id = id,
             name = name,
@@ -59,7 +59,7 @@ object FormatsConverters {
 
 fun formatsDtoListToEntityList(dtoList: List<FormatsDto>?): List<FormatsEntity> {
     return dtoList?.map {
-        it.toEntity(formatMap)
+        it.toEntity()
     }?: emptyList()
 }
 

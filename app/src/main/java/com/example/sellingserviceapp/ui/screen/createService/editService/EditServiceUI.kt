@@ -60,7 +60,7 @@ fun EditServiceUI(
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 15.dp, end = 15.dp, bottom = 15.dp)
     ) {
-        LazyColumn(
+        /*LazyColumn(
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             item {
@@ -447,6 +447,6 @@ fun EditServiceUI(
                     }
                 }
             }
-        }
+        }*/
     }
 }

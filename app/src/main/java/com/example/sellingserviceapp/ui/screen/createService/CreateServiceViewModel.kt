@@ -52,36 +52,14 @@ class CreateServiceViewModel @Inject constructor(
 
     var isOpen by mutableStateOf(false)
 
-    var sheetContentState by mutableStateOf<SheetContentState>(SheetContentState.Categories)
+    var sheetContentState by mutableStateOf<SheetContentState>(SheetContentState.NewService)
 
     var isRefreshing by mutableStateOf(false)
 
-    var serviceData by mutableStateOf<ShortService>(
-        ShortService(
-            tittle = "",
-            description = "",
-            duration = "",
-            address = "",
-            price = "",
-            priceTypeId = 0,
-            subcategoryId = 0,
-            locationTypeIds = emptyList()
-        )
-    )
 
     //val service by
 
-    var categoryList by mutableStateOf<List<Category>>(emptyList())
-        private set
 
-    var subcategoryList by mutableStateOf<List<Subcategory>>(emptyList())
-        private set
-
-    var priceTypeList by mutableStateOf<List<PriceType>>(emptyList())
-        private set
-
-    var locationTypeList by mutableStateOf<List<FormatsDto>>(emptyList())
-        private set
 
     var service by mutableStateOf<Service>(
         Service(
@@ -103,53 +81,25 @@ class CreateServiceViewModel @Inject constructor(
     )
 
     init {
-        getCategories()
-        getPriceTypes()
-        getLocationTypes()
-        viewModelScope.launch {
-            dataManager.updateCategoriesWithSubcategories()
-        }
+        //getCategories()
+        //getPriceTypes()
+        //getLocationTypes()
         viewModelScope.launch {
             dataManager.insertAllServices()
         }
         viewModelScope.launch {
-            dataManager.getFormats()
+            dataManager.requestFormats()
+        }
+        viewModelScope.launch {
+            dataManager.requestPriceTypes()
+        }
+        viewModelScope.launch {
+            dataManager.requestCategories()
         }
     }
 
-    fun getCategories() {
-        viewModelScope.launch {
-            categoryList = dataManager.getCategories()
-        }
 
-    }
-
-    fun getSubcategories(categoryId: Int) {
-        viewModelScope.launch {
-            subcategoryList = dataManager.getSubcategories(categoryId)
-        }
-    }
-
-    fun getPriceTypes() {
-        viewModelScope.launch {
-            val subcategory = offerRepository.getPriceTypes()
-            subcategory.onSuccess { success->
-                priceTypeList = success
-                Log.d("PRICETYPE_LIST", priceTypeList.toString())
-            }.onFailure {
-                Log.d("PRICETYPE_LIST", "FAILURE")
-            }
-        }
-    }
-    fun getLocationTypes() {
-        viewModelScope.launch {
-            val subcategory = offerRepository.getFormats()
-            subcategory.onSuccess { success->
-                locationTypeList = success
-            }
-        }
-    }
-    fun createService() {
+    /*fun createService() {
         viewModelScope.launch {
            val result = offerRepository.createServiceRequest(serviceData)
             result.onSuccess {
@@ -158,7 +108,7 @@ class CreateServiceViewModel @Inject constructor(
                 Log.d("CREATE_SERVICE", "Failure")
             }
         }
-    }
+    }*/
 
 
     fun updateService(serviceId: Int) {

@@ -1,5 +1,9 @@
 package com.example.sellingserviceapp.data.di
 
+import com.example.sellingserviceapp.data.local.repository.IPriceTypesRepository
+import com.example.sellingserviceapp.data.local.repository.ISubcategoriesRepository
+import com.example.sellingserviceapp.data.local.repository.PriceTypesRepository
+import com.example.sellingserviceapp.data.local.repository.SubcategoriesRepository
 import com.example.sellingserviceapp.data.local.repository.categories.CategoriesRepository
 import com.example.sellingserviceapp.data.local.repository.categories.ICategoriesRepository
 import com.example.sellingserviceapp.data.local.repository.service.IServiceRepository
@@ -39,4 +43,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindServiceRepository(repository: ServiceRepository): IServiceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSubcategoriesRepository(repository: SubcategoriesRepository): ISubcategoriesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPriceTypesRepository(repository: PriceTypesRepository): IPriceTypesRepository
 }

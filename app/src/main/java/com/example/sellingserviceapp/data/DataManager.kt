@@ -5,6 +5,10 @@ import android.util.Log
 import com.example.sellingserviceapp.data.di.GlobalAppState
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import com.example.sellingserviceapp.data.local.repository.FormatsRepository
+import com.example.sellingserviceapp.data.local.repository.IPriceTypesRepository
+import com.example.sellingserviceapp.data.local.repository.ISubcategoriesRepository
+import com.example.sellingserviceapp.data.local.repository.PriceTypesRepository
+import com.example.sellingserviceapp.data.local.repository.SubcategoriesRepository
 import com.example.sellingserviceapp.model.entity.CategoryEntity
 import com.example.sellingserviceapp.model.entity.SubcategoryEntity
 import com.example.sellingserviceapp.data.local.repository.categories.ICategoriesRepository
@@ -15,18 +19,30 @@ import com.example.sellingserviceapp.model.mapper.UserConverters.toDomain
 import com.example.sellingserviceapp.model.mapper.UserConverters.toDto
 import com.example.sellingserviceapp.model.mapper.UserConverters.toEntity
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepository
+import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.FormatsDomain
+import com.example.sellingserviceapp.model.domain.PriceTypeDomain
 import com.example.sellingserviceapp.model.domain.ServiceDomain
+import com.example.sellingserviceapp.model.domain.SubcategoryDomain
 import com.example.sellingserviceapp.ui.screen.createService.model.Category
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 import com.example.sellingserviceapp.model.domain.UserDomain
+import com.example.sellingserviceapp.model.dto.CategoryDto
 import com.example.sellingserviceapp.model.dto.FormatsDto
+import com.example.sellingserviceapp.model.dto.PriceTypeDto
+import com.example.sellingserviceapp.model.dto.SubcategoryDto
 import com.example.sellingserviceapp.model.entity.ServiceEntity
 import com.example.sellingserviceapp.model.mapper.ServiceConverters.toEntity
+import com.example.sellingserviceapp.model.mapper.categoriesDtoListToEntityList
+import com.example.sellingserviceapp.model.mapper.categoriesEntityListToDomainList
 import com.example.sellingserviceapp.model.mapper.formatsDtoListToEntityList
 import com.example.sellingserviceapp.model.mapper.formatsEntityListToDomainList
+import com.example.sellingserviceapp.model.mapper.priceTypesDtoListToEntityList
+import com.example.sellingserviceapp.model.mapper.priceTypesEntityListToDomainList
 import com.example.sellingserviceapp.model.mapper.serviceEntityFlowToDomainFlow
 import com.example.sellingserviceapp.model.mapper.serviceEntityListToDomainList
+import com.example.sellingserviceapp.model.mapper.subcategoriesDtoListToEntityList
+import com.example.sellingserviceapp.model.mapper.subcategoriesEntityListToDomainList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -42,11 +58,22 @@ interface User {
     suspend fun logout()
 }
 
+interface PriceTypes {
+    suspend fun requestPriceTypes()
+    suspend fun insertPriceTypes(priceTypesDto: List<PriceTypeDto>)
+    suspend fun getPriceTypes(): List<PriceTypeDomain>
+}
 
 interface Categories {
-    suspend fun updateCategoriesWithSubcategories()
-    suspend fun getCategories(): List<Category>
-    suspend fun getSubcategories(categoryId: Int): List<Subcategory>
+    suspend fun requestCategories()
+    suspend fun insertCategories(categoriesDto: List<CategoryDto>)
+    suspend fun getCategories(): List<CategoryDomain>
+}
+
+interface Subcategories {
+    suspend fun requestSubcategories(categoryId: Int)
+    suspend fun insertSubcategories(subcategoriesDto: List<SubcategoryDto>, categoryId: Int)
+    suspend fun getSubcategories(categoryId: Int): List<SubcategoryDomain>
 }
 
 interface Service {
@@ -65,24 +92,19 @@ interface Formats {
     suspend fun getFormats(): List<FormatsDomain>
 }
 
-interface Initializer {
-    suspend fun initialize()
-}
-
 class DataManager @Inject constructor(
     private val authRepository: AuthRepository,
     private val offerRepository: OfferRepository,
     private val userRepository: IUserRepository,
     private val serviceRepository: IServiceRepository,
     private val categoriesRepository: ICategoriesRepository,
+    private val subcategoriesRepository: ISubcategoriesRepository,
+    private val priceTypesRepository: IPriceTypesRepository,
     private val formatsRepository: FormatsRepository,
     private val globalAppState: GlobalAppState,
     private val secureTokenStorage: SecureTokenStorage
-): User, Categories, Service, Formats, Initializer {
+): User, Categories, Subcategories, Service, Formats, PriceTypes {
 
-    override suspend fun initialize() {
-        TODO("Not yet implemented")
-    }
 
     override suspend fun getUser(): Flow<UserDomain> {
 
@@ -136,37 +158,40 @@ class DataManager @Inject constructor(
         }
     }
 
-    override suspend fun updateCategoriesWithSubcategories() {
-        val categoriesResponse = offerRepository.getCategories()
-        val categories = categoriesResponse.getOrElse { emptyList() }
-        categories.map { category ->
-            val categoryEntity = CategoryEntity(
-                id = category.id,
-                name = category.categoryName,
-                code = category.categoryCode
-            )
-            categoriesRepository.insertCategories(listOf(categoryEntity))
-            val subcategoriesResponse = offerRepository.getSubcategories(categoryId = category.id)
-            val subcategories = subcategoriesResponse.getOrElse { emptyList() }
-            val subcategoryEntity = subcategories.map { subcategory ->
-                SubcategoryEntity(
-                    id = subcategory.id,
-                    name = subcategory.subcategoryName,
-                    code = subcategory.subcategoryCode,
-                    categoryId = category.id
-                )
-            }
-            categoriesRepository.insertSubcategories(subcategoryEntity)
+    override suspend fun requestCategories() {
+        val requestCategoriesDto = offerRepository.getCategories()
+        requestCategoriesDto.onSuccess { categoriesDto ->
+            insertCategories(categoriesDto)
         }
-
     }
 
-    override suspend fun getCategories(): List<Category> {
-        return categoriesRepository.getCategories()
+    override suspend fun insertCategories(categoriesDto: List<CategoryDto>) {
+        categoriesRepository.insertCategories(categoriesDtoListToEntityList(categoriesDto))
     }
 
-    override suspend fun getSubcategories(categoryId: Int): List<Subcategory> {
-        return categoriesRepository.getSubcategories(categoryId)
+    override suspend fun getCategories(): List<CategoryDomain> {
+        return categoriesEntityListToDomainList(categoriesRepository.getCategories())
+    }
+
+    override suspend fun requestSubcategories(categoryId: Int) {
+        val requestSubcategoriesDto = offerRepository.getSubcategories(categoryId)
+        requestSubcategoriesDto.onSuccess { subcategoriesDto ->
+            insertSubcategories(
+                subcategoriesDto = subcategoriesDto,
+                categoryId = categoryId
+            )
+        }
+    }
+
+    override suspend fun getSubcategories(categoryId: Int): List<SubcategoryDomain> {
+        return subcategoriesEntityListToDomainList(subcategoriesRepository.getSubcategories(categoryId))
+    }
+
+    override suspend fun insertSubcategories(subcategoriesDto: List<SubcategoryDto>, categoryId: Int) {
+        subcategoriesRepository.insertSubcategories(subcategoriesDtoListToEntityList(
+            subcategoriesDto = subcategoriesDto,
+            categoryId = categoryId
+        ))
     }
 
     override fun getServices(): Flow<List<ServiceDomain>> {
@@ -229,5 +254,22 @@ class DataManager @Inject constructor(
         formatsRepository.insertFormats(
             formatsDtoListToEntityList(dtoList = formatsDto)
         )
+    }
+
+    override suspend fun insertPriceTypes(priceTypesDto: List<PriceTypeDto>) {
+        priceTypesRepository.insertPriceTypes(priceTypesDtoListToEntityList(priceTypesDto))
+    }
+
+    override suspend fun getPriceTypes(): List<PriceTypeDomain> {
+        requestPriceTypes()
+        return priceTypesEntityListToDomainList(priceTypesRepository.getPriceTypes())
+    }
+
+
+    override suspend fun requestPriceTypes() {
+        val priceTypesRequest = offerRepository.getPriceTypes()
+        priceTypesRequest.onSuccess { priceTypesDto ->
+            insertPriceTypes(priceTypesDto)
+        }
     }
 }
