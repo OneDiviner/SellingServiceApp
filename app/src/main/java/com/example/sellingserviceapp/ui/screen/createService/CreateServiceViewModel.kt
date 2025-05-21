@@ -22,9 +22,12 @@ import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -48,86 +51,33 @@ class CreateServiceViewModel @Inject constructor(
                 initialValue = emptyList()
             )
 
-    var photoBase64 by mutableStateOf("")
-
     var isOpen by mutableStateOf(false)
 
     var sheetContentState by mutableStateOf<SheetContentState>(SheetContentState.NewService)
 
     var isRefreshing by mutableStateOf(false)
 
-
-    //val service by
-
-
-
-    var service by mutableStateOf<Service>(
-        Service(
-            id = 0,
-            userId = 0,
-            tittle = "",
-            description = "",
-            duration = "",
-            photoPath = "",
-            price = "",
-            createdAt = "",
-            updatedAt = "",
-            locationTypes = emptyList(),
-            priceType = "",
-            status = "",
-            category = "",
-            subcategory = ""
-        )
-    )
-
     init {
-        //getCategories()
-        //getPriceTypes()
-        //getLocationTypes()
         viewModelScope.launch {
             dataManager.insertAllServices()
-        }
-        viewModelScope.launch {
             dataManager.requestFormats()
-        }
-        viewModelScope.launch {
             dataManager.requestPriceTypes()
-        }
-        viewModelScope.launch {
             dataManager.requestCategories()
         }
     }
 
-
-    /*fun createService() {
-        viewModelScope.launch {
-           val result = offerRepository.createServiceRequest(serviceData)
-            result.onSuccess {
-                Log.d("CREATE_SERVICE", "Success")
-            }.onFailure {
-                Log.d("CREATE_SERVICE", "Failure")
+    fun getServiceById(serviceId: Int): Flow<ServiceDomain> {
+        return flow {
+            val serviceFlow = dataManager.getService(serviceId)
+            serviceFlow.collect { service ->
+                emit(service)
             }
         }
-    }*/
-
+    }
 
     fun updateService(serviceId: Int) {
         viewModelScope.launch {
             dataManager.updateService(serviceId)
-        }
-    }
-
-
-    fun onPhotoSelected(base64: String?) {
-        photoBase64 = base64?: ""
-        viewModelScope.launch {
-            val decodedBytes = Base64.decode(base64, Base64.DEFAULT)
-            val requestBody = decodedBytes.toRequestBody("image/jpg".toMediaTypeOrNull())
-            val file = MultipartBody.Part.createFormData("multipartFile", "avatar.jpg", requestBody)
-            /*val result = authRepository.updateAvatar(file)
-            result.onSuccess {
-
-            }*/
         }
     }
 }

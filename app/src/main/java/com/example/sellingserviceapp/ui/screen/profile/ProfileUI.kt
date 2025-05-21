@@ -96,7 +96,14 @@ fun ProfileUI(
                         ClientProfileUI(paddingValues)
                     }
                     is ProfileSheetState.EditProfile -> {
-                        EditProfileUI()
+                        EditProfileUI(
+                            onBackButtonClick = {
+                                viewModel.profileSheetState = ProfileSheetState.Profile
+                            },
+                            onSaveButtonClick = {
+                                viewModel.profileSheetState = ProfileSheetState.Profile
+                            }
+                        )
                     }
                 }
             }

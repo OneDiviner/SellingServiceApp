@@ -1,5 +1,10 @@
 package com.example.sellingserviceapp.ui.screen.createService.service
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,122 +45,168 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.R
+import com.example.sellingserviceapp.model.domain.NewServiceDomain
 import com.example.sellingserviceapp.model.domain.ServiceDomain
+import com.example.sellingserviceapp.ui.component.circularProgressIndicator.FullScreenCircularProgressIndicator
 import com.example.sellingserviceapp.ui.screen.createService.CreateServiceViewModel
 import com.example.sellingserviceapp.ui.screen.createService.SheetContentState
 import com.example.sellingserviceapp.ui.screen.createService.component.ServiceInfoRow
+import com.example.sellingserviceapp.ui.screen.createService.service.editService.EditServiceUI
 import com.example.sellingserviceapp.util.extension.imagePicker.ImageContent
 import com.example.sellingserviceapp.util.extension.imagePicker.pickImageLauncher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.stateIn
+
+sealed class ServiceState {
+    data object Service: ServiceState()
+    data object EditService: ServiceState()
+    data object Loading: ServiceState()
+    data object Error: ServiceState()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceUI(
-    onEditButtonClick: () -> Unit,
+    serviceFlow: Flow<ServiceDomain>,
     viewModel: ServiceViewModel = hiltViewModel()
 ) {
 
-    val service by viewModel.serviceFlow.collectAsState()
+    val service by serviceFlow.collectAsState(ServiceDomain.EMPTY)
 
     val pickImageLauncher = pickImageLauncher {
-        viewModel.onPhotoSelected(service?.id?: 0, it)
+        viewModel.onPhotoSelected(service.id, it)
     }
 
-    Box(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(bottom = 15.dp)
+    DisposableEffect(key1 = Unit) {
+        onDispose {
+            viewModel.serviceState = ServiceState.Service
+        }
+    }
+
+    AnimatedContent(
+        targetState = viewModel.serviceState,
+        transitionSpec = {
+            fadeIn(tween(500)) togetherWith fadeOut(tween(500))
+        }
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .displayCutoutPadding(),
-            verticalArrangement = Arrangement.spacedBy(30.dp)
-        ) {
-            item {
+        when(it) {
+            is ServiceState.Service -> {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1.5f)
-                        .background(MaterialTheme.colorScheme.surfaceContainer),
-                    contentAlignment = Alignment.BottomEnd
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(bottom = 15.dp)
                 ) {
-                    BottomSheetDefaults.DragHandle(
+                    LazyColumn(
                         modifier = Modifier
-                            .displayCutoutPadding()
-                            .zIndex(3f)
-                            .align(Alignment.TopCenter)
-                    )
-                    Card(
-                        modifier = Modifier
-                            .padding(start = 15.dp)
-                            .offset(y = 18.dp)
-                            .zIndex(3f)
-                            .align(Alignment.BottomStart),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                            .displayCutoutPadding(),
+                        verticalArrangement = Arrangement.spacedBy(30.dp)
                     ) {
-                        Text(
-                            text = service?.statusName?: "",
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
-                        )
-                    }
-                    ImageContent(
-                        photoBase64 = service?.photo ?: "",
-                        onEditButtonClick = onEditButtonClick,
-                        onMoreButtonClick = {},
-                        onPickImageButtonClick = pickImageLauncher
-                    )
-                }
-            }
-            item {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                    modifier = Modifier.padding(horizontal = 15.dp)
-                ) {
-                    Text(
-                        service?.tittle?: "",
-                        fontSize = 26.sp,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    ServiceInfoRow(
-                        title = "Категория",
-                        value = service?.categoryName?: ""
-                    )
-                    ServiceInfoRow(
-                        title = "Подкатегория",
-                        value = service?.subcategoryName?: ""
-                    )
-                    ServiceInfoRow(
-                        title = "Цена",
-                        value = "${service?.price} ${service?.priceTypeName}"
-                    )
-                    ServiceInfoRow(
-                        title = "Длительность",
-                        value = service?.duration.toString()
-                    )
-                    ServiceInfoRow(
-                        title = "Формат оказания услуги",
-                        values = service?.formats?: emptyList()
-                    )
-                }
-            }
-            item {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                    modifier = Modifier.padding(horizontal = 15.dp)
-                ) {
-                    Text("Описание")
-                    Text(
-                        text = service?.description?: "Error",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraLight,
-                        color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
-                        // modifier = Modifier.padding(15.dp)
-                    )
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1.5f)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                                contentAlignment = Alignment.BottomEnd
+                            ) {
+                                BottomSheetDefaults.DragHandle(
+                                    modifier = Modifier
+                                        .displayCutoutPadding()
+                                        .zIndex(3f)
+                                        .align(Alignment.TopCenter)
+                                )
+                                Card(
+                                    modifier = Modifier
+                                        .padding(start = 15.dp)
+                                        .offset(y = 18.dp)
+                                        .zIndex(3f)
+                                        .align(Alignment.BottomStart),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    )
+                                ) {
+                                    Text(
+                                        text = service.statusName,
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp)
+                                    )
+                                }
+                                ImageContent(
+                                    photoBase64 = service.photo ?: "",
+                                    onEditButtonClick = { viewModel.serviceState = ServiceState.EditService },
+                                    onMoreButtonClick = {},
+                                    onPickImageButtonClick = pickImageLauncher
+                                )
+                            }
+                        }
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                modifier = Modifier.padding(horizontal = 15.dp)
+                            ) {
+                                Text(
+                                    service.tittle?: "",
+                                    fontSize = 26.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                ServiceInfoRow(
+                                    title = "Категория",
+                                    value = service.categoryName?: ""
+                                )
+                                ServiceInfoRow(
+                                    title = "Подкатегория",
+                                    value = service.subcategoryName?: ""
+                                )
+                                ServiceInfoRow(
+                                    title = "Цена",
+                                    value = "${service.price} ${service.priceTypeName}"
+                                )
+                                ServiceInfoRow(
+                                    title = "Длительность",
+                                    value = service.duration.toString()
+                                )
+                                ServiceInfoRow(
+                                    title = "Формат оказания услуги",
+                                    values = service.formats?: emptyList()
+                                )
+                            }
+                        }
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                modifier = Modifier.padding(horizontal = 15.dp)
+                            ) {
+                                Text("Описание")
+                                Text(
+                                    text = service.description?: "Error",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.ExtraLight,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                                    // modifier = Modifier.padding(15.dp)
+                                )
 
+                            }
+                        }
+                    }
                 }
+            }
+            is ServiceState.EditService -> {
+                EditServiceUI(
+                    service = service,
+                    onBackButtonClick = {viewModel.serviceState = ServiceState.Service},
+                    categories = viewModel.categories,
+                    formats = viewModel.formats,
+                    priceTypes = viewModel.priceTypes
+                )
+
+            }
+            is ServiceState.Loading -> {
+                FullScreenCircularProgressIndicator()
+            }
+            is ServiceState.Error -> {
+
             }
         }
     }

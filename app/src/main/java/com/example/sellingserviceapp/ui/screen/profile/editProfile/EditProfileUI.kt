@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUIState
 import com.example.sellingserviceapp.ui.screen.profile.ProfileSheetState
 import com.example.sellingserviceapp.ui.screen.profile.ProfileViewModel
 import com.example.sellingserviceapp.ui.screen.profile.editProfile.model.UserDataTextField
@@ -37,8 +41,11 @@ import com.example.sellingserviceapp.ui.screen.profile.editProfile.model.UserDat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileUI(
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: EditProfileViewModel = hiltViewModel(),
+    onBackButtonClick: () -> Unit,
+    onSaveButtonClick: () -> Unit
 ) {
+    val error = viewModel.editUserError
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -58,9 +65,7 @@ fun EditProfileUI(
 
             item {
                 IconButton(
-                    onClick = {
-                        viewModel.profileSheetState = ProfileSheetState.Profile
-                    },
+                    onClick = onBackButtonClick,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                 ) {
@@ -82,7 +87,11 @@ fun EditProfileUI(
                     onValueChange = {
                         viewModel.onSecondNameChanged(it)
                     },
-                    label = "Фамилия"
+                    label = "Фамилия",
+                    errorMessage = when(error) {
+                        is EditUserError.SecondNameError -> error.message
+                        else -> null
+                    }
                 )
             }
             item {
@@ -91,7 +100,11 @@ fun EditProfileUI(
                     onValueChange = {
                         viewModel.onFirstNameChanged(it)
                     },
-                    label = "Имя"
+                    label = "Имя",
+                    errorMessage = when(error) {
+                        is EditUserError.FirstNameError -> error.message
+                        else -> null
+                    }
                 )
             }
             item {
@@ -100,7 +113,11 @@ fun EditProfileUI(
                     onValueChange = {
                         viewModel.onLastNameChanged(it)
                     },
-                    label = "Отчество"
+                    label = "Отчество",
+                    errorMessage = when(error) {
+                        is EditUserError.LastNameError -> error.message
+                        else -> null
+                    }
                 )
             }
             item {
@@ -132,16 +149,23 @@ fun EditProfileUI(
                 )
             }
             item {
-                LargeButton(
-                    model = ButtonModel(
-                        text = "Сохранить изменения",
-                        state = ButtonState.Ready
-                    ),
+                Button(
                     onClick = {
                         viewModel.updateUser()
-                        viewModel.profileSheetState = ProfileSheetState.Profile
-                    }
-                )
+                        onSaveButtonClick()
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    enabled = error == null,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+                    )
+                ) {
+                    Text("Сохранить", style = MaterialTheme.typography.bodyLarge)
+                }
             }
         }
     }

@@ -10,11 +10,11 @@ import com.example.sellingserviceapp.model.mapper.PriceTypesMapper.toDomain
 import com.example.sellingserviceapp.model.mapper.PriceTypesMapper.toEntity
 
 private val priceTypeMap = mapOf(
-    "PRICE_TYPE_FOR_OFFER" to "Усл.",
+    "PRICE_TYPE_FOR_OFFER" to "Услугу",
     "PRICE_TYPE_FOR_KILOGRAM" to "Кг",
-    "PRICE_TYPE_FOR_METER" to "М",
-    "PRICE_TYPE_FOR_SQUARE_METER" to "М^2",
-    "PRICE_TYPE_FOR_PIECE" to "Шт.",
+    "PRICE_TYPE_FOR_METER" to "Метр",
+    "PRICE_TYPE_FOR_SQUARE_METER" to "М²",
+    "PRICE_TYPE_FOR_PIECE" to "Штуку",
     "PRICE_TYPE_FOR_LITER" to "Литр",
     "PRICE_TYPE_FOR_HOUR" to "Час",
 )

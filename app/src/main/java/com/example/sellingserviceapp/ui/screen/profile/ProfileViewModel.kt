@@ -19,8 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val userRepository: UserRepository,
     private val dataManager: DataManager
 ): ViewModel() {
 
@@ -56,32 +54,11 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun onFirstNameChanged(value: String) {
-        newUserData = newUserData.copy(firstName = value)
-    }
-    fun onSecondNameChanged(value: String) {
-        newUserData = newUserData.copy(secondName = value)
-    }
-    fun onLastNameChanged(value: String) {
-        newUserData = newUserData.copy(lastName = value)
-    }
-    fun onPhoneNumberChanged(value: String) {
-        newUserData = newUserData.copy(phoneNumber = value)
-    }
+
 
     fun logout() {
         viewModelScope.launch {
             dataManager.logout()
-        }
-    }
-
-    fun updateUser() {
-        viewModelScope.launch {
-            dataManager.updateUser(newUserData)
-            dataManager.getUser().first().let { user ->
-                //Log.d("CHANGED_USER", newUserData.getChangedFields(user).toString())
-                //dataManager.updateUser(newUserData.getChangedFields(user))
-            }
         }
     }
 

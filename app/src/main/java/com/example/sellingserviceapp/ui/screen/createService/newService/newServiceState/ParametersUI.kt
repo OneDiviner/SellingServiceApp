@@ -1,4 +1,4 @@
-package com.example.sellingserviceapp.ui.screen.createService.newService
+package com.example.sellingserviceapp.ui.screen.createService.newService.newServiceState
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +49,8 @@ import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 import com.example.sellingserviceapp.ui.screen.createService.CreateServiceViewModel
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUIState
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

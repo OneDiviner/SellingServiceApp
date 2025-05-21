@@ -136,7 +136,7 @@ class DataManager @Inject constructor(
 
     override suspend fun updateUser(userDomain: UserDomain) {
         authRepository.updateUser(userDomain.toDto()).onSuccess { response ->
-            userRepository.saveUser(response.toEntity())
+            userRepository.saveUser(response.toEntity(userDomain.avatar))
         }.onFailure { response ->
             Log.d("UPDATE_USER_RESPONSE", "${response.message}")
         }

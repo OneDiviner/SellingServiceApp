@@ -1,10 +1,9 @@
-package com.example.sellingserviceapp.ui.screen.createService.newService
+package com.example.sellingserviceapp.ui.screen.createService.newService.newServiceState
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.displayCutoutPadding
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,15 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.sellingserviceapp.ui.screen.createService.CreateServiceViewModel
-import com.example.sellingserviceapp.ui.screen.createService.SheetContentState
 import com.example.sellingserviceapp.ui.screen.createService.component.CategoryButton
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUIState
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubcategoryListUI(
+fun CategoryListUI(
     viewModel: NewServiceViewModel = hiltViewModel()
 ) {
     Box(
@@ -37,7 +35,7 @@ fun SubcategoryListUI(
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             item {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     BottomSheetDefaults.DragHandle(
                         modifier = Modifier
                             .align(Alignment.TopCenter)
@@ -45,14 +43,14 @@ fun SubcategoryListUI(
                 }
             }
             item {
-                Text("Подкатегория", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                Text("Категория", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
             }
-            items(viewModel.subcategories) { subcategory ->
+            items(viewModel.categories) { category ->
                 CategoryButton(
-                    category = subcategory.name,
+                    category = category.name,
                     onClick = {
-                        viewModel.newServiceUIState = NewServiceUIState.Description
-                        viewModel.newService = viewModel.newService.copy(subcategoryId = subcategory.id, subcategoryName = subcategory.name)
+                        viewModel.newServiceUIState = NewServiceUIState.Subcategories
+                        viewModel.getSubcategories(categoryId = category.id)
                     }
                 )
             }

@@ -6,8 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +35,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,14 +43,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.ui.screen.createService.component.CategoryButton
-import com.example.sellingserviceapp.ui.screen.createService.editService.EditServiceUI
-import com.example.sellingserviceapp.ui.screen.createService.newService.CategoryListUI
-import com.example.sellingserviceapp.ui.screen.createService.newService.DescriptionUI
+import com.example.sellingserviceapp.ui.screen.createService.service.editService.EditServiceUI
 import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUI
-import com.example.sellingserviceapp.ui.screen.createService.newService.ParametersUI
-import com.example.sellingserviceapp.ui.screen.createService.newService.SubcategoryListUI
 import com.example.sellingserviceapp.ui.screen.createService.service.ServiceUI
 import com.example.sellingserviceapp.ui.screen.createService.service.ServiceViewModel
+import kotlinx.coroutines.flow.Flow
 
 sealed class CreateServiceUIState {
     object Loading: CreateServiceUIState()
@@ -62,8 +56,7 @@ sealed class CreateServiceUIState {
 
 sealed class SheetContentState {
     data object NewService: SheetContentState()
-    data object Service: SheetContentState()
-    data object EditService: SheetContentState()
+    data class Service(val serviceFlow: Flow<ServiceDomain>): SheetContentState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -172,19 +165,11 @@ fun CreateServiceUI(
                             category = service.tittle,
                             onClick = {
                                 viewModel.updateService(service.id)
-                                serviceViewModel.getServiceById(service.id)
-                                viewModel.sheetContentState = SheetContentState.Service
+                                viewModel.sheetContentState = SheetContentState.Service(serviceFlow = viewModel.getServiceById(serviceId = service.id))
                                 viewModel.isOpen = true
                             }
                         )
                     }
-                    /*if (viewModel.shortServiceData.isEmpty()) {
-                        item {
-                            Box(modifier = Modifier.fillMaxWidth().height(500.dp)) {
-                                Text("NO_DATA")
-                            }
-                        }
-                    }*/
                 }
             }
         }
@@ -213,12 +198,7 @@ fun CreateServiceUI(
                             NewServiceUI()
                         }
                         is SheetContentState.Service -> {
-                            ServiceUI(
-                                onEditButtonClick = { viewModel.sheetContentState = SheetContentState.EditService }
-                            )
-                        }
-                        is SheetContentState.EditService -> {
-                            //EditServiceUI()
+                            ServiceUI(it.serviceFlow)
                         }
                     }
                 }

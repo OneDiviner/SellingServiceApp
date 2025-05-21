@@ -7,6 +7,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.ui.screen.createService.newService.newServiceState.CategoryListUI
+import com.example.sellingserviceapp.ui.screen.createService.newService.newServiceState.DescriptionUI
+import com.example.sellingserviceapp.ui.screen.createService.newService.newServiceState.ParametersUI
+import com.example.sellingserviceapp.ui.screen.createService.newService.newServiceState.SubcategoryListUI
 
 sealed class NewServiceUIState {
     data object Categories: NewServiceUIState()
