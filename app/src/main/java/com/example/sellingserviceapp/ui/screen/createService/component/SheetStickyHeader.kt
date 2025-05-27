@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SheetStickyHeader(
     title: String,
-    onBackButtonClick: () -> Unit
+    onBackButtonClick: () -> Unit = {},
+    isBackButton: Boolean = true
 ) {
     Column(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
@@ -39,16 +40,18 @@ fun SheetStickyHeader(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = onBackButtonClick,
-                modifier = Modifier
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "Back",
+            if (isBackButton) {
+                IconButton(
+                    onClick = onBackButtonClick,
                     modifier = Modifier
-                        .size(28.dp)
-                )
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier
+                            .size(28.dp)
+                    )
+                }
             }
             Text(title, fontSize = 26.sp, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
         }

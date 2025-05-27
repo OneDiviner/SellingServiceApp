@@ -22,9 +22,7 @@ class ProfileViewModel @Inject constructor(
     private val dataManager: DataManager
 ): ViewModel() {
 
-    var screenState by mutableStateOf<ScreenState>(ScreenState.Loading)
-        private set
-    var profileSheetState by mutableStateOf<ProfileSheetState>(ProfileSheetState.Profile)
+    var profileSheetState by mutableStateOf<ProfileSheetState>(ProfileSheetState.EditProfile)
 
     private val _userFlow = MutableStateFlow<UserDomain>(UserDomain.EMPTY)
     val userFLow: StateFlow<UserDomain> = _userFlow.asStateFlow()
@@ -34,10 +32,8 @@ class ProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            screenState = ScreenState.Loading
             dataManager.getUser().collect{ user ->
                 _userFlow.value = user
-                screenState = ScreenState.Success
             }
         }
         viewModelScope.launch {

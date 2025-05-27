@@ -16,6 +16,9 @@ import com.example.sellingserviceapp.model.entity.ServiceEntity
 import com.example.sellingserviceapp.model.entity.SubcategoryEntity
 import com.example.sellingserviceapp.model.entity.UserEntity
 import com.example.sellingserviceapp.model.mapper.FormatsConverters
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Database(
     entities = [UserEntity::class, CategoryEntity::class, SubcategoryEntity::class, ServiceEntity::class, FormatsEntity::class, PriceTypeEntity::class],
@@ -30,4 +33,10 @@ abstract class AppDataBase: RoomDatabase() {
     abstract fun FormatsDao(): FormatsDao
     abstract fun PriceTypeDao(): PriceTypeDao
     abstract fun SubcategoriesDao(): SubcategoriesDao
+}
+
+fun clearAllDataFromDataBase(dataBase: AppDataBase, scope: CoroutineScope) {
+    scope.launch(Dispatchers.IO) {
+        dataBase.clearAllTables()
+    }
 }

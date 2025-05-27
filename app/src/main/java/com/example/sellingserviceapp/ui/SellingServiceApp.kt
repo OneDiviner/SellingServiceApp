@@ -1,6 +1,8 @@
 package com.example.sellingserviceapp.ui
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import com.example.sellingserviceapp.ui.screen.authentication.AuthenticationSell
 import com.example.sellingserviceapp.ui.screen.AppUI
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SellingServiceApp(

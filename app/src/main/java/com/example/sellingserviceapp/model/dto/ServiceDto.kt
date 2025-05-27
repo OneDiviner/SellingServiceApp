@@ -45,4 +45,23 @@ data class ServiceDto(
     @SerializedName("subcategory")
     val subcategory: String
 
-)
+) {
+    companion object {
+        val EMPTY = ServiceDto(
+            id = 0,
+            userId = 0,
+            tittle = "",
+            description = null,
+            duration = null,
+            photoPath = null,
+            price = null,
+            createdAt = null,
+            updatedAt = null,
+            formats = null,
+            priceType = null,
+            status = "",
+            category = "",
+            subcategory = ""
+        )
+    }
+}

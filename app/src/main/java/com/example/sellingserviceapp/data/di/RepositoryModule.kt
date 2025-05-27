@@ -12,6 +12,8 @@ import com.example.sellingserviceapp.data.local.repository.user.IUserRepository
 import com.example.sellingserviceapp.data.local.repository.user.UserRepository
 import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
 import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepositoryImpl
+import com.example.sellingserviceapp.data.network.booking.BookingRepository
+import com.example.sellingserviceapp.data.network.booking.IBookingRepository
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepository
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepositoryImpl
 import dagger.Binds
@@ -51,4 +53,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPriceTypesRepository(repository: PriceTypesRepository): IPriceTypesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBookingRepository(repository: BookingRepository): IBookingRepository
 }

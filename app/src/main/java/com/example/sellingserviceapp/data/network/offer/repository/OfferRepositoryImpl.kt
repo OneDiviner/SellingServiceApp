@@ -2,17 +2,20 @@ package com.example.sellingserviceapp.data.network.offer.repository
 
 import android.util.Log
 import com.example.sellingserviceapp.data.network.AuthApiError
+import com.example.sellingserviceapp.data.network.authorization.response.Response
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
 import com.example.sellingserviceapp.data.network.offer.OfferApiService
 import com.example.sellingserviceapp.model.dto.CategoryDto
 import com.example.sellingserviceapp.model.dto.FormatsDto
+import com.example.sellingserviceapp.model.dto.NewServiceDto
 import com.example.sellingserviceapp.model.dto.PriceTypeDto
 import com.example.sellingserviceapp.model.dto.SubcategoryDto
 import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
 import com.example.sellingserviceapp.ui.screen.createService.model.toRequest
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -97,9 +100,53 @@ class OfferRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun createServiceRequest(shortService: ShortService): Result<CreateServiceResponse> {
+    override suspend fun createServiceRequest(newServiceDto: NewServiceDto): Result<Int> {
         return try {
-            val response = offerApiService.createServiceRequest(shortService.toRequest())
+            val response = offerApiService.createServiceRequest(newServiceDto)
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it.serviceId)
+                } ?: Result.failure(AuthApiError.EmptyBody())
+            } else {
+                //Добавить обработчик кодов ошибки
+                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Нет интернет соединения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun updateService(service: NewServiceDto, serviceId: Int): Result<ServiceDto> {
+        return try {
+            val response = offerApiService.updateServiceRequest(
+                serviceId = serviceId,
+                request = service
+            )
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it.service)
+                } ?: Result.failure(AuthApiError.EmptyBody())
+            } else {
+                //Добавить обработчик кодов ошибки
+                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Нет интернет соединения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun deleteService(serviceId: Int): Result<ResponseBody> {
+        return try {
+            val response = offerApiService.deleteService(serviceId = serviceId)
 
             if (response.isSuccessful) {
                 response.body()?.let {

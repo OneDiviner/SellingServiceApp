@@ -18,13 +18,14 @@ import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 
 @Composable
 fun LargeButton(
+    modifier: Modifier = Modifier,
     model: ButtonModel,
     onClick: () -> Unit
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(56.dp),
         enabled = when (model.state) {

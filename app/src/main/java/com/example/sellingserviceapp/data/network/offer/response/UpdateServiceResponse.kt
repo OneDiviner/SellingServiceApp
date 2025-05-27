@@ -4,7 +4,7 @@ import com.example.sellingserviceapp.data.network.authorization.response.Respons
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.google.gson.annotations.SerializedName
 
-data class UpdateServiceImageResponse(
+data class UpdateServiceResponse(
     @SerializedName("response") val response: Response,
-    @SerializedName("offer") val service: ServiceDto
+    @SerializedName("id") val service: ServiceDto
 )

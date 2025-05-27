@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
@@ -26,9 +27,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.ui.screen.createService.component.ServiceTextField
 import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUIState
 import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceValidators.validateTitle
 import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceViewModel
@@ -59,60 +63,33 @@ fun DescriptionUI(
                 Text(viewModel.newService.subcategoryName, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
             }
             item {
-
                 Column {
-                    TextField(
+                    ServiceTextField(
                         value = viewModel.newService.tittle,
                         onValueChange = {
                             viewModel.newService = viewModel.newService.copy(tittle = it)
                             error = viewModel.newService.validateTitle()
                         },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            disabledContainerColor = Color.Gray,
-                            disabledPlaceholderColor = Color.Transparent,
-                            disabledTextColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent,
-                            errorTextColor = Color.Red
-                        ),
-                        placeholder = {
-                            Text("Название услуги")
-                        },
+                        label = "Название",
                         isError = error != null,
-                        enabled = true
                     )
                     error?.let { Text(it, fontSize = 12.sp, color = Color.Red) }
                 }
 
             }
             item {
-                TextField(
+                ServiceTextField(
+                    modifier = Modifier.wrapContentHeight(),
                     value = viewModel.newService.description,
                     onValueChange = {
                         viewModel.newService = viewModel.newService.copy(description = it)
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        disabledContainerColor = Color.Gray,
-                        disabledPlaceholderColor = Color.Transparent,
-                        disabledTextColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    placeholder = {
-                        Text("Описание")
-                    },
-                    enabled = true
+                    label = "Описание",
+                    isSingleLine = false,
+                    textStyle = TextStyle.Default.copy(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
+                    )
                 )
             }
             item {

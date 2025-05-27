@@ -1,13 +1,10 @@
-package com.example.sellingserviceapp.ui.screen.createService.service.editService
+package com.example.sellingserviceapp.ui.screen.createService.userService.editService
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,10 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -30,23 +25,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.DisposableEffectScope
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -57,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.FormatsDomain
-import com.example.sellingserviceapp.model.domain.NewServiceDomain
 import com.example.sellingserviceapp.model.domain.PriceTypeDomain
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.ui.component.button.LargeButton
@@ -66,13 +54,6 @@ import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
 import com.example.sellingserviceapp.ui.screen.createService.component.ServiceTextField
 import com.example.sellingserviceapp.ui.screen.createService.component.SheetStickyHeader
-import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceUIState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 
 sealed class EditServiceState {
     data object EditService: EditServiceState()
@@ -90,26 +71,18 @@ fun EditServiceUI(
     formats: List<FormatsDomain>,
     priceTypes: List<PriceTypeDomain>,
     onBackButtonClick: () -> Unit,
+    onEditButtonClick: () -> Unit,
     viewModel: EditServiceViewModel = hiltViewModel()
 ) {
     val subcategories by viewModel.subcategories.collectAsState(emptyList())
-    val formatsIds = viewModel.editService.formatsIds.toMutableList()
+    val editService by viewModel.editService.collectAsState()
+    val editServiceState by viewModel.editServiceState.collectAsState()
 
-    LaunchedEffect(key1 = service) {
-
-        viewModel.serviceDomain = service
-        viewModel.categories = categories
-        viewModel.formats = formats
-        viewModel.priceTypes = priceTypes
-
-        if (viewModel.categories.isNotEmpty()) {
-            val categoryId = viewModel.categories.find { it.code == service.categoryCode }?.id
-            viewModel.getSubcategories(categoryId)
-        }
-        viewModel.initEditService(service)
+    LaunchedEffect(key1 = service,key2 = categories, key3 = formats) {
+        viewModel.initializeEditor(service, categories, formats, priceTypes)
     }
 
-    when(viewModel.editServiceState) {
+    when(editServiceState) {
         is EditServiceState.Error -> {}
         is EditServiceState.Loading -> {
             FullScreenCircularProgressIndicator()
@@ -133,8 +106,8 @@ fun EditServiceUI(
                     item {
                         ServiceTextField(
                             label = "Название",
-                            value = viewModel.editService.tittle,
-                            onValueChange = { viewModel.editService = viewModel.editService.copy(tittle = it) }
+                            value = editService.tittle,
+                            onValueChange = { viewModel.editTitle(it) }
                         )
                     } //EditTitle
 
@@ -171,7 +144,7 @@ fun EditServiceUI(
                                         text = { Text(text = selectedOption.name) },
                                         onClick = {
                                             selectedOptionText = selectedOption.name
-                                            viewModel.getSubcategories(selectedOption.id)
+                                            viewModel.selectCategory(selectedOption.id)
                                             expanded = false
                                         }
                                     )
@@ -213,7 +186,7 @@ fun EditServiceUI(
                                         text = { Text(text = selectedOption.name) },
                                         onClick = {
                                             selectedOptionText = selectedOption.name
-                                            viewModel.editService = viewModel.editService.copy(subcategoryId = selectedOption.id)
+                                            viewModel.selectSubcategory(selectedOption)
                                             expanded = false
                                         }
                                     )
@@ -228,9 +201,9 @@ fun EditServiceUI(
                         ) {
                             ServiceTextField(
                                 modifier = Modifier.weight(1f),
-                                value = viewModel.editService.price,
+                                value = editService.price,
                                 onValueChange = {
-                                    viewModel.editService = viewModel.editService.copy(price = it)
+                                    viewModel.editPrice(it)
                                 },
                                 label = "Цена",
                                 suffix = { Text("₽") },
@@ -238,7 +211,7 @@ fun EditServiceUI(
                             )
                             val options = viewModel.priceTypes
                             var expanded by remember { mutableStateOf(false) }
-                            var selectedOptionText by remember { mutableStateOf(options.find { it.id == viewModel.editService.priceTypeId }?.name ?: "") }
+                            var selectedOptionText by remember { mutableStateOf(options.find { it.id == editService.priceTypeId }?.name ?: "") }
 
                             ExposedDropdownMenuBox(
                                 modifier = Modifier
@@ -286,7 +259,7 @@ fun EditServiceUI(
                                             text = { Text(text = selectedOption.name) },
                                             onClick = {
                                                 selectedOptionText = selectedOption.name
-                                                viewModel.editService = viewModel.editService.copy(priceTypeId = selectedOption.id)
+                                                viewModel.selectPriceType(selectedOption)
                                                 expanded = false
                                             }
                                         )
@@ -308,7 +281,7 @@ fun EditServiceUI(
                         )
                         }
                         var expanded by remember { mutableStateOf(false) }
-                        var selectedOptionText by remember { mutableStateOf(viewModel.editService.duration) }
+                        var selectedOptionText by remember { mutableStateOf(editService.duration) }
                         ExposedDropdownMenuBox(
                             modifier = Modifier
                                 .height(56.dp)
@@ -337,7 +310,7 @@ fun EditServiceUI(
                                         text = { Text(text = selectedOption) },
                                         onClick = {
                                             selectedOptionText = selectedOption
-                                            viewModel.editService = viewModel.editService.copy(duration = selectedOption)
+                                            viewModel.selectDuration(selectedOption)
                                             expanded = false
                                         }
                                     )
@@ -349,8 +322,10 @@ fun EditServiceUI(
                     item {
                         ServiceTextField(
                             modifier = Modifier.wrapContentHeight(),
-                            value = viewModel.editService.description,
-                            onValueChange = {},
+                            value = editService.description,
+                            onValueChange = {
+                                viewModel.editDescription(it)
+                            },
                             label = "Описание",
                             isSingleLine = false,
                             textStyle = TextStyle.Default.copy(
@@ -361,6 +336,7 @@ fun EditServiceUI(
                     } //EditDescription
 
                     item {
+                        val formatsIds = editService.formatsIds.toMutableList()
                         viewModel.formats.forEach { format ->
                             var isSelected by remember { mutableStateOf(false) }
 
@@ -383,7 +359,7 @@ fun EditServiceUI(
                                         } else {
                                             formatsIds.remove(format.id)
                                         }
-                                        viewModel.editService = viewModel.editService.copy(formatsIds = formatsIds)
+                                        viewModel.selectFormats(formatsIds)
                                     },
                                     shape = RoundedCornerShape(20.dp),
                                     modifier = Modifier
@@ -408,27 +384,10 @@ fun EditServiceUI(
                                     }
                                 }
                                 if(format.isPhysical && isSelected) {
-                                    TextField(
-                                        value = viewModel.editService.address,
-                                        onValueChange = {
-                                            viewModel.editService = viewModel.editService.copy(address = it)
-                                        },
-                                        placeholder = {
-                                            Text("Адресс", fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
-                                        },
-                                        modifier = Modifier
-                                            .height(56.dp)
-                                            .fillMaxWidth(),
-                                        shape = RoundedCornerShape(20.dp),
-                                        colors = TextFieldDefaults.colors(
-                                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                            unfocusedIndicatorColor = Color.Transparent,
-                                            focusedIndicatorColor = Color.Transparent,
-                                            disabledContainerColor = Color.Gray,
-                                            disabledPlaceholderColor = Color.Transparent,
-                                            disabledTextColor = Color.Transparent,
-                                            disabledIndicatorColor = Color.Transparent
-                                        )
+                                    ServiceTextField(
+                                        value = editService.address,
+                                        onValueChange = {viewModel.editAddress(it)},
+                                        label = "Адресс"
                                     )
                                 }
                             }
@@ -438,21 +397,12 @@ fun EditServiceUI(
                     item {
                         LargeButton(
                             model = ButtonModel(
-                                text = "Создать услугу",
+                                text = "Изменить услугу",
                                 state = ButtonState.Ready
                             ),
                             onClick = {
-                                Log.d("EDITED_SERVICE",
-                                       "Tittle = ${viewModel.editService.tittle}\n" +
-                                            "Description = ${viewModel.editService.description}\n" +
-                                            "Duration = ${viewModel.editService.duration}\n" +
-                                            "SubcategoryName = ${viewModel.editService.subcategoryName}\n" +
-                                            "SubcategoryId = ${viewModel.editService.subcategoryId}\n" +
-                                            "Price = ${viewModel.editService.price}\n" +
-                                            "PriceTypeId = ${viewModel.editService.priceTypeId}\n" +
-                                            "FormatIds = ${viewModel.editService.formatsIds}\n" +
-                                            "Address = ${viewModel.editService.address}\n"
-                                )
+                                viewModel.updateService()
+                                onEditButtonClick()
                             }
                         )
                     }

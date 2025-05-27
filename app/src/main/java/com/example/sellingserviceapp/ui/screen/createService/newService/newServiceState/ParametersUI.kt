@@ -167,16 +167,7 @@ fun ParametersUI(
                 }
             }
             item {
-                val options by remember { mutableStateOf(
-                    listOf(
-                        "15",
-                        "30",
-                        "45",
-                        "60",
-                        "75",
-                    )
-                )
-                }
+                val options = viewModel.duration
                 var expanded by remember { mutableStateOf(false) }
                 var selectedOptionText by remember { mutableStateOf(options[0]) }
                 ExposedDropdownMenuBox(
@@ -236,13 +227,13 @@ fun ParametersUI(
                             onClick = {
                                 isSelected = !isSelected
                                 if (isSelected) {
-                                    if (formatsIds.contains(format.id)) {
+                                    if (!formatsIds.contains(format.id)) {
                                         formatsIds.add(format.id)
                                     }
                                 } else {
                                     formatsIds.remove(format.id)
                                 }
-                                viewModel.newService = viewModel.newService.copy(formatsIds = formatsIds)
+                                viewModel.selectFormats(formatsIds)
                             },
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier

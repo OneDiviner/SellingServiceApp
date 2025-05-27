@@ -12,6 +12,7 @@ import com.example.sellingserviceapp.data.network.authorization.request.SendVeri
 import com.example.sellingserviceapp.data.network.authorization.request.UpdateUserRequest
 import com.example.sellingserviceapp.data.network.authorization.request.VerifyResetPasswordCodeRequest
 import com.example.sellingserviceapp.data.network.authorization.response.CreateVerificationEmailResponse
+import com.example.sellingserviceapp.data.network.authorization.response.GetUserByIdResponse
 import com.example.sellingserviceapp.data.network.authorization.response.LoginResponse
 import com.example.sellingserviceapp.data.network.authorization.response.RefreshAccessTokenResponse
 import com.example.sellingserviceapp.data.network.authorization.response.RefreshPasswordResponse
@@ -33,6 +34,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 
@@ -87,5 +89,11 @@ interface AuthApiService {
     @GET("/api/private/user/avatar")
     @Headers("Token: true")
     suspend fun getAvatar(@Query("avatarPath") avatarPath: String): Response<ResponseBody>
+
+    @Headers("Token: true")
+    @GET("/api/private/user/{ids}")
+    suspend fun getUsersById(
+        @Path("ids") userId: Int
+    ): Response<GetUserByIdResponse>
 
 }

@@ -26,13 +26,13 @@ object ServiceConverters {
     )
 
     private val priceTypeMap = mapOf(
-        "PRICE_TYPE_FOR_OFFER" to "Усл.",
-        "PRICE_TYPE_FOR_KILOGRAM" to "Кг",
-        "PRICE_TYPE_FOR_METER" to "М",
-        "PRICE_TYPE_FOR_SQUARE_METER" to "М^2",
-        "PRICE_TYPE_FOR_PIECE" to "Шт.",
-        "PRICE_TYPE_FOR_LITER" to "Литр",
-        "PRICE_TYPE_FOR_HOUR" to "Час",
+        "PRICE_TYPE_FOR_OFFER" to "услугу",
+        "PRICE_TYPE_FOR_KILOGRAM" to "киллограмм",
+        "PRICE_TYPE_FOR_METER" to "метр",
+        "PRICE_TYPE_FOR_SQUARE_METER" to "м^2",
+        "PRICE_TYPE_FOR_PIECE" to "штуку",
+        "PRICE_TYPE_FOR_LITER" to "литр",
+        "PRICE_TYPE_FOR_HOUR" to "час",
     )
 
 
@@ -67,6 +67,30 @@ object ServiceConverters {
         )
     }
 
+    fun ServiceDto.toDomain(photo: String? = null): ServiceDomain {
+        return ServiceDomain(
+            id = id,
+            userId = userId,
+            tittle = tittle,
+            description = description,
+            duration = duration,
+            photoPath = photoPath,
+            photo = photo,
+            price = price,
+            priceTypeCode = priceType,
+            priceTypeName = priceTypeMap[priceType]?: priceType,
+            statusCode = status,
+            statusName = statusMap[status]?: status,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            formats = formatsDtoListToDomainList(formats),
+            categoryCode = category,
+            categoryName = categoryMap[category]?: category,
+            subcategoryCode = subcategory,
+            subcategoryName = subcategoryMap[subcategory]?: subcategory
+        )
+    }
+
     fun ServiceEntity.toDomain(): ServiceDomain {
         return ServiceDomain(
             id = id,
@@ -90,6 +114,12 @@ object ServiceConverters {
             subcategoryName = subcategoryName
         )
     }
+}
+
+fun serviceDtoListToDomainList(serviceDtoList: List<ServiceDto>?, serviceImage: String? = null): List<ServiceDomain> {
+    return serviceDtoList?.map {
+        it.toDomain(serviceImage)
+    } ?: emptyList()
 }
 
 fun serviceEntityListToDomainList(serviceEntityFlow: Flow<List<ServiceEntity>>): Flow<List<ServiceDomain>> {

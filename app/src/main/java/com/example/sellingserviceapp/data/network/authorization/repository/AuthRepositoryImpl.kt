@@ -1,5 +1,6 @@
 package com.example.sellingserviceapp.data.network.authorization.repository
 
+import android.util.Log
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import com.example.sellingserviceapp.data.network.AuthApiError
 import com.example.sellingserviceapp.data.network.authorization.request.CreateVerificationEmailRequest
@@ -332,6 +333,23 @@ class AuthRepositoryImpl @Inject constructor(
             val response = authApiService.refreshAccessToken(RefreshAccessTokenRequest(refreshToken))
             if (response.isSuccessful) {
                 Result.success(response.body()!!)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun getUserById(userId: Int): Result<UserDto> {
+        return try {
+            val response = authApiService.getUsersById(userId)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!.listUsersDto.first())
             } else {
                 Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
             }

@@ -4,6 +4,7 @@ package com.example.sellingserviceapp.data.di
 import com.example.sellingserviceapp.BuildConfig
 import com.example.sellingserviceapp.data.network.authorization.request.RefreshAccessTokenRequest
 import com.example.sellingserviceapp.data.network.authorization.AuthApiService
+import com.example.sellingserviceapp.data.network.booking.BookingApiService
 import com.example.sellingserviceapp.data.network.offer.OfferApiService
 import dagger.Provides
 import dagger.Module
@@ -142,6 +143,12 @@ object NetworkModule {
     @Singleton
     fun provideOfferApiService(@Named("main")retrofit: Retrofit): OfferApiService {
         return retrofit.create(OfferApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookingApiService(@Named("main")retrofit: Retrofit): BookingApiService {
+        return retrofit.create(BookingApiService::class.java)
     }
 
     @Provides

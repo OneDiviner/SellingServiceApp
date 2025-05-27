@@ -46,6 +46,17 @@ object FormatsConverters {
         )
     }
 
+    fun FormatsDto.toDomain(): FormatsDomain {
+        val name = formatMap[code] ?: this.code
+        return FormatsDomain(
+            id = id,
+            name = name,
+            code = code,
+            address = address,
+            isPhysical = isPhysical
+        )
+    }
+
     fun FormatsEntity.toDomain(): FormatsDomain {
         return FormatsDomain(
             id = id,
@@ -55,6 +66,12 @@ object FormatsConverters {
             isPhysical = isPhysical
         )
     }
+}
+
+fun formatsDtoListToDomainList(dtoList: List<FormatsDto>?): List<FormatsDomain> {
+    return dtoList?.map {
+        it.toDomain()
+    }?: emptyList()
 }
 
 fun formatsDtoListToEntityList(dtoList: List<FormatsDto>?): List<FormatsEntity> {

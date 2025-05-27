@@ -13,15 +13,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -57,11 +61,16 @@ fun pickImageLauncher(
 
 @Composable
 fun ImageContent(
+    modifier: Modifier = Modifier,
     photoBase64: String,
     onEditButtonClick: () -> Unit,
     onMoreButtonClick: () -> Unit,
     onPickImageButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
+    isDropdownExpanded: Boolean = false,
+    onDismissRequest: () -> Unit = {},
+    onDeleteButtonClick: () -> Unit = {},
+    isEditable: Boolean = true,
+    isPickImage: Boolean = true
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         if (photoBase64.isNotBlank()) {
@@ -87,33 +96,51 @@ fun ImageContent(
                 tint = MaterialTheme.colorScheme.onBackground
             )
         }
-        IconButton(
-            onClick = onEditButtonClick,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(15.dp)
-                .zIndex(3f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit",
+        if (isEditable) {
+            IconButton(
+                onClick = onEditButtonClick,
                 modifier = Modifier
-                    .size(28.dp)
-            )
+                    .align(Alignment.TopStart)
+                    .systemBarsPadding()
+                    .padding(start = 15.dp)
+                    .zIndex(3f)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit",
+                    modifier = Modifier
+                        .size(28.dp),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
         IconButton(
             onClick = onMoreButtonClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(15.dp)
+                .systemBarsPadding()
+                .padding(end = 15.dp)
                 .zIndex(3f)
         ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "More",
-                modifier = Modifier
-                    .size(28.dp)
-            )
+            Box() {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More",
+                    modifier = Modifier
+                        .size(28.dp),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+                DropdownMenu(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+                    expanded = isDropdownExpanded,
+                    onDismissRequest = onDismissRequest
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Удалить услугу") },
+                        onClick = onDeleteButtonClick,
+                    )
+                }
+            }
         }
         Box(
             modifier = Modifier
@@ -143,25 +170,27 @@ fun ImageContent(
                 )
             )
         )
-        Button(
-            onClick = onPickImageButtonClick,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 15.dp)
-                .offset(y = 18.dp)
-                .size(48.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            contentPadding = PaddingValues(0.dp)
-        ) {
-            Icon(
-                modifier = Modifier.size(22.dp),
-                painter = painterResource(R.drawable.add_photo_alternate),
-                contentDescription = "Изменить фото",
-                tint = MaterialTheme.colorScheme.onBackground
-            )
+        if (isPickImage) {
+            Button(
+                onClick = onPickImageButtonClick,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 15.dp)
+                    .offset(y = 18.dp)
+                    .size(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(R.drawable.add_photo_alternate),
+                    contentDescription = "Изменить фото",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
     }
 }

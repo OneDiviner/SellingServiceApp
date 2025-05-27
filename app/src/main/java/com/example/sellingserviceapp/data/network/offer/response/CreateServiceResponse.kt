@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class CreateServiceResponse(
     @SerializedName("response") val response: Response,
-    @SerializedName("id") val id: Int
+    @SerializedName("id") val serviceId: Int
 )

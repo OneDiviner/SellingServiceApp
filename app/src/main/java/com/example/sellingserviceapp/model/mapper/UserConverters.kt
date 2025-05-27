@@ -17,6 +17,16 @@ object UserConverters {
             avatarPath = avatarPath
         )
     }
+    fun UserDto.toDomain(userPhoto: String? = null): UserDomain {
+        return UserDomain(
+            email = email,
+            firstName = firstName,
+            secondName = secondName,
+            lastName = lastName,
+            phoneNumber = phoneNumber,
+            avatar = userPhoto
+        )
+    }
     fun UserEntity.toDomain(): UserDomain {
         return UserDomain(
             email = email,

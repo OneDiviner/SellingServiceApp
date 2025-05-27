@@ -23,7 +23,7 @@ interface ServiceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(serviceEntities: List<ServiceEntity>)
 
-    @Query("SELECT * FROM services")
+    @Query("SELECT * FROM services WHERE status_code != 'STATUS_DELETED'")
     fun getServices(): Flow<List<ServiceEntity>>
 
     @Query("SELECT * FROM services WHERE id = :serviceId")

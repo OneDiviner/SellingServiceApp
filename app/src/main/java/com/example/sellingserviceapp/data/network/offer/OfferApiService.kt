@@ -11,10 +11,13 @@ import com.example.sellingserviceapp.data.network.offer.response.GetSubcategorie
 import com.example.sellingserviceapp.data.network.offer.response.SearchServicesResponse
 import com.example.sellingserviceapp.data.network.offer.response.SearchUserServiceResponse
 import com.example.sellingserviceapp.data.network.offer.response.UpdateServiceImageResponse
+import com.example.sellingserviceapp.data.network.offer.response.UpdateServiceResponse
+import com.example.sellingserviceapp.model.dto.NewServiceDto
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
@@ -51,7 +54,14 @@ interface OfferApiService {
 
     @POST("/api/private/offer/create")
     @Headers("Token: true")
-    suspend fun createServiceRequest(@Body request: CreateServiceRequest): Response<CreateServiceResponse>
+    suspend fun createServiceRequest(@Body request: NewServiceDto): Response<CreateServiceResponse>
+
+    @PATCH("/api/private/offer/update/{id}")
+    @Headers("Token: true")
+    suspend fun updateServiceRequest(
+        @Path("id") serviceId: Int,
+        @Body request: NewServiceDto
+    ): Response<UpdateServiceResponse>
 
     @GET("/api/private/offer/search")
     @Headers("Token: true")
@@ -96,4 +106,8 @@ interface OfferApiService {
         @Path("id") serviceId: Int,
         @Part file: MultipartBody.Part
     ): Response<UpdateServiceImageResponse>
+
+    @DELETE("/api/private/offer/delete/{id}")
+    @Headers("Token: true")
+    suspend fun deleteService(@Path("id") serviceId: Int): Response<ResponseBody>
 }

@@ -51,5 +51,7 @@ interface AuthRepository {
 
     suspend fun getAvatar(avatarPath: String): Result<String>
 
+    suspend fun getUserById(userId: Int): Result<UserDto>
+
 }
 
