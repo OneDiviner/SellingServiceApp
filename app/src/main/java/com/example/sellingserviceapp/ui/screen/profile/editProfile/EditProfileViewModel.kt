@@ -31,12 +31,12 @@ class EditProfileViewModel @Inject constructor(
 ): ViewModel() {
 
     var newUserData by mutableStateOf<UserDomain>(UserDomain.EMPTY)
-    var editUserError by mutableStateOf<EditUserError?>(EditUserError.FirstNameError())
     var originalUser by mutableStateOf<UserDomain>(UserDomain.EMPTY)
+    var editUserError by mutableStateOf<EditUserError?>(EditUserError.FirstNameError())
 
     init {
         viewModelScope.launch {
-            dataManager.getUser().first().let { user->
+            dataManager.getUserFlow().first().let { user->
                 newUserData = user.copy()
                 originalUser = user.copy()
             }
@@ -82,7 +82,7 @@ class EditProfileViewModel @Inject constructor(
     fun updateUser() {
         viewModelScope.launch {
             dataManager.updateUser(newUserData)
-            dataManager.getUser().first().let { user ->
+            dataManager.getUserFlow().first().let { user ->
                 //Log.d("CHANGED_USER", newUserData.getChangedFields(user).toString())
                 dataManager.updateUser(newUserData.isChanged(originalUser))
             }

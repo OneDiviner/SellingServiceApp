@@ -59,7 +59,6 @@ class MainViewModel @Inject constructor(
             val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
             carRepairList = filteredList
             isRefreshing = false
-            dataManager.requestCategories()
             categories = dataManager.getCategories()
         }
     }

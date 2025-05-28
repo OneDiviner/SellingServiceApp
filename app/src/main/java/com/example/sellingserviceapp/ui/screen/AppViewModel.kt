@@ -1,16 +1,13 @@
 package com.example.sellingserviceapp.ui.screen
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.DataManager
-
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,13 +24,34 @@ class AppViewModel @Inject constructor(
     var appSheetContentState by mutableStateOf<AppSheetContentState>(AppSheetContentState.Profile)
 
     init {
-        initUser()
+        initUserWithUserServices()
+        initCategories()
+        initFormats()
+        initPriceTypes()
     }
 
-    private fun initUser() {
+    private fun initUserWithUserServices() {
         viewModelScope.launch {
-            dataManager.fetchUser()
+            val userJob = async { dataManager.fetchUser() }
+            userJob.await()
+            val serviceJob = async { dataManager.fetchUserServices(PAGE, SIZE) }
+            serviceJob.await()
         }
     }
 
+    private fun initCategories() {
+        viewModelScope.launch {
+            dataManager.fetchCategories()
+        }
+    }
+    private fun initFormats() {
+        viewModelScope.launch {
+            dataManager.fetchFormats()
+        }
+    }
+    private fun initPriceTypes() {
+        viewModelScope.launch {
+            dataManager.fetchPriceTypes()
+        }
+    }
 }

@@ -27,22 +27,18 @@ class ProfileViewModel @Inject constructor(
     private val _userFlow = MutableStateFlow<UserDomain>(UserDomain.EMPTY)
     val userFLow: StateFlow<UserDomain> = _userFlow.asStateFlow()
 
-    var newUserData by mutableStateOf<UserDomain>(UserDomain.EMPTY)
-        private set
 
     init {
+        getUser()
+    }
+
+    fun getUser() {
         viewModelScope.launch {
-            dataManager.getUser().collect{ user ->
+            dataManager.getUserFlow().collect { user ->
                 _userFlow.value = user
             }
         }
-        viewModelScope.launch {
-            dataManager.getUser().first().let { user->
-                newUserData = user.copy()
-            }
-        }
     }
-
 
     fun onPhotoSelected(base64: String?) {
         viewModelScope.launch {

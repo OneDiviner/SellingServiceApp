@@ -5,6 +5,7 @@ import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.entity.ServiceEntity
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.model.mapper.ServiceConverters.toDomain
+import com.example.sellingserviceapp.model.mapper.ServiceConverters.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -134,4 +135,10 @@ fun serviceEntityFlowToDomainFlow(serviceEntityFlow: Flow<ServiceEntity>): Flow<
     return serviceEntityFlow.map { serviceEntity ->
         serviceEntity.toDomain()
     }
+}
+
+fun serviceDtoListToEntityList(serviceDtoList: List<ServiceDto>?): List<ServiceEntity> {
+    return serviceDtoList?.map {
+        it.toEntity()
+    }?: emptyList()
 }

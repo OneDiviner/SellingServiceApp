@@ -28,7 +28,7 @@ class ServiceViewModel @Inject constructor(
         viewModelScope.launch {
             val serviceJob = async { dataManager.requestMainService(serviceId) }
             service = serviceJob.await()
-            val userJob = async { dataManager.getUserById(service.userId) }
+            val userJob = async { dataManager.fetchUserById(service.userId) }
             user = userJob.await()
             isLoading = false
         }

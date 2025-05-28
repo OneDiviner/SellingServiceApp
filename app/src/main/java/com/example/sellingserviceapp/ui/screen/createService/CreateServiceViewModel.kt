@@ -48,12 +48,7 @@ class CreateServiceViewModel @Inject constructor(
     var isRefreshing by mutableStateOf(false)
 
     init {
-        viewModelScope.launch {
-            dataManager.insertAllServices()
-            dataManager.requestFormats()
-            dataManager.requestPriceTypes()
-            dataManager.requestCategories()
-        }
+
     }
 
     fun getServiceById(serviceId: Int): Flow<ServiceDomain> {
