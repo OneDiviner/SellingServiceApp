@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 
 data class LocationTypes(
     @SerializedName("id") val id: Int,
-    @SerializedName("name") val name: String,
+    @SerializedName("code") val name: String,
     @SerializedName("is_physical") val isPhysical: Boolean
 )
 

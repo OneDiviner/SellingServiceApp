@@ -38,7 +38,8 @@ class ConfirmBookingViewModel @Inject constructor(
     }
     fun createBooking() {
         viewModelScope.launch {
-            val response = bookingRepository.createBooking(_serviceFlow.value.id, _dateFlow.value)
+            val date = "${_dateFlow.value} ${_timeFlow.value}"
+            val response = bookingRepository.createBooking(_serviceFlow.value.id, date)
             response.onSuccess {
                 Log.d("DATE", it.toString())
             }

@@ -12,6 +12,6 @@ data class Pageable(
 
 data class SearchServicesResponse(
     @SerializedName("response") val response: Response,
-    @SerializedName("offers") val services: List<ServiceDto>,
+    @SerializedName("offers") val services: List<ServiceDto>?,
     @SerializedName("pageable") val pageable: Pageable
 )

@@ -209,7 +209,7 @@ class DataManager @Inject constructor(
         val requestServicesDtoResult = offerRepository.searchServices(page, size)
         requestServicesDtoResult.fold(
             onSuccess = { servicesDto ->
-                if (servicesDto.services.isEmpty()) {
+                if (servicesDto.services.isNullOrEmpty()) {
                     return@fold emptyList<ServiceDomain>()
                 }
 
@@ -251,7 +251,7 @@ class DataManager @Inject constructor(
         val requestServicesDtoResult = offerRepository.searchServices(page, size, categoryId = serviceId.toLong())
         requestServicesDtoResult.fold(
             onSuccess = { servicesDto ->
-                if (servicesDto.services.isEmpty()) {
+                if (servicesDto.services.isNullOrEmpty()) {
                     return@fold emptyList<ServiceDomain>()
                 }
 

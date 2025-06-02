@@ -66,7 +66,7 @@ fun IconTextButton(field: FieldModel) {
             ) {
                 Text(
                     modifier = Modifier.align(Alignment.CenterStart),
-                    text = field.name,
+                    text = field.code,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,

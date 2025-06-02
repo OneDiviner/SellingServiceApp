@@ -1,11 +1,13 @@
 package com.example.sellingserviceapp.data.network.booking
 
 import com.example.sellingserviceapp.data.network.authorization.response.Response
+import com.example.sellingserviceapp.data.network.offer.response.Pageable
+import com.example.sellingserviceapp.ui.screen.profile.NewWorkTime
 import com.google.gson.annotations.SerializedName
-import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -22,7 +24,8 @@ data class CreateBookingRequest(
 
 data class Day(
     @SerializedName("id") val id: Long, // Используем Long для таких больших чисел, как 9007199254740991
-    @SerializedName("name") val name: String
+    @SerializedName("name") val code: String,
+    @Transient val name: String? = null
 )
 
 data class TimeTableResponse(
@@ -54,11 +57,33 @@ data class Booking(
     @SerializedName("updated_at") val updatedAt: String,
     @SerializedName("status") val status: String,
     @SerializedName("status_reason") val statusReason: String
-)
+) {
+    companion object {
+        val EMPTY = Booking(
+            id = 0,
+            userId = 0,
+            offerId = 0,
+            startDateTime = "",
+            endDateTime = "",
+            isUserDeleted = false,
+            isOfferDeleted = false,
+            createdAt = "",
+            updatedAt = "",
+            status = "",
+            statusReason = ""
+        )
+    }
+}
 
 data class CreateBookingResponse(
     @SerializedName("response") val response: Response,
     @SerializedName("booking") val booking: Booking
+)
+
+data class GetBookingResponse (
+    @SerializedName("response") val response: Response,
+    @SerializedName("bookings") val listOfBooking: List<Booking>,
+    @SerializedName("pageable") val pageable: Pageable
 )
 
 interface BookingApiService {
@@ -78,4 +103,40 @@ interface BookingApiService {
     @Headers("Token: true")
     @GET("/api/private/work-times/{userId}")
     suspend fun getTimeTable(@Path("userId") userId: Int): retrofit2.Response<TimeTableResponse>
+
+    @Headers("Token: true")
+    @GET("/api/private/work-times/my")
+    suspend fun getUserTimeTable(): retrofit2.Response<TimeTableResponse>
+
+    @Headers("Token: true")
+    @PATCH("/api/private/work-times/update")
+    suspend fun updateWorkTime(@Body newWorkTime: NewWorkTime): retrofit2.Response<TimeTableResponse>
+
+    @Headers("Token: true")
+    @GET("/api/private/booking/executor/status")
+    suspend fun getBookingAsExecutor(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10,
+        @Query("statusId") statusId: Int? = null
+    ): retrofit2.Response<GetBookingResponse>
+
+    @Headers("Token: true")
+    @GET("/api/private/booking/executor/date")
+    suspend fun getBookingAsExecutor(
+        @Query("localDate") date: String,
+    ): retrofit2.Response<GetBookingResponse>
+
+    @Headers("Token: true")
+    @GET("/api/private/booking/client/status")
+    suspend fun getBookingAsClient(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10,
+        @Query("statusId") statusId: Int? = null
+    ): retrofit2.Response<GetBookingResponse>
+
+    @Headers("Token: true")
+    @GET("/api/private/booking/client/date")
+    suspend fun getBookingAsClient(
+        @Query("localDate") date: String,
+    ): retrofit2.Response<GetBookingResponse>
 }

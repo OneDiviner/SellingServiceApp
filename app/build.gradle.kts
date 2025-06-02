@@ -6,6 +6,8 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+
+
 android {
     namespace = "com.example.sellingserviceapp"
     compileSdk = 35
@@ -66,6 +68,8 @@ android {
 }
 
 dependencies {
+
+    implementation("com.github.vsnappy1:ComposeDatePicker:2.2.0")
 
     //Room
     implementation("androidx.room:room-runtime:2.7.1")

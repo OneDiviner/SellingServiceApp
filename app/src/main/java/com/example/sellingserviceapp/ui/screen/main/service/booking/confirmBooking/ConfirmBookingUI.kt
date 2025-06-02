@@ -132,6 +132,7 @@ fun ConfirmBookingUI(
                 Button(
                     onClick = {
                         viewModel.createBooking()
+                        onCreateBookingClick()
                     },
                     modifier = Modifier
                         .fillMaxWidth()

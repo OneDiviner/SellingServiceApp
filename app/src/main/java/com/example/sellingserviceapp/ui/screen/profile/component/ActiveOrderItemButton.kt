@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sellingserviceapp.R
+import com.example.sellingserviceapp.data.network.booking.Booking
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 
 data class Order(
@@ -58,7 +59,7 @@ data class Order(
 fun ActiveOrderItemButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    order: Order = Order.EMPTY
+    booking: Booking = Booking.EMPTY
 ) {
     Button(
         onClick = {},
@@ -85,14 +86,14 @@ fun ActiveOrderItemButton(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = painterResource(id = order.icon),
+                    painter = painterResource(R.drawable.book),
                     contentDescription = null,
                     modifier = Modifier.size(30.dp),
                     tint = Color(0xFFFFFFFF)
                 )
                 Column() {
                     Text(
-                        text = order.tittle,
+                        text = booking.status,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
@@ -110,7 +111,7 @@ fun ActiveOrderItemButton(
                     )
                     Text(
                         modifier = Modifier,
-                        text = "${order.category}•${order.subcategory}",
+                        text = "${booking.startDateTime}•${booking.statusReason}",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
                     )

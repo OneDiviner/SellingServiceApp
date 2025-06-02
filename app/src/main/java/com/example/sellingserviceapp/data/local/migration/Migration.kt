@@ -16,7 +16,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
             """
             CREATE TABLE IF NOT EXISTS `categories` (
                 `id` INTEGER PRIMARY KEY,
-                `name` TEXT NOT NULL
+                `code` TEXT NOT NULL
             )
         """
         )
@@ -29,16 +29,16 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("""
             CREATE TABLE categories_new (
                 id INTEGER PRIMARY KEY NOT NULL,
-                name TEXT NOT NULL
+                code TEXT NOT NULL
             )
         """)
 
         // 2. Копируем данные из старой таблицы
         db.execSQL("""
-            INSERT INTO categories_new (id, name)
+            INSERT INTO categories_new (id, code)
             SELECT 
                 CASE WHEN id IS NULL THEN 0 ELSE id END, 
-                name 
+                code 
             FROM categories
         """)
 
@@ -64,7 +64,7 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         database.execSQL("""
             CREATE TABLE IF NOT EXISTS `subcategories` (
                 `id` INTEGER PRIMARY KEY,
-                `name` TEXT NOT NULL,
+                `code` TEXT NOT NULL,
                 `code` TEXT NOT NULL DEFAULT '',
                 `category_id` INTEGER NOT NULL,
                 FOREIGN KEY (`category_id`) 

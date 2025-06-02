@@ -280,7 +280,7 @@ fun MainUI(
                 ServiceCardItem(
                     onClick = { onServiceButtonClick(service.id) },
                     title = service.tittle,
-                    category = service.categoryName,
+                    price = "${service.price}₽ за ${service.priceTypeName}",
                     subcategory = service.subcategoryName,
                     photo = service.photo,
                     isRefreshing = viewModel.isRefreshing
@@ -296,7 +296,7 @@ fun MainUI(
                 ServiceCardItem(
                     onClick = { onServiceButtonClick(service.id) },
                     title = service.tittle,
-                    category = service.categoryName,
+                    price = "${service.price}₽ за ${service.priceTypeName}",
                     subcategory = service.subcategoryName,
                     photo = service.photo,
                     isRefreshing = viewModel.isRefreshing

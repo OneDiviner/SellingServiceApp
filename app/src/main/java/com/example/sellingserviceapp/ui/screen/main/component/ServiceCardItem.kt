@@ -79,7 +79,7 @@ fun ServiceCardItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     title: String,
-    category: String,
+    price: String,
     subcategory: String,
     photo: String?,
     isRefreshing: Boolean = false
@@ -166,7 +166,7 @@ fun ServiceCardItem(
                     )
             ) {
                 Text(
-                    text = "От 500Р за услугу",
+                    text = price,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 20.sp,

@@ -88,7 +88,7 @@ fun AppUI(
         sheetPeekHeight = 0.dp,
         modifier = Modifier
             .blur(radius = blurRadius),
-        content = {
+        content = { //TODO: Не инитит MainUI
             MainUI(
                 onProfileButtonClick = {
                     viewModel.appSheetContentState = AppSheetContentState.Profile
