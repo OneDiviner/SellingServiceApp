@@ -2,6 +2,7 @@ package com.example.sellingserviceapp.ui.screen.createService.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import com.example.sellingserviceapp.R
 @Composable
 fun CategoryButton(
     category: String,
+    description: String? = null,
     onClick: () -> Unit
 ) {
     Button(
@@ -58,13 +60,21 @@ fun CategoryButton(
                     modifier = Modifier.size(30.dp),
                     tint = Color(0xFFFFFFFF)
                 )
-                Box {
+                Column {
                     Text(
                         modifier = Modifier,
                         text = category,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onBackground
                     )
+                    if (description != null) {
+                        Text(
+                            modifier = Modifier,
+                            text = description,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onBackground.copy(0.75f)
+                        )
+                    }
                 }
             }
             Icon(

@@ -362,4 +362,21 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getUsersListById(userIds: List<Int>): Result<List<UserDto>> {
+        return try {
+            val response = authApiService.getUsersListById(userIds.joinToString(","))
+            if (response.isSuccessful) {
+                Result.success(response.body()!!.listUsersDto)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
 }

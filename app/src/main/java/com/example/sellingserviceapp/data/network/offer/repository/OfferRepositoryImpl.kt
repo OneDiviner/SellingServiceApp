@@ -294,5 +294,22 @@ class OfferRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getServicesList(serviceIds: List<Int>): Result<List<ServiceDto>> {
+        return try {
+            val response = offerApiService.getServicesList(serviceIds)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!.servicesList)
+            } else {
+                Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Ошибка подключения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
 }
 

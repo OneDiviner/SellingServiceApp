@@ -34,6 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.ui.screen.createService.CreateServiceUI
 import com.example.sellingserviceapp.ui.screen.main.MainUI
 import com.example.sellingserviceapp.ui.screen.main.service.ServiceUI
+import com.example.sellingserviceapp.ui.screen.offer.OffersUI
+import com.example.sellingserviceapp.ui.screen.order.OrdersUI
 import com.example.sellingserviceapp.ui.screen.profile.ProfileUI
 import kotlinx.coroutines.launch
 
@@ -41,6 +43,8 @@ sealed class AppSheetContentState {
     data object Profile: AppSheetContentState()
     data object UserServices: AppSheetContentState()
     data object Service: AppSheetContentState()
+    data object Orders: AppSheetContentState()
+    data object Offers: AppSheetContentState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,21 +95,21 @@ fun AppUI(
         content = { //TODO: Не инитит MainUI
             MainUI(
                 onProfileButtonClick = {
-                    viewModel.appSheetContentState = AppSheetContentState.Profile
                     scope.launch {
+                        viewModel.appSheetContentState = AppSheetContentState.Profile
                         bottomSheetState.expand()
                     }
                 },
                 onUserServicesButtonClick = {
-                    viewModel.appSheetContentState = AppSheetContentState.UserServices
                     scope.launch {
+                        viewModel.appSheetContentState = AppSheetContentState.UserServices
                         bottomSheetState.expand()
                     }
                 },
                 onServiceButtonClick = { serviceId ->
-                    serviceIdFromMain = serviceId
-                    viewModel.appSheetContentState = AppSheetContentState.Service
                     scope.launch {
+                        serviceIdFromMain = serviceId
+                        viewModel.appSheetContentState = AppSheetContentState.Service
                         bottomSheetState.expand()
                     }
                 }
@@ -120,7 +124,11 @@ fun AppUI(
             ) {
                 when(it) {
                     is AppSheetContentState.Profile -> {
-                        ProfileUI { viewModel.appSheetContentState = AppSheetContentState.UserServices }
+                        ProfileUI(
+                            onMyServiceButtonClick = { viewModel.appSheetContentState = AppSheetContentState.UserServices },
+                            onOrdersButtonClick = {  viewModel.appSheetContentState = AppSheetContentState.Orders },
+                            onOffersButtonClick = { viewModel.appSheetContentState = AppSheetContentState.Offers }
+                        )
                     }
                     is AppSheetContentState.UserServices -> {
                         CreateServiceUI { viewModel.appSheetContentState = AppSheetContentState.Profile }
@@ -129,6 +137,12 @@ fun AppUI(
                         ServiceUI(
                             serviceId = serviceIdFromMain
                         )
+                    }
+                    is AppSheetContentState.Orders -> {
+                        OrdersUI { viewModel.appSheetContentState = AppSheetContentState.Profile }
+                    }
+                    is AppSheetContentState.Offers -> {
+                        OffersUI { viewModel.appSheetContentState = AppSheetContentState.Profile }
                     }
                 }
             }

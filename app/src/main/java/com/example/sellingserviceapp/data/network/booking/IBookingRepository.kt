@@ -13,4 +13,7 @@ interface IBookingRepository {
     suspend fun getBookingAsExecutor(date: String): Result<GetBookingResponse>
     suspend fun getBookingAsClient(page: Int, size: Int, statusId: Int? = null): Result<GetBookingResponse>
     suspend fun getBookingAsClient(date: String): Result<GetBookingResponse>
+    suspend fun confirmBookingAsExecutor(bookingId: Int): Result<CreateBookingResponse>
+    suspend fun rejectBookingAsExecutor(bookingId: Int): Result<CreateBookingResponse>
+    suspend fun getBookingStatuses(): Result<GetBookingStatusesResponse>
 }

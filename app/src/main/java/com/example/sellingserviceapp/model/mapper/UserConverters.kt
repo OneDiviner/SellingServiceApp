@@ -3,6 +3,7 @@ package com.example.sellingserviceapp.model.mapper
 import com.example.sellingserviceapp.model.entity.UserEntity
 import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.model.domain.UserDomain
+import com.example.sellingserviceapp.model.mapper.UserConverters.toDomain
 
 object UserConverters {
     fun UserDto.toEntity(avatar: String? = null): UserEntity {
@@ -51,5 +52,11 @@ object UserConverters {
             role = "",
             status = ""
         )
+    }
+}
+
+fun usersDtoListToDomainList(usersDtoList: List<UserDto>): List<UserDomain> {
+    return usersDtoList.map {
+        it.toDomain()
     }
 }

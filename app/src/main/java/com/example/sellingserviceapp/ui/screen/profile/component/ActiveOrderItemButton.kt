@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sellingserviceapp.R
 import com.example.sellingserviceapp.data.network.booking.Booking
+import com.example.sellingserviceapp.model.domain.ServiceDomain
+import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.ui.screen.createService.model.Subcategory
 
 data class Order(
@@ -58,6 +60,8 @@ data class Order(
 @Composable
 fun ActiveOrderItemButton(
     modifier: Modifier = Modifier,
+    user: UserDto? = null,
+    service: ServiceDomain? = null,
     onClick: () -> Unit,
     booking: Booking = Booking.EMPTY
 ) {
@@ -115,6 +119,14 @@ fun ActiveOrderItemButton(
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
                     )
+                    if (user != null && service != null) {
+                        Text(
+                            modifier = Modifier,
+                            text = "${user.firstName}•${service.tittle}",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+                        )
+                    }
                 }
             }
         }

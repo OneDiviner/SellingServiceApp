@@ -208,4 +208,67 @@ class BookingRepository @Inject constructor(
         }
     }
 
+    override suspend fun confirmBookingAsExecutor(bookingId: Int): Result<CreateBookingResponse> {
+        return try {
+            val response = bookingApiService.confirmBookingAsExecutor(bookingId)
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(AuthApiError.EmptyBody())
+            } else {
+                //Добавить обработчик кодов ошибки
+                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Нет интернет соединения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun rejectBookingAsExecutor(bookingId: Int): Result<CreateBookingResponse> {
+        return try {
+            val response = bookingApiService.rejectBookingAsExecutor(bookingId)
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(AuthApiError.EmptyBody())
+            } else {
+                //Добавить обработчик кодов ошибки
+                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Нет интернет соединения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
+    override suspend fun getBookingStatuses(): Result<GetBookingStatusesResponse> {
+        return try {
+            val response = bookingApiService.getBookingStatuses()
+
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(AuthApiError.EmptyBody())
+            } else {
+                //Добавить обработчик кодов ошибки
+                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            when (e) {
+                is IOException -> Result.failure(AuthApiError.NetworkError("Нет интернет соединения"))
+                is HttpException -> Result.failure(AuthApiError.HttpError(e.code(), "Ошибка: ${e.message}"))
+                else -> Result.failure(AuthApiError.UnknownError("Непредвиденная ошибка: ${e.message}"))
+            }
+        }
+    }
+
 }

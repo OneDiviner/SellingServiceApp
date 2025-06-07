@@ -12,6 +12,7 @@ import com.example.sellingserviceapp.data.network.booking.Booking
 import com.example.sellingserviceapp.data.network.booking.BookingRepository
 import com.example.sellingserviceapp.data.network.booking.IBookingRepository
 import com.example.sellingserviceapp.data.network.booking.TimeTable
+import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.domain.UserDomain
 import com.example.sellingserviceapp.model.mapper.daysListCodeToName
 import com.google.gson.annotations.SerializedName
@@ -53,21 +54,28 @@ class ProfileViewModel @Inject constructor(
 
     var newWorkTime by mutableStateOf<NewWorkTime>(NewWorkTime.EMPTY)
 
-    private val _bookingsAsExecutorFlow = MutableStateFlow<List<Booking>?>(emptyList())
-    val bookingsAsExecutorFlow: StateFlow<List<Booking>?> = _bookingsAsExecutorFlow.asStateFlow()
+    private val _bookingsAsExecutorFlow = MutableStateFlow<List<BookingWithData>?>(emptyList())
+    val bookingsAsExecutorFlow: StateFlow<List<BookingWithData>?> = _bookingsAsExecutorFlow.asStateFlow()
+
+    private val _bookingsAsClientFlow = MutableStateFlow<List<BookingWithData>>(emptyList())
+    val bookingsAsClientFlow: StateFlow<List<BookingWithData>?> = _bookingsAsClientFlow.asStateFlow()
 
     init {
         getUser()
         getTimeTable()
         getBookingAsExecutor()
+        getBookingAsExecutor()
     }
 
     fun getBookingAsExecutor() {
         viewModelScope.launch {
-            val bookingResponse = bookingRepository.getBookingAsExecutor(page = 0, size = 20)
-            bookingResponse.onSuccess {
-                _bookingsAsExecutorFlow.value = it.listOfBooking
-            }
+            _bookingsAsExecutorFlow.value = dataManager.getBookingAsExecutor(0, 20)
+        }
+    }
+
+    fun getBookingAsClient() {
+        viewModelScope.launch {
+            _bookingsAsExecutorFlow.value = dataManager.getBookingAsClient(0, 20)
         }
     }
 
@@ -88,13 +96,15 @@ class ProfileViewModel @Inject constructor(
                 daysIds = _timeTableFlow.value?.days?.map { it.id } ?: emptyList()
             )
             val daysCodeToName =  daysListCodeToName(_timeTableFlow.value?.days ?: emptyList())
-            val startTime = _timeTableFlow.value?.startTime?.substring(0, 5) ?: ""
-            val endTime = _timeTableFlow.value?.endTime?.substring(0, 5) ?: ""
-            _timeTableFlow.value = _timeTableFlow.value?.copy(
-                days = daysCodeToName.sortedBy { it.id },
-                startTime = startTime,
-                endTime = endTime
-            )
+            val startTime = _timeTableFlow.value?.startTime
+            val endTime = _timeTableFlow.value?.endTime
+            if(startTime != "" && endTime != "") {
+                _timeTableFlow.value = _timeTableFlow.value?.copy(
+                    days = daysCodeToName.sortedBy { it.id },
+                    startTime = startTime?.substring(0, 5) ?: "",
+                    endTime = endTime?.substring(0, 5) ?: ""
+                )
+            }
         }
     }
 

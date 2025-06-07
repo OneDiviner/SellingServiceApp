@@ -13,6 +13,8 @@ import com.example.sellingserviceapp.data.network.offer.response.SearchUserServi
 import com.example.sellingserviceapp.data.network.offer.response.UpdateServiceImageResponse
 import com.example.sellingserviceapp.data.network.offer.response.UpdateServiceResponse
 import com.example.sellingserviceapp.model.dto.NewServiceDto
+import com.example.sellingserviceapp.model.dto.ServiceDto
+import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -110,4 +112,13 @@ interface OfferApiService {
     @DELETE("/api/private/offer/delete/{id}")
     @Headers("Token: true")
     suspend fun deleteService(@Path("id") serviceId: Int): Response<ResponseBody>
+
+    @Headers("Token: true")
+    @GET("/api/private/offer")
+    suspend fun getServicesList(@Query("ids") serviceIds: List<Int>): Response<GetServicesListResponse>
 }
+
+data class GetServicesListResponse(
+    @SerializedName("response") val response: com.example.sellingserviceapp.data.network.authorization.response.Response,
+    @SerializedName("offers") val servicesList: List<ServiceDto>
+)

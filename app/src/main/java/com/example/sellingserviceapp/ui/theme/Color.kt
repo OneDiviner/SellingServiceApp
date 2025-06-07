@@ -20,8 +20,8 @@ val OnDarkBackground = Color(0xFFF5F5F5)
 
 
 //LightThemeColors
-val BackgroundLight = Color(0xFFF5F5F5)
-val CardLight = Color(0xFFF0F0F0)
+val BackgroundLight = Color(0xFFDCDCE1)
+val CardLight = Color(0xFFC8C8D2)
 val onLightSurface = Color(0xB3141414)
 val BorderLight = Color(0x0D050505)
 val OnLightBackground = Color(0xFF0F0F0F)

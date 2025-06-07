@@ -53,5 +53,7 @@ interface AuthRepository {
 
     suspend fun getUserById(userId: Int): Result<UserDto>
 
+    suspend fun getUsersListById(userIds: List<Int>): Result<List<UserDto>>
+
 }
 

@@ -67,8 +67,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.R
+import com.example.sellingserviceapp.data.network.booking.Booking
 import com.example.sellingserviceapp.data.network.booking.Day
+import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
+import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.ui.screen.profile.component.ActiveOrderItemButton
 import com.example.sellingserviceapp.ui.screen.profile.component.HorizontalPagerItem
 import com.example.sellingserviceapp.ui.screen.profile.component.Note
@@ -97,7 +100,9 @@ sealed class PickTimeState {
 @Composable
 fun ProfileUI(
     viewModel: ProfileViewModel = hiltViewModel(),
-    onMyServiceButtonClick: () -> Unit
+    onMyServiceButtonClick: () -> Unit,
+    onOrdersButtonClick: () -> Unit,
+    onOffersButtonClick: () -> Unit
 ) {
 
     var isOpen by remember { mutableStateOf(false) }
@@ -145,7 +150,9 @@ fun ProfileUI(
     val pickImageLauncher = pickImageLauncher {
         viewModel.onPhotoSelected(it)
     }
-    val bookingList by viewModel.bookingsAsExecutorFlow.collectAsState()
+
+    val bookingsAsExecutor by viewModel.bookingsAsExecutorFlow.collectAsState()
+    val bookingsAsClient by viewModel.bookingsAsClientFlow.collectAsState()
 
     Box(
         modifier = Modifier
@@ -205,9 +212,9 @@ fun ProfileUI(
                     )
                     SectionButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {},
+                        onClick = onOffersButtonClick,
                         icon = painterResource(R.drawable.book),
-                        title = "Мои записи"
+                        title = "Записи"
                     )
                 }
             }
@@ -218,12 +225,9 @@ fun ProfileUI(
                 ) {
                     SectionButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            viewModel.profileSheetState = ProfileSheetState.TimeTable
-                            isOpen = true
-                        },
-                        icon = painterResource(R.drawable.work_history),
-                        title = "История"
+                        onClick = onOrdersButtonClick,
+                        icon = painterResource(R.drawable.handyman),
+                        title = "Заказы"
                     )
                     SectionButton(
                         modifier = Modifier.weight(1f),
@@ -438,12 +442,25 @@ fun ProfileUI(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
-
-            items(bookingList?: emptyList()) { booking ->
+            items(bookingsAsClient?: emptyList()) { bookingWithData ->
                 ActiveOrderItemButton(
                     onClick = {},
-                    booking = booking
+                    booking = bookingWithData.booking ?: Booking.EMPTY,
+                    user = bookingWithData.user,
+                    service = bookingWithData.service
                 )
+                Text(bookingWithData.service?.tittle ?: "No data", color = Color.White)
+                Text(bookingWithData.user?.firstName ?: "No data", color = Color.White)
+            }
+            items(bookingsAsExecutor?: emptyList()) { bookingWithData ->
+                ActiveOrderItemButton(
+                    onClick = {},
+                    booking = bookingWithData.booking ?: Booking.EMPTY,
+                    user = bookingWithData.user,
+                    service = bookingWithData.service
+                )
+                Text(bookingWithData.service?.tittle ?: "No data", color = Color.White)
+                Text(bookingWithData.user?.firstName ?: "No data", color = Color.White)
             }
 
             item {
@@ -557,7 +574,7 @@ fun ProfileUI(
 
 @Composable
 fun PickTime(
-    title: String,
+    title: String = "",
     time: String,
     onTimeSelected: (Int, Int) -> Unit,
     onDismissRequest: () -> Unit,

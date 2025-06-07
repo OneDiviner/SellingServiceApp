@@ -1,10 +1,12 @@
 package com.example.sellingserviceapp.data.network.booking
 
 import com.example.sellingserviceapp.data.network.authorization.response.Response
+import com.example.sellingserviceapp.data.network.offer.GetServicesListResponse
 import com.example.sellingserviceapp.data.network.offer.response.Pageable
 import com.example.sellingserviceapp.ui.screen.profile.NewWorkTime
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.PATCH
@@ -139,4 +141,27 @@ interface BookingApiService {
     suspend fun getBookingAsClient(
         @Query("localDate") date: String,
     ): retrofit2.Response<GetBookingResponse>
+
+    @Headers("Token: true")
+    @PATCH("/api/private/booking/confirm/{id}")
+    suspend fun confirmBookingAsExecutor(@Path("id") bookingId: Int): retrofit2.Response<CreateBookingResponse>
+
+    @Headers("Token: true")
+    @DELETE("/api/private/booking/reject/{id}")
+    suspend fun rejectBookingAsExecutor(@Path("id") bookingId: Int): retrofit2.Response<CreateBookingResponse>
+
+    @Headers("Token: true")
+    @GET("/api/private/status")
+    suspend fun getBookingStatuses(): retrofit2.Response<GetBookingStatusesResponse>
 }
+
+data class Status(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val code: String,
+    @Transient val name: String? = null
+)
+
+data class GetBookingStatusesResponse(
+    @SerializedName("response") val response: Response,
+    @SerializedName("statuses") val statuses: List<Status>
+)

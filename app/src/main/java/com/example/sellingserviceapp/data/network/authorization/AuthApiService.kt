@@ -96,4 +96,10 @@ interface AuthApiService {
         @Path("ids") userId: Int
     ): Response<GetUserByIdResponse>
 
+    @Headers("Token: true")
+    @GET("/api/private/user/{ids}")
+    suspend fun getUsersListById(
+        @Path("ids") userIds: String
+    ): Response<GetUserByIdResponse>
+
 }

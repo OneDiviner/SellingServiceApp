@@ -12,10 +12,14 @@ import com.example.sellingserviceapp.data.local.repository.categories.ICategorie
 import com.example.sellingserviceapp.data.local.repository.service.IServiceRepository
 import com.example.sellingserviceapp.data.local.repository.user.IUserRepository
 import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
+import com.example.sellingserviceapp.data.network.booking.Booking
+import com.example.sellingserviceapp.data.network.booking.IBookingRepository
+import com.example.sellingserviceapp.data.network.booking.Status
 import com.example.sellingserviceapp.model.mapper.UserConverters.toDomain
 import com.example.sellingserviceapp.model.mapper.UserConverters.toDto
 import com.example.sellingserviceapp.model.mapper.UserConverters.toEntity
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepository
+import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.FormatsDomain
 import com.example.sellingserviceapp.model.domain.NewServiceDomain
@@ -29,7 +33,6 @@ import com.example.sellingserviceapp.model.dto.PriceTypeDto
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.model.dto.SubcategoryDto
 import com.example.sellingserviceapp.model.dto.UserDto
-import com.example.sellingserviceapp.model.entity.UserEntity
 import com.example.sellingserviceapp.model.mapper.NewServiceMapper.toDto
 import com.example.sellingserviceapp.model.mapper.ServiceConverters.toDomain
 import com.example.sellingserviceapp.model.mapper.ServiceConverters.toEntity
@@ -37,8 +40,10 @@ import com.example.sellingserviceapp.model.mapper.categoriesDtoListToEntityList
 import com.example.sellingserviceapp.model.mapper.categoriesEntityListToDomainList
 import com.example.sellingserviceapp.model.mapper.formatsDtoListToEntityList
 import com.example.sellingserviceapp.model.mapper.formatsEntityListToDomainList
+import com.example.sellingserviceapp.model.mapper.mapStatusListByExecutor
 import com.example.sellingserviceapp.model.mapper.priceTypesDtoListToEntityList
 import com.example.sellingserviceapp.model.mapper.priceTypesEntityListToDomainList
+import com.example.sellingserviceapp.model.mapper.serviceDtoListToDomainList
 import com.example.sellingserviceapp.model.mapper.serviceDtoListToEntityList
 import com.example.sellingserviceapp.model.mapper.serviceEntityFlowToDomainFlow
 import com.example.sellingserviceapp.model.mapper.serviceEntityListToDomainList
@@ -124,7 +129,7 @@ class DataManager @Inject constructor(
     private val formatsRepository: FormatsRepository,
     private val globalAppState: GlobalAppState,
     private val secureTokenStorage: SecureTokenStorage,
-
+    private val bookingRepository: IBookingRepository,
     private val appDataBase: AppDataBase
 ): User, Categories, Subcategories, Service, Formats, PriceTypes, MainServices {
 
@@ -423,6 +428,93 @@ class DataManager @Inject constructor(
     override suspend fun insertAllServices(servicesDto: List<ServiceDto>) {
         val servicesEntity = serviceDtoListToEntityList(servicesDto)
         serviceRepository.insertAllService(servicesEntity)
+    }
+
+    suspend fun getBookingAsExecutor(
+        page: Int = 0,
+        size: Int = 20,
+        statusId: Int? = null
+    ): List<BookingWithData> {
+        val bookingsResponse = bookingRepository.getBookingAsExecutor(page, size, statusId)
+        bookingsResponse.onSuccess {
+            return bookingWithData(it.listOfBooking)
+        }
+        return emptyList()
+    }
+
+    suspend fun getBookingAsExecutor(
+        date: String
+    ): List<BookingWithData> {
+        val bookingsResponse = bookingRepository.getBookingAsExecutor(date)
+        bookingsResponse.onSuccess {
+            return bookingWithData(it.listOfBooking)
+        }
+        return emptyList()
+    }
+
+    suspend fun getBookingAsClient(
+        page: Int = 0,
+        size: Int = 20,
+        statusId: Int? = null
+    ): List<BookingWithData> {
+        val bookingsResponse = bookingRepository.getBookingAsClient(page, size, statusId)
+        bookingsResponse.onSuccess {
+            return bookingWithData(it.listOfBooking)
+        }
+        return emptyList()
+    }
+
+    suspend fun getBookingAsClient(
+        date: String
+    ): List<BookingWithData> {
+        val bookingsResponse = bookingRepository.getBookingAsClient(date)
+        bookingsResponse.onSuccess {
+            return bookingWithData(it.listOfBooking)
+        }
+        return emptyList()
+    }
+
+    suspend fun bookingWithData(listOfBooking: List<Booking>): List<BookingWithData> {
+        if(listOfBooking.isNotEmpty()) {
+            val userIds = listOfBooking.map { it.userId }
+            val serviceIds = listOfBooking.map { it.offerId }
+            val usersList = authRepository.getUsersListById(userIds).getOrElse { emptyList() }
+            val serviceDomainList = serviceDtoListToDomainList(offerRepository.getServicesList(serviceIds).getOrElse { emptyList() })
+            return listOfBooking.map { booking ->
+                val user = usersList.find { it.id == booking.userId }
+                val service = serviceDomainList.find { it.id == booking.offerId }
+                Log.d("User", user?.email ?: "")
+                Log.d("Service", service?.tittle?: "")
+                BookingWithData(
+                    booking = booking,
+                    user = user,
+                    service = service
+                )
+            }
+        }
+       return emptyList()
+    }
+
+    suspend fun confirmBookingAsExecutor(bookingId: Int) {
+        val response = bookingRepository.confirmBookingAsExecutor(bookingId)
+        response.onSuccess {
+
+        }
+    }
+
+    suspend fun rejectBookingAsExecutor(bookingId: Int) {
+        val response = bookingRepository.rejectBookingAsExecutor(bookingId)
+        response.onSuccess {
+
+        }
+    }
+
+    suspend fun getBookingStatuses(): List<Status> {
+        val statusesResponse = bookingRepository.getBookingStatuses()
+        statusesResponse.onSuccess {
+            return it.statuses
+        }
+        return emptyList()
     }
 
 }

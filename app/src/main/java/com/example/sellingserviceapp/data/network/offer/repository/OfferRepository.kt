@@ -60,4 +60,6 @@ interface OfferRepository {
     suspend fun getServiceImage(photoPath: String): Result<String>
 
     suspend fun updateServiceImage(serviceId: Int, file: MultipartBody.Part): Result<ServiceDto>
+
+    suspend fun getServicesList(serviceIds: List<Int>): Result<List<ServiceDto>>
 }
