@@ -37,9 +37,7 @@ class MainViewModel @Inject constructor(
     val servicesFlow: StateFlow<List<ServiceDomain>> = _servicesFlow.asStateFlow()
 
     var categories by mutableStateOf<List<CategoryDomain>>(emptyList())
-    var serviceList by mutableStateOf<List<ServiceDomain>>(emptyList())
-    var isSheetOpen by mutableStateOf(false)
-    //var sheetContentState by mutableStateOf<SheetContentState>(SheetContentState.Default)
+
     var isRefreshing by mutableStateOf(false)
 
     var mainUiState by mutableStateOf<MainUIState>(MainUIState.Init)
@@ -62,7 +60,7 @@ class MainViewModel @Inject constructor(
         mainUiState = MainUIState.Init
         viewModelScope.launch {
             _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
-            val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
+
             isRefreshing = false
             categories = dataManager.getCategories()
             mainUiState = MainUIState.Loaded
@@ -73,7 +71,7 @@ class MainViewModel @Inject constructor(
         isRefreshing = true
         viewModelScope.launch {
             _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
-            val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
+
 
             isRefreshing = false
         }
@@ -83,9 +81,20 @@ class MainViewModel @Inject constructor(
         isRefreshing = true
         viewModelScope.launch {
             _servicesFlow.value = dataManager.fetchServicesByCategory(page = PAGE, size = SIZE, categoryId)
-            val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
+
 
             isRefreshing = false
+        }
+    }
+
+    fun refreshMainScreen() {
+        viewModelScope.launch {
+            isRefreshing = true
+            viewModelScope.launch {
+                _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
+                categories = dataManager.getCategories()
+                isRefreshing = false
+            }
         }
     }
 }

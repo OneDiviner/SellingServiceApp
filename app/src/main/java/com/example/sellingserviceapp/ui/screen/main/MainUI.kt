@@ -96,6 +96,8 @@ fun MainUI(
     onProfileButtonClick: () -> Unit,
     onUserServicesButtonClick: () -> Unit,
     onServiceButtonClick: (Int) -> Unit,
+    onOffersButtonClick: () -> Unit,
+    onOrdersButtonClick: () -> Unit
 ) {
 
     LaunchedEffect(Unit) {
@@ -105,7 +107,11 @@ fun MainUI(
     val user by viewModel.userFLow.collectAsState()
     val services by viewModel.servicesFlow.collectAsState()
 
-    Box(
+    PullToRefreshBox(
+        isRefreshing = viewModel.isRefreshing,
+        onRefresh = {
+            viewModel.refreshMainScreen()
+        },
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
@@ -351,7 +357,7 @@ fun MainUI(
                                     }
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                        horizontalArrangement = Arrangement.spacedBy(15.dp)
                                     ) {
                                         Button(
                                             onClick = onUserServicesButtonClick,
@@ -361,11 +367,10 @@ fun MainUI(
                                             ),
                                             contentPadding = PaddingValues(0.dp),
                                             modifier = Modifier
-                                                .width(120.dp)
-                                                .height(32.dp)
+                                                .height(28.dp)
                                         ) {
                                             Row(
-                                                modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
+                                                modifier = Modifier.padding(horizontal = 10.dp),
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.spacedBy(5.dp)
                                             ) {
@@ -384,20 +389,17 @@ fun MainUI(
 
                                         }
                                         Button(
-                                            onClick = {
-
-                                            },
+                                            onClick = onOffersButtonClick,
                                             shape = RoundedCornerShape(20.dp),
                                             colors = ButtonDefaults.buttonColors(
                                                 containerColor = MaterialTheme.colorScheme.primary
                                             ),
                                             contentPadding = PaddingValues(0.dp),
                                             modifier = Modifier
-                                                .width(120.dp)
-                                                .height(32.dp)
+                                                .height(28.dp)
                                         ) {
                                             Row(
-                                                modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
+                                                modifier = Modifier.padding(horizontal = 10.dp),
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.spacedBy(5.dp)
                                             ) {
@@ -408,7 +410,36 @@ fun MainUI(
                                                     tint = MaterialTheme.colorScheme.onBackground
                                                 )
                                                 Text(
-                                                    text ="Мои записи",
+                                                    text ="Записи",
+                                                    fontSize = 14.sp,
+                                                    color = MaterialTheme.colorScheme.onBackground,
+                                                )
+                                            }
+
+                                        }
+                                        Button(
+                                            onClick = onOrdersButtonClick,
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            ),
+                                            contentPadding = PaddingValues(0.dp),
+                                            modifier = Modifier
+                                                .height(28.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(horizontal = 10.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.handyman),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = MaterialTheme.colorScheme.onBackground
+                                                )
+                                                Text(
+                                                    text ="Заказы",
                                                     fontSize = 14.sp,
                                                     color = MaterialTheme.colorScheme.onBackground,
                                                 )

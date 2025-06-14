@@ -95,21 +95,33 @@ fun AppUI(
         content = { //TODO: Не инитит MainUI
             MainUI(
                 onProfileButtonClick = {
+                    viewModel.appSheetContentState = AppSheetContentState.Profile
                     scope.launch {
-                        viewModel.appSheetContentState = AppSheetContentState.Profile
                         bottomSheetState.expand()
                     }
                 },
                 onUserServicesButtonClick = {
+                    viewModel.appSheetContentState = AppSheetContentState.UserServices
                     scope.launch {
-                        viewModel.appSheetContentState = AppSheetContentState.UserServices
                         bottomSheetState.expand()
                     }
                 },
                 onServiceButtonClick = { serviceId ->
+                    serviceIdFromMain = serviceId
+                    viewModel.appSheetContentState = AppSheetContentState.Service
                     scope.launch {
-                        serviceIdFromMain = serviceId
-                        viewModel.appSheetContentState = AppSheetContentState.Service
+                        bottomSheetState.expand()
+                    }
+                },
+                onOffersButtonClick = {
+                    viewModel.appSheetContentState = AppSheetContentState.Offers
+                    scope.launch {
+                        bottomSheetState.expand()
+                    }
+                },
+                onOrdersButtonClick = {
+                    viewModel.appSheetContentState = AppSheetContentState.Orders
+                    scope.launch {
                         bottomSheetState.expand()
                     }
                 }
@@ -119,7 +131,7 @@ fun AppUI(
             AnimatedContent(
                 targetState = viewModel.appSheetContentState,
                 transitionSpec = {
-                    fadeIn(tween(500)) togetherWith fadeOut(tween(500))
+                    fadeIn(tween(300), initialAlpha = 0.8f) togetherWith fadeOut(tween(300), targetAlpha = 0.3f)
                 }
             ) {
                 when(it) {

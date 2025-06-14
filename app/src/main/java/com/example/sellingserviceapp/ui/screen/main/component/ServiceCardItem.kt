@@ -137,15 +137,18 @@ fun ServiceCardItem(
                     )
                 }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(fraction = if (isRefreshing) 0.7f else 1f)
-                    .wrapContentHeight()
-                    .background(
-                        brush = if (isRefreshing) Brush.linearGradient(colors = gradient) else Brush.linearGradient(colors = listOf(Color.Transparent, Color.Transparent)),
-                        shape = RoundedCornerShape(20.dp)
-                    )
-            ) {
+
+            if (isRefreshing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.9f )
+                        .height(20.dp)
+                        .background(
+                            brush = Brush.linearGradient(colors = gradient),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                )
+            } else {
                 Text(
                     text = title,
                     maxLines = 1,
@@ -156,15 +159,18 @@ fun ServiceCardItem(
                         .padding(top = 5.dp)
                 )
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .background(
-                        brush = if (isRefreshing) Brush.linearGradient(colors = gradient) else Brush.linearGradient(colors = listOf(Color.Transparent, Color.Transparent)),
-                        shape = RoundedCornerShape(20.dp)
-                    )
-            ) {
+
+            if (isRefreshing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.8f )
+                        .height(24.dp)
+                        .background(
+                            brush = Brush.linearGradient(colors = gradient),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                )
+            } else {
                 Text(
                     text = price,
                     maxLines = 1,
@@ -174,23 +180,20 @@ fun ServiceCardItem(
                     modifier = Modifier
                 )
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(fraction = if (isRefreshing) 0.5f else 1f)
-                    .wrapContentHeight()
-                    .background(
-                        brush = if (isRefreshing) Brush.linearGradient(colors = gradient) else Brush.linearGradient(colors = listOf(Color.Transparent, Color.Transparent)),
-                        shape = RoundedCornerShape(20.dp))
-            ) {
+
+            if (isRefreshing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.7f )
+                        .height(18.dp)
+                        .background(
+                            brush = Brush.linearGradient(colors = gradient),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                )
+            } else {
                 Text(subcategory, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
             }
-            /*Button(
-                modifier = Modifier.fillMaxWidth(0.95f).padding(top = 5.dp),
-                onClick = {},
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Text("Отркыть", fontSize = 18.sp)
-            }*/
         }
     }
 }
