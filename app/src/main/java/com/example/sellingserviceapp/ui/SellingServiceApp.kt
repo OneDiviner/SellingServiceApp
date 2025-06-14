@@ -40,6 +40,10 @@ fun SellingServiceApp(
             AuthenticationSellingServiceApp()
         }
         is AppState.MainAppState -> {
+            viewModel.initUserWithUserServices()
+            viewModel.initCategories()
+            viewModel.initFormats()
+            viewModel.initPriceTypes()
             AppUI()
         }
     }

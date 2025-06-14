@@ -118,7 +118,7 @@ interface MainServices {
     suspend fun fetchServicesByCategory(page: Int, size: Int, serviceId: Int): List<ServiceDomain>
 }
 
-class DataManager @Inject constructor(
+open class DataManager @Inject constructor(
     private val authRepository: AuthRepository,
     private val offerRepository: OfferRepository,
     private val userRepository: IUserRepository,
@@ -146,12 +146,14 @@ class DataManager @Inject constructor(
         val fetchUserDto = authRepository.getUser()
         fetchUserDto.onSuccess { userDto ->
             val userAvatar = fetchUserAvatar(userDto.avatarPath?: "")
+            Log.d("FETCH_USER", "SUCCESS")
             insertUser(userDto, userAvatar)
         }
     }
 
     override suspend fun insertUser(userDto: UserDto, avatar: String?) {
         val userEntity = userDto.toEntity(avatar)
+        Log.d("INSERT_USER", "SUCCESS")
         userRepository.saveUser(userEntity)//TODO: Изменить на insert
     }
 
@@ -430,7 +432,7 @@ class DataManager @Inject constructor(
         serviceRepository.insertAllService(servicesEntity)
     }
 
-    suspend fun getBookingAsExecutor(
+    open suspend fun getBookingAsExecutor(
         page: Int = 0,
         size: Int = 20,
         statusId: Int? = null
@@ -442,7 +444,7 @@ class DataManager @Inject constructor(
         return emptyList()
     }
 
-    suspend fun getBookingAsExecutor(
+    open suspend fun getBookingAsExecutor(
         date: String
     ): List<BookingWithData> {
         val bookingsResponse = bookingRepository.getBookingAsExecutor(date)
@@ -452,7 +454,7 @@ class DataManager @Inject constructor(
         return emptyList()
     }
 
-    suspend fun getBookingAsClient(
+    open suspend fun getBookingAsClient(
         page: Int = 0,
         size: Int = 20,
         statusId: Int? = null
@@ -464,7 +466,7 @@ class DataManager @Inject constructor(
         return emptyList()
     }
 
-    suspend fun getBookingAsClient(
+    open suspend fun getBookingAsClient(
         date: String
     ): List<BookingWithData> {
         val bookingsResponse = bookingRepository.getBookingAsClient(date)
@@ -474,7 +476,7 @@ class DataManager @Inject constructor(
         return emptyList()
     }
 
-    suspend fun bookingWithData(listOfBooking: List<Booking>): List<BookingWithData> {
+    open suspend fun bookingWithData(listOfBooking: List<Booking>): List<BookingWithData> {
         if(listOfBooking.isNotEmpty()) {
             val userIds = listOfBooking.map { it.userId }
             val serviceIds = listOfBooking.map { it.offerId }
@@ -483,8 +485,6 @@ class DataManager @Inject constructor(
             return listOfBooking.map { booking ->
                 val user = usersList.find { it.id == booking.userId }
                 val service = serviceDomainList.find { it.id == booking.offerId }
-                Log.d("User", user?.email ?: "")
-                Log.d("Service", service?.tittle?: "")
                 BookingWithData(
                     booking = booking,
                     user = user,
@@ -495,21 +495,21 @@ class DataManager @Inject constructor(
        return emptyList()
     }
 
-    suspend fun confirmBookingAsExecutor(bookingId: Int) {
+    open suspend fun confirmBookingAsExecutor(bookingId: Int) {
         val response = bookingRepository.confirmBookingAsExecutor(bookingId)
         response.onSuccess {
 
         }
     }
 
-    suspend fun rejectBookingAsExecutor(bookingId: Int) {
+    open suspend fun rejectBookingAsExecutor(bookingId: Int) {
         val response = bookingRepository.rejectBookingAsExecutor(bookingId)
         response.onSuccess {
 
         }
     }
 
-    suspend fun getBookingStatuses(): List<Status> {
+    open suspend fun getBookingStatuses(): List<Status> {
         val statusesResponse = bookingRepository.getBookingStatuses()
         statusesResponse.onSuccess {
             return it.statuses

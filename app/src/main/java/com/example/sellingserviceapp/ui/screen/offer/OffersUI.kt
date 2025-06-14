@@ -1,10 +1,13 @@
 package com.example.sellingserviceapp.ui.screen.offer
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +24,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +40,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.model.mapper.BookingStatusMapper
+import com.example.sellingserviceapp.ui.component.dialog.ConfirmedBookingDialog
+import com.example.sellingserviceapp.ui.component.dialog.NewBookingDialog
+import com.example.sellingserviceapp.ui.component.dialog.RejectedBookingDialog
 import com.example.sellingserviceapp.ui.screen.createService.component.CategoryButton
+import com.example.sellingserviceapp.ui.screen.order.DialogState
 import com.example.sellingserviceapp.ui.screen.order.OrdersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,11 +54,54 @@ fun OffersUI(
     viewModel: OffersViewModel = hiltViewModel(),
     onBackButtonClick: () -> Unit
 ) {
-    val offers by viewModel.bookingsAsClientFlow.collectAsState()
 
-    PullToRefreshBox(
-        isRefreshing = viewModel.isRefreshing,
-        onRefresh = {/*viewModel.searchUserServices()*/}, //TODO: Сделать Refresh
+    val offers by viewModel.bookingsAsClientFlow.collectAsState()
+    val statuses by viewModel.statusListFlow.collectAsState()
+
+    if (viewModel.isBookingPicked) {
+        when(viewModel.pickedBookingDialogState) {
+            DialogState.NewBooking -> {
+                NewBookingDialog(
+                    booking = viewModel.pickedBooking,
+                    onDismissRequest = {viewModel.isBookingPicked = false},
+                    onConfirmButtonClick = { id ->
+                        viewModel.isBookingPicked = false
+
+                    },
+                    onDismissButtonClick = { id ->
+                        viewModel.isBookingPicked = false
+
+                    }
+                )
+            }
+            DialogState.ConfirmedBooking -> {
+                ConfirmedBookingDialog(
+                    booking = viewModel.pickedBooking,
+                    isReject = false,
+                    onDismissRequest = {viewModel.isBookingPicked = false},
+                    onDismissButtonClick = { id ->
+                        viewModel.isBookingPicked = false
+                    }
+                )
+            }
+            DialogState.RejectedByClientBooking -> {
+                RejectedBookingDialog(
+                    booking = viewModel.pickedBooking,
+                    description = "Клиент отменил запись на услугу.",
+                    onDismissRequest = {viewModel.isBookingPicked = false}
+                )
+            }
+            DialogState.RejectedByExecutorBooking -> {
+                RejectedBookingDialog(
+                    booking = viewModel.pickedBooking,
+                    description = "Вы отклонили выполнение услуги.",
+                    onDismissRequest = {viewModel.isBookingPicked = false}
+                )
+            }
+        }
+    }
+
+    Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .fillMaxSize()
@@ -116,12 +170,37 @@ fun OffersUI(
                     }
                 }
             }
+            item {
+                LazyRow {
+                    items(statuses) { item ->
+
+                        val isSelected = viewModel.isFilterSelected == item.id
+
+                        FilterChip(
+                            modifier = Modifier.fillMaxHeight(),
+                            selected = isSelected,
+                            onClick = {
+                                viewModel.isFilterSelected = if (isSelected) null else item.id
+                                viewModel.getBookingAsClient(item.id)
+                            },
+                            label = {Text(item.name?: "")},
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            ),
+                            shape = RoundedCornerShape(18.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
+                        )
+                    }
+                }
+            }
             items(offers) { offer ->
                 CategoryButton(
                     category = offer.service?.tittle ?: "",
-                    description = offer.booking?.status,
+                    description = BookingStatusMapper.statusReasonByClientMap(offer.booking?.statusReason ?: ""),
                     onClick = {
-
+                        viewModel.pickedBookingDialogState = BookingStatusMapper.bookingDialogStateMap(offer.booking?.status ?: "")
+                        viewModel.pickedBooking = offer
+                        viewModel.isBookingPicked = true
                     }
                 )
             }

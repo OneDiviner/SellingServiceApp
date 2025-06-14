@@ -10,10 +10,14 @@ import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.junit.After
+import org.junit.Before
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,10 +38,11 @@ class MainViewModel @Inject constructor(
 
     var categories by mutableStateOf<List<CategoryDomain>>(emptyList())
     var serviceList by mutableStateOf<List<ServiceDomain>>(emptyList())
-    var carRepairList by mutableStateOf<List<ServiceDomain>>(emptyList())
     var isSheetOpen by mutableStateOf(false)
     //var sheetContentState by mutableStateOf<SheetContentState>(SheetContentState.Default)
     var isRefreshing by mutableStateOf(false)
+
+    var mainUiState by mutableStateOf<MainUIState>(MainUIState.Init)
 
     init {
         init()
@@ -54,12 +59,13 @@ class MainViewModel @Inject constructor(
 
     fun init() {
         isRefreshing = true
+        mainUiState = MainUIState.Init
         viewModelScope.launch {
             _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
             val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
-            carRepairList = filteredList
             isRefreshing = false
             categories = dataManager.getCategories()
+            mainUiState = MainUIState.Loaded
         }
     }
 
@@ -68,7 +74,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
             val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
-            carRepairList = filteredList
+
             isRefreshing = false
         }
     }
@@ -78,7 +84,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _servicesFlow.value = dataManager.fetchServicesByCategory(page = PAGE, size = SIZE, categoryId)
             val filteredList = serviceList.filter { it.subcategoryCode == "SUBCATEGORY_REPAIR_CAR" }
-            carRepairList = filteredList
+
             isRefreshing = false
         }
     }

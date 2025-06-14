@@ -55,6 +55,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +81,12 @@ import com.example.sellingserviceapp.ui.screen.profile.component.ProfileIconButt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+sealed class MainUIState {
+    data object Init: MainUIState()
+    data object Refreshing: MainUIState()
+    data object Loaded: MainUIState()
+    data object Error: MainUIState()
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,6 +97,11 @@ fun MainUI(
     onUserServicesButtonClick: () -> Unit,
     onServiceButtonClick: (Int) -> Unit,
 ) {
+
+    LaunchedEffect(Unit) {
+        viewModel.getServiceList()
+    }
+
     val user by viewModel.userFLow.collectAsState()
     val services by viewModel.servicesFlow.collectAsState()
 
@@ -98,210 +110,387 @@ fun MainUI(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            horizontalArrangement = Arrangement.spacedBy(15.dp)
+        AnimatedContent(
+            targetState = viewModel.mainUiState,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+            }
         ) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            MaterialTheme.colorScheme.surfaceContainer,
-                            shape = RoundedCornerShape(
-                                bottomStart = 20.dp,
-                                bottomEnd = 20.dp
-                            )
-                        )
-                        .padding(15.dp)
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(15.dp)
+            when(it) {
+                MainUIState.Init -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
-                        Button(
-                            onClick = {
-
-                            },
-                            shape = RoundedCornerShape(20.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
-                            ),
-                            contentPadding = PaddingValues(0.dp),
-                            modifier = Modifier
-                                .systemBarsPadding()
-                                .padding(top = 15.dp)
-                                .fillMaxWidth()
-                                .height(44.dp)
-                        ) {
-                            Row(
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 15.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.surfaceContainer,
+                                        shape = RoundedCornerShape(
+                                            bottomStart = 20.dp,
+                                            bottomEnd = 20.dp
+                                        )
+                                    )
+                                    .padding(15.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                    tint = MaterialTheme.colorScheme.onBackground
-                                )
-                                Text("Поиск", fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
-                            }
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                                ) {
+                                    Button(
+                                        onClick = {
 
+                                        },
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
+                                        ),
+                                        contentPadding = PaddingValues(0.dp),
+                                        modifier = Modifier
+                                            .systemBarsPadding()
+                                            .padding(top = 15.dp)
+                                            .fillMaxWidth()
+                                            .height(44.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 15.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Search,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp),
+                                                tint = MaterialTheme.colorScheme.onBackground
+                                            )
+                                            Text("Поиск", fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
+                                        }
+
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(15.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(60.dp)
+                                                .background(MaterialTheme.colorScheme.onBackground.copy(0.1f), shape = RoundedCornerShape(20.dp))
+                                        )
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .height(25.dp)
+                                                    .fillMaxWidth(0.8f)
+                                                    .background(color = MaterialTheme.colorScheme.onBackground.copy(0.1f), shape = RoundedCornerShape(12.dp))
+                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .height(20.dp)
+                                                    .fillMaxWidth(0.6f)
+                                                    .background(color = MaterialTheme.colorScheme.onBackground.copy(0.1f), shape = RoundedCornerShape(12.dp))
+                                            )
+                                        }
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Button(
+                                            onClick = {},
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
+                                            ),
+                                            contentPadding = PaddingValues(0.dp),
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(32.dp)
+                                        ) {
+
+                                        }
+                                        Button(
+                                            onClick = {},
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
+                                            ),
+                                            contentPadding = PaddingValues(0.dp),
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(32.dp)
+                                        ) {
+
+                                        }
+                                        Button(
+                                            onClick = {},
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
+                                            ),
+                                            contentPadding = PaddingValues(0.dp),
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(32.dp)
+                                        ) {
+
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(15.dp)
-                        ) {
-                            ProfileIconButton(
-                                onClick = onProfileButtonClick,
-                                photoBase64 = user.avatar ?: ""
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            LazyRow(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .height(40.dp),
+                                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            ) {
+                                items(5) {
+                                    FilterChip(
+                                        modifier = Modifier.height(50.dp).width(80.dp),
+                                        selected = false,
+                                        onClick = {},
+                                        label = {Text("")},
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                        ),
+                                        shape = RoundedCornerShape(14.dp),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
+                                    )
+                                }
+                            }
+                        }
+                        items(4) {
+                            ServiceCardItem(
+                                onClick = {  },
+                                title = "",
+                                price = "",
+                                subcategory = "",
+                                photo = "",
+                                isRefreshing = true
                             )
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(5.dp)
-                            ) {
-                                Text("${user.firstName} ${user.secondName}", fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
-                                Text(user.email,fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
-                            }
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Button(
-                                onClick = onUserServicesButtonClick,
-                                shape = RoundedCornerShape(20.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                ),
-                                contentPadding = PaddingValues(0.dp),
-                                modifier = Modifier
-                                    .width(120.dp)
-                                    .height(32.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.design_services),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                    Text(
-                                        text ="Мои услуги",
-                                        fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onBackground,
-                                    )
-                                }
-
-                            }
-                            Button(
-                                onClick = {
-
-                                },
-                                shape = RoundedCornerShape(20.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                ),
-                                contentPadding = PaddingValues(0.dp),
-                                modifier = Modifier
-                                    .width(120.dp)
-                                    .height(32.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.book),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.onBackground
-                                    )
-                                    Text(
-                                        text ="Мои записи",
-                                        fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onBackground,
-                                    )
-                                }
-
-                            }
                         }
                     }
                 }
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                LazyRow(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .height(40.dp),
-                    horizontalArrangement = Arrangement.spacedBy(15.dp),
-                ) {
-                    items(viewModel.categories) { category ->
-                        var selected by remember { mutableStateOf(false) }
-                        FilterChip(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = selected,
-                            onClick = {
-                                selected = !selected
-                                viewModel.getServiceListByCategory(category.id)
-                            },
-                            label = {Text(category.name)},
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            shape = RoundedCornerShape(18.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
-                        )
-                    }
-                    items(viewModel.categories) { category ->
-                        var selected by remember { mutableStateOf(false) }
-                        FilterChip(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = selected,
-                            onClick = {selected = !selected},
-                            label = {Text(category.name)},
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            shape = RoundedCornerShape(14.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
-                        )
+                MainUIState.Refreshing -> {}
+                MainUIState.Error -> {}
+                MainUIState.Loaded -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                        horizontalArrangement = Arrangement.spacedBy(15.dp)
+                    ) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        MaterialTheme.colorScheme.surfaceContainer,
+                                        shape = RoundedCornerShape(
+                                            bottomStart = 20.dp,
+                                            bottomEnd = 20.dp
+                                        )
+                                    )
+                                    .padding(15.dp)
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                                ) {
+                                    Button(
+                                        onClick = {
+
+                                        },
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
+                                        ),
+                                        contentPadding = PaddingValues(0.dp),
+                                        modifier = Modifier
+                                            .systemBarsPadding()
+                                            .padding(top = 15.dp)
+                                            .fillMaxWidth()
+                                            .height(44.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 15.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Search,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp),
+                                                tint = MaterialTheme.colorScheme.onBackground
+                                            )
+                                            Text("Поиск", fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
+                                        }
+
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(15.dp)
+                                    ) {
+                                        ProfileIconButton(
+                                            onClick = onProfileButtonClick,
+                                            photoBase64 = user.avatar ?: ""
+                                        )
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                                        ) {
+                                            Text("${user.firstName} ${user.secondName}", fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
+                                            Text(user.email,fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
+                                        }
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Button(
+                                            onClick = onUserServicesButtonClick,
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            ),
+                                            contentPadding = PaddingValues(0.dp),
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(32.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.design_services),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = MaterialTheme.colorScheme.onBackground
+                                                )
+                                                Text(
+                                                    text ="Мои услуги",
+                                                    fontSize = 14.sp,
+                                                    color = MaterialTheme.colorScheme.onBackground,
+                                                )
+                                            }
+
+                                        }
+                                        Button(
+                                            onClick = {
+
+                                            },
+                                            shape = RoundedCornerShape(20.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            ),
+                                            contentPadding = PaddingValues(0.dp),
+                                            modifier = Modifier
+                                                .width(120.dp)
+                                                .height(32.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.book),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = MaterialTheme.colorScheme.onBackground
+                                                )
+                                                Text(
+                                                    text ="Мои записи",
+                                                    fontSize = 14.sp,
+                                                    color = MaterialTheme.colorScheme.onBackground,
+                                                )
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            LazyRow(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .height(40.dp),
+                                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                            ) {
+                                items(viewModel.categories) { category ->
+                                    var selected by remember { mutableStateOf(false) }
+                                    FilterChip(
+                                        modifier = Modifier.fillMaxHeight(),
+                                        selected = selected,
+                                        onClick = {
+                                            selected = !selected
+                                            viewModel.getServiceListByCategory(category.id)
+                                        },
+                                        label = {Text(category.name)},
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        ),
+                                        shape = RoundedCornerShape(18.dp),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
+                                    )
+                                }
+                                items(viewModel.categories) { category ->
+                                    var selected by remember { mutableStateOf(false) }
+                                    FilterChip(
+                                        modifier = Modifier.fillMaxHeight(),
+                                        selected = selected,
+                                        onClick = {selected = !selected},
+                                        label = {Text(category.name)},
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        ),
+                                        shape = RoundedCornerShape(14.dp),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
+                                    )
+                                }
+                            }
+                        }
+                        items(services.take(2)) { service ->
+                            ServiceCardItem(
+                                onClick = { onServiceButtonClick(service.id) },
+                                title = service.tittle,
+                                price = "${service.price}₽ за ${service.priceTypeName}",
+                                subcategory = service.subcategoryName,
+                                photo = service.photo,
+                                isRefreshing = viewModel.isRefreshing
+                            )
+                        }
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Card(
+                                modifier = Modifier.height(250.dp)
+                            ) {  }
+
+                        }
+                        items(services.drop(2)) { service ->
+                            ServiceCardItem(
+                                onClick = { onServiceButtonClick(service.id) },
+                                title = service.tittle,
+                                price = "${service.price}₽ за ${service.priceTypeName}",
+                                subcategory = service.subcategoryName,
+                                photo = service.photo,
+                                isRefreshing = viewModel.isRefreshing
+                            )
+                        }
                     }
                 }
-            }
-            items(services.take(2)) { service ->
-                ServiceCardItem(
-                    onClick = { onServiceButtonClick(service.id) },
-                    title = service.tittle,
-                    price = "${service.price}₽ за ${service.priceTypeName}",
-                    subcategory = service.subcategoryName,
-                    photo = service.photo,
-                    isRefreshing = viewModel.isRefreshing
-                )
-            }
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Card(
-                    modifier = Modifier.height(250.dp)
-                ) {  }
-
-            }
-            items(services.drop(2)) { service ->
-                ServiceCardItem(
-                    onClick = { onServiceButtonClick(service.id) },
-                    title = service.tittle,
-                    price = "${service.price}₽ за ${service.priceTypeName}",
-                    subcategory = service.subcategoryName,
-                    photo = service.photo,
-                    isRefreshing = viewModel.isRefreshing
-                )
             }
         }
     }
+
+
+
 }

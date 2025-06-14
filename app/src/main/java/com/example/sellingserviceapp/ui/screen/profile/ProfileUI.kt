@@ -434,7 +434,7 @@ fun ProfileUI(
                 }
             }
 
-            item {
+           /* item {
                 Text(
                     modifier = Modifier.padding(end = 15.dp, start = 15.dp),
                     text = "Ждут действия",
@@ -461,7 +461,7 @@ fun ProfileUI(
                 )
                 Text(bookingWithData.service?.tittle ?: "No data", color = Color.White)
                 Text(bookingWithData.user?.firstName ?: "No data", color = Color.White)
-            }
+            }*/
 
             item {
                 var settingsList by remember { mutableStateOf(

@@ -24,7 +24,7 @@ class AppViewModel @Inject constructor(
     var appSheetContentState by mutableStateOf<AppSheetContentState>(AppSheetContentState.Profile)
 
     init {
-        initUserWithUserServices()
+       initUserWithUserServices()
         initCategories()
         initFormats()
         initPriceTypes()

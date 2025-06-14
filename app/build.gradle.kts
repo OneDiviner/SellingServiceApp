@@ -32,7 +32,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.31.190:8080/\"")
+            buildConfigField("String", "BASE_URL", "\"http://192.168.31.196:8080/\"")
         }
         getByName("release") {
             buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
@@ -68,6 +68,11 @@ android {
 }
 
 dependencies {
+
+    testImplementation(libs.junit)
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("app.cash.turbine:turbine:0.12.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 
     implementation("com.github.vsnappy1:ComposeDatePicker:2.2.0")
 
