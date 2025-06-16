@@ -44,6 +44,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -54,6 +57,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,6 +89,7 @@ import com.example.sellingserviceapp.util.extension.imagePicker.pickImageLaunche
 import com.vsnappy1.timepicker.data.model.TimePickerTime
 import com.vsnappy1.timepicker.enums.MinuteGap
 import com.vsnappy1.timepicker.ui.model.TimePickerConfiguration
+import kotlinx.coroutines.launch
 
 sealed class ProfileSheetState {
     data object EditProfile: ProfileSheetState()
@@ -151,9 +156,6 @@ fun ProfileUI(
         viewModel.onPhotoSelected(it)
     }
 
-    val bookingsAsExecutor by viewModel.bookingsAsExecutorFlow.collectAsState()
-    val bookingsAsClient by viewModel.bookingsAsClientFlow.collectAsState()
-
     Box(
         modifier = Modifier
             .background(
@@ -163,6 +165,7 @@ fun ProfileUI(
             .padding(bottom = 15.dp)
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
     ) {
+
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
@@ -242,12 +245,7 @@ fun ProfileUI(
                 val timeTable by viewModel.timeTable.collectAsState()
                 var pickTimeState by remember { mutableStateOf<PickTimeState>(PickTimeState.Start) }
                 var showTimePicker by remember { mutableStateOf(false) }
-                val currentTime = Calendar.getInstance()
-                val timePickerState = rememberTimePickerState(
-                    initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-                    initialMinute = currentTime.get(Calendar.MINUTE),
-                    is24Hour = true
-                )
+
                 var isSaveNewWorkTimeButtonEnabled by remember { mutableStateOf(false) }
                 Card(
                     shape = RoundedCornerShape(20.dp),
@@ -268,9 +266,7 @@ fun ProfileUI(
                             Button(
                                 onClick = {
                                     viewModel.updateWorkTime()
-                                    Log.d("NEW_WORK_TIME", "Start: ${viewModel.newWorkTime.startTime}\n " +
-                                            "End: ${viewModel.newWorkTime.endTime}\n " +
-                                            "IDS: ${viewModel.newWorkTime.daysIds}")
+                                    isSaveNewWorkTimeButtonEnabled = false
                                 },
                                 enabled = isSaveNewWorkTimeButtonEnabled,
                                 colors = ButtonDefaults.buttonColors(
@@ -399,33 +395,49 @@ fun ProfileUI(
                         if (showTimePicker) {
                             when(pickTimeState) {
                                 is PickTimeState.Start -> {
+                                    var enabled by remember { mutableStateOf(false) }
                                     PickTime(
                                         title = "Начало дня",
                                         time = timeTable?.startTime ?: "",
                                         onTimeSelected = { hour, minute ->
-                                            viewModel.inputStartTime(hour, minute)
-                                            isSaveNewWorkTimeButtonEnabled = true
+                                            if (hour >= 9 && hour <= 21) {
+                                                viewModel.inputStartTime(hour, minute)
+                                                isSaveNewWorkTimeButtonEnabled = true
+                                                enabled = true
+                                            } else {
+                                                isSaveNewWorkTimeButtonEnabled = false
+                                                enabled = false
+                                            }
                                         },
                                         onDismissRequest = { showTimePicker = false },
                                         onDismissButtonCLick = { showTimePicker = false },
                                         onConfirmButtonClick = {
                                             pickTimeState = PickTimeState.End
-                                        }
+                                        },
+                                        isButtonEnabled = enabled
                                     )
                                 }
                                 is PickTimeState.End -> {
+                                    var enabled by remember { mutableStateOf(false) }
                                     PickTime(
                                         title = "Конец дня",
                                         time = timeTable?.endTime ?: "",
                                         onTimeSelected = { hour, minute ->
-                                            viewModel.inputEndTime(hour, minute)
-                                            isSaveNewWorkTimeButtonEnabled = true
+                                            if (hour >= 9 && hour <= 21) {
+                                                viewModel.inputEndTime(hour, minute)
+                                                isSaveNewWorkTimeButtonEnabled = true
+                                                enabled = true
+                                            } else {
+                                                isSaveNewWorkTimeButtonEnabled = false
+                                                enabled = false
+                                            }
                                         },
                                         onDismissRequest = { showTimePicker = false },
                                         onDismissButtonCLick = { showTimePicker = false },
                                         onConfirmButtonClick = {
                                             showTimePicker = false
-                                        }
+                                        },
+                                        isButtonEnabled = enabled
                                     )
                                 }
                             }
@@ -579,7 +591,8 @@ fun PickTime(
     onTimeSelected: (Int, Int) -> Unit,
     onDismissRequest: () -> Unit,
     onDismissButtonCLick: () -> Unit,
-    onConfirmButtonClick: () -> Unit
+    onConfirmButtonClick: () -> Unit,
+    isButtonEnabled: Boolean = false
 ) {
     val parts = time.split(":")
     var hour = "5"
@@ -598,7 +611,8 @@ fun PickTime(
             Button(
                 onClick = onConfirmButtonClick,
                 shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isButtonEnabled
             ) {
                 Text("Выбрать", fontSize = 20.sp)
             }

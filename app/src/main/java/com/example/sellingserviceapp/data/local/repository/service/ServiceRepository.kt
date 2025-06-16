@@ -1,6 +1,5 @@
 package com.example.sellingserviceapp.data.local.repository.service
 
-import com.example.sellingserviceapp.data.Service
 import com.example.sellingserviceapp.data.local.dao.ServiceDao
 import com.example.sellingserviceapp.model.entity.ServiceEntity
 import kotlinx.coroutines.flow.Flow

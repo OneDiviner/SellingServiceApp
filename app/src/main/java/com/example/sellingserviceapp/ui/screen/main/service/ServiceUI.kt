@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,6 +56,11 @@ import com.example.sellingserviceapp.ui.screen.main.service.booking.BookingUI
 import com.example.sellingserviceapp.ui.screen.main.service.booking.confirmBooking.ConfirmBookingUI
 import com.example.sellingserviceapp.ui.screen.profile.component.ProfileIconButton
 import com.example.sellingserviceapp.util.extension.imagePicker.ImageContent
+
+sealed class ServiceUIState {
+    data object Init: ServiceUIState()
+    data object Loaded: ServiceUIState()
+}
 
 sealed class ServiceSheetContentState {
     data object ConfirmBooking: ServiceSheetContentState()
@@ -129,165 +138,182 @@ fun ServiceUI(
             .padding(bottom = 15.dp)
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
     ) {
-        Column {
-            LazyColumn(
-                modifier = Modifier,
-                verticalArrangement = Arrangement.spacedBy(30.dp)
-            ) {
-                item {
-                    var isDropDown by remember { mutableStateOf<Boolean>(false) }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1.5f)
-                            .background(MaterialTheme.colorScheme.surfaceContainer),
-                        contentAlignment = Alignment.BottomEnd
+        AnimatedContent(
+            targetState = viewModel.serviceUIState,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+            }
+        ) {
+            when(it) {
+                ServiceUIState.Init -> {
+                    ServiceUISkeleton()
+                }
+                ServiceUIState.Loaded -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(30.dp)
                     ) {
-                        ImageContent(
-                            photoBase64 = viewModel.service.photo ?: "",
-                            onEditButtonClick = {
-                                Log.d("SERVICE_ID", viewModel.service.id.toString())
-                                //viewModel.serviceState = ServiceState.EditService
-                            },
-                            onMoreButtonClick = {
-                                isDropDown = !isDropDown
-                            },
-                            onPickImageButtonClick = {},
-                            isDropdownExpanded = isDropDown,
-                            onDismissRequest = { isDropDown = false },
-                            onDeleteButtonClick = {
+                        item {
+                            var isDropDown by remember { mutableStateOf<Boolean>(false) }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1.5f)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer),
+                                contentAlignment = Alignment.BottomEnd
+                            ) {
+                                ImageContent(
+                                    photoBase64 = viewModel.service.photo ?: "",
+                                    onEditButtonClick = {
+                                        Log.d("SERVICE_ID", viewModel.service.id.toString())
+                                        //viewModel.serviceState = ServiceState.EditService
+                                    },
+                                    onMoreButtonClick = {
+                                        isDropDown = !isDropDown
+                                    },
+                                    onPickImageButtonClick = {},
+                                    isDropdownExpanded = isDropDown,
+                                    onDismissRequest = { isDropDown = false },
+                                    onDeleteButtonClick = {
 
-                            },
-                            isEditable = false,
-                            isPickImage = false
-                        )
-                    }
-                }
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier.padding(horizontal = 15.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier.background(shimmerBrush(targetValue = 1000f, showShimmer = viewModel.isLoading)),
-                            text = "${viewModel.service.price}₽ за ${viewModel.service.priceTypeName}",
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            modifier = Modifier.padding(bottom = 10.dp),
-                            text =  viewModel.service.tittle,
-                            fontSize = 24.sp,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        ServiceInfoRow(
-                            title = "Категория",
-                            value = viewModel.service.categoryName
-                        )
-                        ServiceInfoRow(
-                            title = "Подкатегория",
-                            value = viewModel.service.subcategoryName
-                        )
-                        ServiceInfoRow(
-                            title = "Длительность",
-                            value = "${viewModel.service.duration.toString()} минут"
-                        )
-                        ServiceInfoRow(
-                            title = "Формат оказания услуги",
-                            values = viewModel.service.formats?: emptyList()
-                        )
-                    }
-                }
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier.padding(horizontal = 15.dp)
-                    ) {
-                        Text(
-                            text = "Описание",
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            text = viewModel.service.description?: "Error",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraLight,
-                            color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
-                            // modifier = Modifier.padding(15.dp)
-                        )
+                                    },
+                                    isEditable = false,
+                                    isPickImage = false
+                                )
+                            }
+                        }
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                modifier = Modifier.padding(horizontal = 15.dp)
+                            ) {
+                                Text(
+                                    modifier = Modifier,
+                                    text = "${viewModel.service.price}₽ за ${viewModel.service.priceTypeName}",
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    modifier = Modifier.padding(bottom = 10.dp),
+                                    text =  viewModel.service.tittle,
+                                    fontSize = 24.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                ServiceInfoRow(
+                                    title = "Категория",
+                                    value = viewModel.service.categoryName
+                                )
+                                ServiceInfoRow(
+                                    title = "Подкатегория",
+                                    value = viewModel.service.subcategoryName
+                                )
+                                ServiceInfoRow(
+                                    title = "Длительность",
+                                    value = "${viewModel.service.duration.toString()} минут"
+                                )
+                                ServiceInfoRow(
+                                    title = "Формат оказания услуги",
+                                    values = viewModel.service.formats?: emptyList()
+                                )
+                            }
+                        }
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                modifier = Modifier.padding(horizontal = 15.dp)
+                            ) {
+                                Text(
+                                    text = "Описание",
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    text = viewModel.service.description?: "Error",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.ExtraLight,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                                    // modifier = Modifier.padding(15.dp)
+                                )
 
+                            }
+                        }
+                        item {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 15.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(15.dp)
+                                ) {
+                                    ProfileIconButton(
+                                        onClick = {},
+                                        photoBase64 = viewModel.user.avatar ?: ""
+                                    )
+                                    Column(
+                                        modifier = Modifier,
+                                        verticalArrangement = Arrangement.spacedBy(1.dp)
+                                    ) {
+                                        Text(
+                                            modifier = Modifier,
+                                            text = "${viewModel.user.secondName} ${viewModel.user.firstName}",
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            Icon(
+                                                modifier = Modifier.size(18.dp),
+                                                imageVector = Icons.Default.Email,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                            )
+                                            Text(
+                                                modifier = Modifier,
+                                                text = viewModel.user.email,
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                            )
+                                        }
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            Icon(
+                                                modifier = Modifier.size(18.dp),
+                                                imageVector = Icons.Default.Call,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                            )
+                                            Text(
+                                                modifier = Modifier,
+                                                text = "+7 ${viewModel.user.phoneNumber}",
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        item {
+                            LargeButton(
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp),
+                                model = ButtonModel("Записаться", state = ButtonState.Ready),
+                                onClick = {
+                                    viewModel.serviceSheetContentState = ServiceSheetContentState.Booking
+                                    isOpen = true
+                                }
+                            )
+                        }
                     }
-                }
-                item {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 15.dp),
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                modifier = Modifier,
-                                text = "${viewModel.user.secondName} ${viewModel.user.firstName}",
-                                fontSize = 26.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            ProfileIconButton(
-                                onClick = {},
-                                photoBase64 = viewModel.user.avatar ?: ""
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(20.dp),
-                                imageVector = Icons.Default.Email,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                modifier = Modifier,
-                                text = viewModel.user.email,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(20.dp),
-                                imageVector = Icons.Default.Call,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                modifier = Modifier,
-                                text = "+7 ${viewModel.user.phoneNumber}",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                    }
-                }
-                item {
-                    LargeButton(
-                        modifier = Modifier
-                            .padding(horizontal = 15.dp),
-                        model = ButtonModel("Записаться", state = ButtonState.Ready),
-                        onClick = {
-                            viewModel.serviceSheetContentState = ServiceSheetContentState.Booking
-                            isOpen = true
-                        }
-                    )
                 }
             }
         }

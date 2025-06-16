@@ -78,9 +78,7 @@ class TokenInterceptor(
 object NetworkModule {
 
     private const val BASE_URL = BuildConfig.BASE_URL
-    private const val BASE_URL_ERROR = "http://192.168.31.19:8080/"
-    private const val BASE_URL_IXMALMONK = "http://26.35.149.166:8080/"
-    private const val BASE_URL_RANDOM = "http://192.168.69.53:8080/"
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }

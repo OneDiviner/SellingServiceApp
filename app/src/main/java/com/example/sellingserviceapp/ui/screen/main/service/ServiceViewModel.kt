@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,16 +21,16 @@ class ServiceViewModel @Inject constructor(
     var serviceSheetContentState by mutableStateOf<ServiceSheetContentState>(ServiceSheetContentState.Booking)
     var service by mutableStateOf<ServiceDomain>(ServiceDomain.EMPTY)
     var user by mutableStateOf<UserDomain>(UserDomain.EMPTY)
-    var isLoading by mutableStateOf(true)
+    var serviceUIState by mutableStateOf<ServiceUIState>(ServiceUIState.Init)
 
     fun init(serviceId: Int) {
-        isLoading = true
+        serviceUIState = ServiceUIState.Init
         viewModelScope.launch {
             val serviceJob = async { dataManager.requestMainService(serviceId) }
             service = serviceJob.await()
             val userJob = async { dataManager.fetchUserById(service.userId) }
             user = userJob.await()
-            isLoading = false
+            serviceUIState = ServiceUIState.Loaded
         }
     }
 }

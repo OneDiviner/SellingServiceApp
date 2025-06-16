@@ -2,12 +2,10 @@ package com.example.sellingserviceapp.ui.screen.order
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
-import com.example.sellingserviceapp.data.network.booking.Booking
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.network.booking.Status
 import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.mapper.mapStatusListByExecutor
@@ -39,7 +37,6 @@ class OrdersViewModel @Inject constructor(
     val statusListFlow: StateFlow<List<Status>> = _statusListFlow.asStateFlow()
 
     init {
-        getBookingAsExecutor()
         getStatuses()
     }
 

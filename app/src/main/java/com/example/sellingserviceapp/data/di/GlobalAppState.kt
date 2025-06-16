@@ -49,7 +49,7 @@ class GlobalAppState @Inject constructor(
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object GlobalAppStateModule {
     @Provides
     @Singleton
     fun provideGlobalAppState(): GlobalAppState {

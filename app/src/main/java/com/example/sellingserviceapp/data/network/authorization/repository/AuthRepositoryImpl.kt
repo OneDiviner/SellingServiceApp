@@ -3,6 +3,7 @@ package com.example.sellingserviceapp.data.network.authorization.repository
 import android.util.Log
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import com.example.sellingserviceapp.data.network.AuthApiError
+import com.example.sellingserviceapp.data.network.ErrorHandler
 import com.example.sellingserviceapp.data.network.authorization.request.CreateVerificationEmailRequest
 import com.example.sellingserviceapp.data.network.authorization.request.LoginRequest
 import com.example.sellingserviceapp.data.network.authorization.request.SendCodeToVerificationRequest
@@ -34,7 +35,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApiService: AuthApiService,
-    private val secureTokenStorage: SecureTokenStorage,
+    private val errorHandler: ErrorHandler,
 ): AuthRepository {
 
     override suspend fun firstStepRegister(
@@ -316,6 +317,7 @@ class AuthRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 Result.success(response.body()!!.userDto)
             } else {
+                //errorHandler.setError(response.errorBody()?.string() ?: "")
                 Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {

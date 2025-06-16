@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.model.domain.UserDomain
 import com.example.sellingserviceapp.ui.screen.profile.editProfile.EditProfileValidators.isChanged
 import com.example.sellingserviceapp.ui.screen.profile.editProfile.EditProfileValidators.validateFirstName
@@ -16,7 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.Error
 
 sealed class EditUserError {
     data class FirstNameError(var message: String? = null): EditUserError()

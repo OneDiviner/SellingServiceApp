@@ -6,13 +6,11 @@ import androidx.compose.runtime.setValue
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
-import com.example.sellingserviceapp.data.network.offer.request.CreateServiceRequest
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.FormatsDomain
 import com.example.sellingserviceapp.model.domain.NewServiceDomain
 import com.example.sellingserviceapp.model.domain.PriceTypeDomain
-import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.SubcategoryDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

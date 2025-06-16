@@ -32,7 +32,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "BASE_URL", "\"http://192.168.31.196:8080/\"")
+            buildConfigField("String", "BASE_URL", "\"http://192.168.31.196:8080/\"") //http://192.168.1.71:8080/
         }
         getByName("release") {
             buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")

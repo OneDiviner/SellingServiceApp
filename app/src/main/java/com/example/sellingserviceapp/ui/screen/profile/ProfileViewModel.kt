@@ -5,14 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
-import com.example.sellingserviceapp.data.local.repository.user.UserRepository
-import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepository
-import com.example.sellingserviceapp.data.network.booking.Booking
-import com.example.sellingserviceapp.data.network.booking.BookingRepository
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.network.booking.IBookingRepository
 import com.example.sellingserviceapp.data.network.booking.TimeTable
-import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.domain.UserDomain
 import com.example.sellingserviceapp.model.mapper.daysListCodeToName
 import com.google.gson.annotations.SerializedName
@@ -20,7 +15,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -54,29 +48,10 @@ class ProfileViewModel @Inject constructor(
 
     var newWorkTime by mutableStateOf<NewWorkTime>(NewWorkTime.EMPTY)
 
-    private val _bookingsAsExecutorFlow = MutableStateFlow<List<BookingWithData>?>(emptyList())
-    val bookingsAsExecutorFlow: StateFlow<List<BookingWithData>?> = _bookingsAsExecutorFlow.asStateFlow()
-
-    private val _bookingsAsClientFlow = MutableStateFlow<List<BookingWithData>>(emptyList())
-    val bookingsAsClientFlow: StateFlow<List<BookingWithData>?> = _bookingsAsClientFlow.asStateFlow()
 
     init {
         getUser()
         getTimeTable()
-        getBookingAsExecutor()
-        getBookingAsExecutor()
-    }
-
-    fun getBookingAsExecutor() {
-        viewModelScope.launch {
-            _bookingsAsExecutorFlow.value = dataManager.getBookingAsExecutor(0, 20)
-        }
-    }
-
-    fun getBookingAsClient() {
-        viewModelScope.launch {
-            _bookingsAsExecutorFlow.value = dataManager.getBookingAsClient(0, 20)
-        }
     }
 
     fun getUser() {

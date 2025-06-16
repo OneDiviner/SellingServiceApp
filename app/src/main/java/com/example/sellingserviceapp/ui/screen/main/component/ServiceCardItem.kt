@@ -87,11 +87,9 @@ fun ServiceCardItem(
     val imageBitmap = remember(photo) {
         if (!photo.isNullOrEmpty()) {
             try {
-                val decodedBytes =
-                    Base64.decode(photo, Base64.DEFAULT)
+                val decodedBytes = Base64.decode(photo, Base64.DEFAULT)
                 BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)?.asImageBitmap()
             } catch (e: IllegalArgumentException) {
-                // Ошибка декодирования Base64, например, если строка некорректна
                 e.printStackTrace()
                 null
             }
@@ -114,85 +112,87 @@ fun ServiceCardItem(
         Column(
             verticalArrangement =  if (isRefreshing) Arrangement.spacedBy(5.dp) else Arrangement.spacedBy(0.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .background(shimmerBrush(targetValue = 1000f, showShimmer = isRefreshing), shape = RoundedCornerShape(20.dp))
-                    .fillMaxWidth()
-                    .aspectRatio(0.75f)
-            ) {
-                if (imageBitmap != null ) {
-                    Image(
-                        bitmap = imageBitmap,
-                        contentDescription = title, // Описание для доступности
-                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)), // Изображение заполняет Box
-                        contentScale = ContentScale.Crop // Масштабирование, чтобы заполнить пространство, обрезая лишнее
+            when(isRefreshing) {
+                true -> {
+                    Box(
+                        modifier = Modifier
+                            .background(shimmerBrush(targetValue = 1000f, showShimmer = true), shape = RoundedCornerShape(20.dp))
+                            .fillMaxWidth()
+                            .aspectRatio(0.75f)
+                    ) {
+
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(fraction = 0.9f )
+                            .height(20.dp)
+                            .background(
+                                brush = Brush.linearGradient(colors = gradient),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                     )
-                } else {
-                    Image(
-                        modifier = Modifier.size(80.dp), // Размер плейсхолдера
-                        painter = painterResource(R.drawable.car_gear), // Ваш плейсхолдер
-                        contentDescription = "Placeholder Image",
-                        contentScale = ContentScale.Fit,
-                        alpha = 0f
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(fraction = 0.8f )
+                            .height(24.dp)
+                            .background(
+                                brush = Brush.linearGradient(colors = gradient),
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(fraction = 0.7f )
+                            .height(18.dp)
+                            .background(
+                                brush = Brush.linearGradient(colors = gradient),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                     )
                 }
-            }
-
-            if (isRefreshing) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = 0.9f )
-                        .height(20.dp)
-                        .background(
-                            brush = Brush.linearGradient(colors = gradient),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                )
-            } else {
-                Text(
-                    text = title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onBackground.copy(0.85f),
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                )
-            }
-
-            if (isRefreshing) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = 0.8f )
-                        .height(24.dp)
-                        .background(
-                            brush = Brush.linearGradient(colors = gradient),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                )
-            } else {
-                Text(
-                    text = price,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                )
-            }
-
-            if (isRefreshing) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = 0.7f )
-                        .height(18.dp)
-                        .background(
-                            brush = Brush.linearGradient(colors = gradient),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                )
-            } else {
-                Text(subcategory, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
+                false -> {
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceContainer, shape = RoundedCornerShape(20.dp))
+                            .fillMaxWidth()
+                            .aspectRatio(0.75f)
+                    ) {
+                        if (imageBitmap != null ) {
+                            Image(
+                                bitmap = imageBitmap,
+                                contentDescription = title, // Описание для доступности
+                                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)), // Изображение заполняет Box
+                                contentScale = ContentScale.Crop // Масштабирование, чтобы заполнить пространство, обрезая лишнее
+                            )
+                        } else {
+                            Image(
+                                modifier = Modifier.size(80.dp), // Размер плейсхолдера
+                                painter = painterResource(R.drawable.car_gear), // Ваш плейсхолдер
+                                contentDescription = "Placeholder Image",
+                                contentScale = ContentScale.Fit,
+                                alpha = 0f
+                            )
+                        }
+                    }
+                    Text(
+                        text = title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onBackground.copy(0.85f),
+                        modifier = Modifier
+                            .padding(top = 5.dp)
+                    )
+                    Text(
+                        text = price,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier
+                    )
+                    Text(subcategory, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
+                }
             }
         }
     }

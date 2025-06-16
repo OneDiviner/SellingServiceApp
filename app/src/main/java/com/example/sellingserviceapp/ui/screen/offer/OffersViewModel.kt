@@ -5,11 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.network.booking.Status
 import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.mapper.mapStatusListByClient
-import com.example.sellingserviceapp.model.mapper.mapStatusListByExecutor
 import com.example.sellingserviceapp.ui.screen.order.DialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +37,6 @@ class OffersViewModel @Inject constructor(
     val statusListFlow: StateFlow<List<Status>> = _statusListFlow.asStateFlow()
 
     init {
-        getBookingAsClient()
         getStatuses()
     }
 

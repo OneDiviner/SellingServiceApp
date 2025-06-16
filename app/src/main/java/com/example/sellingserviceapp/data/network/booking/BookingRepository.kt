@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.data.network.booking
 
 import com.example.sellingserviceapp.data.network.AuthApiError
+import com.example.sellingserviceapp.data.network.ErrorHandler
 import com.example.sellingserviceapp.data.network.authorization.request.FirstStepRegisterRequest
 import com.example.sellingserviceapp.ui.screen.profile.NewWorkTime
 import okhttp3.ResponseBody
@@ -9,7 +10,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class BookingRepository @Inject constructor(
-    private val bookingApiService: BookingApiService
+    private val bookingApiService: BookingApiService,
+    private val errorHandler: ErrorHandler
 ): IBookingRepository {
     override suspend fun getAvailableWorkTime(serviceId: Int, localDate: String): Result<List<String>> {
         return try {
@@ -21,6 +23,7 @@ class BookingRepository @Inject constructor(
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
                 //Добавить обработчик кодов ошибки
+                //errorHandler.setError(response.errorBody()?.string() ?: "")
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
         } catch (e: Exception) {

@@ -5,19 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.junit.After
-import org.junit.Before
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,9 +33,8 @@ class MainViewModel @Inject constructor(
     val servicesFlow: StateFlow<List<ServiceDomain>> = _servicesFlow.asStateFlow()
 
     var categories by mutableStateOf<List<CategoryDomain>>(emptyList())
-
     var isRefreshing by mutableStateOf(false)
-
+    var isFilterSelected by mutableStateOf<Int?>(null)
     var mainUiState by mutableStateOf<MainUIState>(MainUIState.Init)
 
     init {
@@ -60,10 +55,9 @@ class MainViewModel @Inject constructor(
         mainUiState = MainUIState.Init
         viewModelScope.launch {
             _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
-
-            isRefreshing = false
             categories = dataManager.getCategories()
             mainUiState = MainUIState.Loaded
+            isRefreshing = false
         }
     }
 
@@ -71,8 +65,6 @@ class MainViewModel @Inject constructor(
         isRefreshing = true
         viewModelScope.launch {
             _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
-
-
             isRefreshing = false
         }
     }
@@ -80,9 +72,11 @@ class MainViewModel @Inject constructor(
     fun getServiceListByCategory(categoryId: Int) {
         isRefreshing = true
         viewModelScope.launch {
-            _servicesFlow.value = dataManager.fetchServicesByCategory(page = PAGE, size = SIZE, categoryId)
-
-
+            if (isFilterSelected != null) {
+                _servicesFlow.value = dataManager.fetchServicesByCategory(page = PAGE, size = SIZE, categoryId)
+            } else {
+                getServiceList()
+            }
             isRefreshing = false
         }
     }

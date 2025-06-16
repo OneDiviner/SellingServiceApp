@@ -3,7 +3,7 @@ package com.example.sellingserviceapp.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.di.GlobalAppState
 import com.example.sellingserviceapp.data.di.SecureTokenStorage
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.sellingserviceapp.data.DataManager
+import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.FormatsDomain
 import com.example.sellingserviceapp.model.domain.PriceTypeDomain

@@ -2,6 +2,8 @@ package com.example.sellingserviceapp.data.network.offer.repository
 
 import android.util.Log
 import com.example.sellingserviceapp.data.network.AuthApiError
+import com.example.sellingserviceapp.data.network.BaseResponse
+import com.example.sellingserviceapp.data.network.ErrorHandler
 import com.example.sellingserviceapp.data.network.authorization.response.Response
 import com.example.sellingserviceapp.model.dto.ServiceDto
 import com.example.sellingserviceapp.data.network.offer.response.CreateServiceResponse
@@ -14,6 +16,10 @@ import com.example.sellingserviceapp.model.dto.PriceTypeDto
 import com.example.sellingserviceapp.model.dto.SubcategoryDto
 import com.example.sellingserviceapp.ui.screen.createService.model.ShortService
 import com.example.sellingserviceapp.ui.screen.createService.model.toRequest
+import com.google.gson.Gson
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonParser
+import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.HttpException
@@ -21,7 +27,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class OfferRepositoryImpl @Inject constructor(
-    private val offerApiService: OfferApiService
+    private val offerApiService: OfferApiService,
+    private val errorHandler: ErrorHandler
 ): OfferRepository {
 
     override suspend fun getCategories(): Result<List<CategoryDto>> {
@@ -102,14 +109,24 @@ class OfferRepositoryImpl @Inject constructor(
 
     override suspend fun createServiceRequest(newServiceDto: NewServiceDto): Result<Int> {
         return try {
+            val gson = Gson()
             val response = offerApiService.createServiceRequest(newServiceDto)
+
             if (response.isSuccessful) {
                 response.body()?.let {
+                    //errorHandler.setError(it.response.message)
                     Result.success(it.serviceId)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
-                //Добавить обработчик кодов ошибки
-                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
+                val errorMessage = response.errorBody()?.string()?.let { errorBody ->
+                    val jsonObject = JsonParser.parseString(errorBody).asJsonObject
+                    val messagesArray = jsonObject.getAsJsonArray("message")
+                    messagesArray[0].asString
+                } ?: ""
+
+
+                errorHandler.setError(errorMessage)
+                Result.failure(AuthApiError.HttpError(response.code(), errorMessage))
             }
         } catch (e: Exception) {
             when (e) {
