@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sellingserviceapp.ui.component.textfield.SearchTextField
 import com.example.sellingserviceapp.ui.screen.main.component.ServiceCardItem
 
 @Composable
@@ -59,38 +60,10 @@ fun MainUISkeleton() {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    Button(
-                        onClick = {
-
-                        },
-                        shape = RoundedCornerShape(20.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
-                        ),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier
-                            .systemBarsPadding()
-                            .padding(top = 15.dp)
-                            .fillMaxWidth()
-                            .height(44.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 15.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text("Поиск", fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
-                        }
-
-                    }
+                    SearchTextField(
+                        value = "",
+                        onValueChanged = { }
+                    )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(15.dp)

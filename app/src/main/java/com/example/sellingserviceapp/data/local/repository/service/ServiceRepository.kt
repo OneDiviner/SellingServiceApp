@@ -10,6 +10,7 @@ interface IServiceRepository {
     suspend fun insertService(serviceEntity: ServiceEntity)
     fun getServices(): Flow<List<ServiceEntity>>
     fun getService(serviceId: Int): Flow<ServiceEntity>
+    suspend fun changedStatusToDelete(serviceId: Int)
     suspend fun updateService(serviceEntity: ServiceEntity)
     suspend fun updateServiceImage(image: String?, imagePath: String?, serviceId: Int)
 }
@@ -43,5 +44,9 @@ class ServiceRepository @Inject constructor(
             photoPath = imagePath,
             serviceId = serviceId
         )
+    }
+
+    override suspend fun changedStatusToDelete(serviceId: Int) {
+        serviceDao.changeStatusToDelete(serviceId)
     }
 }

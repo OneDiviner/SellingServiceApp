@@ -20,6 +20,9 @@ interface ServiceDao {
     @Delete
     suspend fun delete(serviceEntity: ServiceEntity)
 
+    @Query("UPDATE services SET status_code = 'STATUS_DELETED', status_name = 'Удалена' WHERE id = :serviceId")
+    suspend fun changeStatusToDelete(serviceId: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(serviceEntities: List<ServiceEntity>)
 

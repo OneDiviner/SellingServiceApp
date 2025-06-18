@@ -34,13 +34,19 @@ fun NewServiceUI(
                 CategoryListUI()
             }
             is NewServiceUIState.Subcategories -> {
-                SubcategoryListUI()
+                SubcategoryListUI {
+                    viewModel.newServiceUIState = NewServiceUIState.Categories
+                }
             }
             is NewServiceUIState.Description -> {
-                DescriptionUI()
+                DescriptionUI{
+                    viewModel.newServiceUIState = NewServiceUIState.Subcategories
+                }
             }
             is NewServiceUIState.Parameters -> {
-                ParametersUI()
+                ParametersUI{
+                    viewModel.newServiceUIState = NewServiceUIState.Description
+                }
             }
         }
     }

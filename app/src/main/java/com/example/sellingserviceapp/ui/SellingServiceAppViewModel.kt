@@ -40,10 +40,8 @@ class SellingServiceAppViewModel @Inject constructor(
 
     fun initUserWithUserServices() {
         viewModelScope.launch {
-            val userJob = async { dataManager.fetchUser() }
-            userJob.await()
-            val serviceJob = async { dataManager.fetchUserServices(PAGE, SIZE) }
-            serviceJob.await()
+            dataManager.fetchUser()
+            dataManager.fetchUserServices(PAGE, SIZE)
         }
     }
 

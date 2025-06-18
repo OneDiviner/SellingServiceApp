@@ -3,12 +3,18 @@ package com.example.sellingserviceapp.ui.screen.createService.newService.newServ
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +30,8 @@ import com.example.sellingserviceapp.ui.screen.createService.newService.NewServi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubcategoryListUI(
-    viewModel: NewServiceViewModel = hiltViewModel()
+    viewModel: NewServiceViewModel = hiltViewModel(),
+    onBackButtonClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -43,7 +50,23 @@ fun SubcategoryListUI(
                 }
             }
             item {
-                Text("Подкатегория", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = onBackButtonClick,
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier
+                                .size(28.dp),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Text("Подкатегория", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                }
             }
             items(viewModel.subcategories) { subcategory ->
                 CategoryButton(

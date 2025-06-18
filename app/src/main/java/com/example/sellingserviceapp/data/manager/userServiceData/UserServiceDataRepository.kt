@@ -49,7 +49,7 @@ class UserServiceDataRepository @Inject constructor(
 
     override suspend fun updateService(serviceId: Int, service: NewServiceDomain) {
         val updateServiceRequest = offerRepository.updateService(service.toDto(), serviceId)
-        updateServiceRequest.onSuccess {
+        updateServiceRequest.onSuccess { updatedService ->
             updateService(serviceId)
         }
     }
@@ -83,7 +83,7 @@ class UserServiceDataRepository @Inject constructor(
     override suspend fun deleteService(serviceId: Int) {
         val deleteServiceResponse = offerRepository.deleteService(serviceId)
         deleteServiceResponse.onSuccess {
-            updateService(serviceId)
+            serviceRepository.changedStatusToDelete(serviceId)
         }
     }
 

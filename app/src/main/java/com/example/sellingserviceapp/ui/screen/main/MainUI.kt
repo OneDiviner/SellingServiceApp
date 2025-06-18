@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absolutePadding
@@ -34,6 +35,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetDefaults
@@ -46,10 +49,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -67,13 +73,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.sellingserviceapp.R
 import com.example.sellingserviceapp.model.domain.ServiceDomain
+import com.example.sellingserviceapp.ui.component.textfield.SearchTextField
 import com.example.sellingserviceapp.ui.screen.createService.CreateServiceUI
 import com.example.sellingserviceapp.ui.screen.main.component.ServiceCardItem
 import com.example.sellingserviceapp.ui.screen.main.service.ServiceUI
@@ -100,17 +109,18 @@ fun MainUI(
     onOrdersButtonClick: () -> Unit
 ) {
 
-    LaunchedEffect(Unit) {
-        viewModel.getServiceList()
+    LaunchedEffect(viewModel.isFilterSelected) {
+        viewModel.searchService()
     }
 
     val user by viewModel.userFLow.collectAsState()
     val services by viewModel.servicesFlow.collectAsState()
+    val searchValue by viewModel.searchQuery.collectAsState()
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing,
         onRefresh = {
-            viewModel.refreshMainScreen()
+            viewModel.searchService()
         },
         modifier = Modifier
             .fillMaxSize()
@@ -150,38 +160,10 @@ fun MainUI(
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(15.dp)
                                 ) {
-                                    Button(
-                                        onClick = {
-
-                                        },
-                                        shape = RoundedCornerShape(20.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.onBackground.copy(0.1f)
-                                        ),
-                                        contentPadding = PaddingValues(0.dp),
-                                        modifier = Modifier
-                                            .systemBarsPadding()
-                                            .padding(top = 15.dp)
-                                            .fillMaxWidth()
-                                            .height(44.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(horizontal = 15.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Search,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp),
-                                                tint = MaterialTheme.colorScheme.onBackground
-                                            )
-                                            Text("Поиск", fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
-                                        }
-
-                                    }
+                                    SearchTextField(
+                                        value = searchValue ?: "",
+                                        onValueChanged = { viewModel.onSearchChanged(it) }
+                                    )
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(15.dp)
@@ -306,7 +288,7 @@ fun MainUI(
                                         selected = isSelected,
                                         onClick = {
                                             viewModel.isFilterSelected = if (isSelected) null else category.id
-                                            viewModel.getServiceListByCategory(category.id)
+                                            //viewModel.getServiceListByCategory(category.id)
                                         },
                                         label = {Text(category.name)},
                                         colors = FilterChipDefaults.filterChipColors(

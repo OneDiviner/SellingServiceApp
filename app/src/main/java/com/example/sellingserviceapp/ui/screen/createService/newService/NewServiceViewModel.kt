@@ -12,7 +12,10 @@ import com.example.sellingserviceapp.model.domain.FormatsDomain
 import com.example.sellingserviceapp.model.domain.NewServiceDomain
 import com.example.sellingserviceapp.model.domain.PriceTypeDomain
 import com.example.sellingserviceapp.model.domain.SubcategoryDomain
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceValidators.validatePrice
+import com.example.sellingserviceapp.ui.screen.createService.newService.NewServiceValidators.validateTitle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,6 +38,8 @@ class NewServiceViewModel @Inject constructor(
         )
     )
     var newService by mutableStateOf<NewServiceDomain>(NewServiceDomain.EMPTY)
+
+    var error = MutableStateFlow<String?>(null)
 
     init {
         viewModelScope.launch {
@@ -77,5 +82,15 @@ class NewServiceViewModel @Inject constructor(
 
             dataManager.createService(newService = newService)
         }
+    }
+
+    fun onTittleChanged(value: String) {
+        newService = newService.copy(tittle = value)
+        error.value = newService.validateTitle()
+    }
+
+    fun onPriceChanged(value: String) {
+        newService = newService.copy(price = value)
+        error.value = newService.validatePrice()
     }
 }

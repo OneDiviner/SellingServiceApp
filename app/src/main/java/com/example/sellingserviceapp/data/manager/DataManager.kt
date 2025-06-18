@@ -43,8 +43,13 @@ open class DataManager @Inject constructor(
     IPriceTypeDataRepository by priceTypeDataRepository
 {
 
-    suspend fun requestServices(page: Int, size: Int): List<ServiceDomain> = coroutineScope { // Используем coroutineScope для структурированного параллелизма
-        val requestServicesDtoResult = offerRepository.searchServices(page, size)
+    suspend fun requestServices(
+        page: Int,
+        size: Int,
+        categoryId: Int? = null,
+        title: String? = null
+    ): List<ServiceDomain> = coroutineScope { // Используем coroutineScope для структурированного параллелизма
+        val requestServicesDtoResult = offerRepository.searchServices(page = page, size = size, title = title, categoryId = categoryId?.toLong())
         requestServicesDtoResult.fold(
             onSuccess = { servicesDto ->
                 if (servicesDto.services.isNullOrEmpty()) {

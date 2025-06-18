@@ -4,22 +4,29 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,9 +47,10 @@ import com.example.sellingserviceapp.ui.screen.createService.newService.NewServi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DescriptionUI(
-    viewModel: NewServiceViewModel = hiltViewModel()
+    viewModel: NewServiceViewModel = hiltViewModel(),
+    onBackButtonClick: () -> Unit
 ) {
-    var error by remember { mutableStateOf<String?>(null) }
+    val error by viewModel.error.collectAsState()
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -60,15 +68,30 @@ fun DescriptionUI(
                 }
             }
             item {
-                Text(viewModel.newService.subcategoryName, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = onBackButtonClick,
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier
+                                .size(28.dp),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Text(viewModel.newService.subcategoryName, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                }
             }
             item {
                 Column {
                     ServiceTextField(
                         value = viewModel.newService.tittle,
                         onValueChange = {
-                            viewModel.newService = viewModel.newService.copy(tittle = it)
-                            error = viewModel.newService.validateTitle()
+                           viewModel.onTittleChanged(it)
                         },
                         label = "Название",
                         isError = error != null,
@@ -99,7 +122,7 @@ fun DescriptionUI(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    enabled = error == null,
+                    enabled = !viewModel.newService.tittle.isBlank(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         disabledContainerColor = MaterialTheme.colorScheme.primary.copy(0.5f)

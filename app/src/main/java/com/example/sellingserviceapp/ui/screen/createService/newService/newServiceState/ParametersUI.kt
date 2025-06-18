@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.BottomSheetDefaults
@@ -26,12 +27,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,8 +60,12 @@ import com.example.sellingserviceapp.ui.screen.createService.newService.NewServi
 @Composable
 fun ParametersUI(
     viewModel: NewServiceViewModel = hiltViewModel(),
-    createServiceViewModel: CreateServiceViewModel = hiltViewModel()
+    createServiceViewModel: CreateServiceViewModel = hiltViewModel(),
+    onBackButtonClick: () -> Unit
 ) {
+
+    val error by viewModel.error.collectAsState()
+
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -75,7 +83,23 @@ fun ParametersUI(
                 }
             }
             item {
-                Text(viewModel.newService.tittle, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = onBackButtonClick,
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = Modifier
+                                .size(28.dp),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Text(viewModel.newService.tittle, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+                }
             }
             item {
                 Row(
@@ -84,7 +108,7 @@ fun ParametersUI(
                     TextField(
                         value = viewModel.newService.price,
                         onValueChange = {
-                            viewModel.newService = viewModel.newService.copy(price = it)
+                            viewModel.onPriceChanged(it)
                         },
                         textStyle = TextStyle(fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground),
                         modifier = Modifier
@@ -110,7 +134,7 @@ fun ParametersUI(
                     val options = viewModel.priceTypes
                     var expanded by remember { mutableStateOf(false) }
                     var selectedOptionText by remember { mutableStateOf(options[0].name) }
-                    viewModel.newService = viewModel.newService.copy(priceTypeId = options[0].id)
+
                     ExposedDropdownMenuBox(
                         modifier = Modifier
                             .height(56.dp)
@@ -210,6 +234,7 @@ fun ParametersUI(
                                 text = { Text(text = selectedOption) },
                                 onClick = {
                                     selectedOptionText = selectedOption
+                                    viewModel.newService = viewModel.newService.copy(duration = selectedOption)
                                     expanded = false
                                 }
                             )
@@ -285,17 +310,27 @@ fun ParametersUI(
                 }
             }
             item {
-                LargeButton(
-                    model = ButtonModel(
-                        text = "Создать услугу",
-                        state = ButtonState.Ready
-                    ),
-                    onClick = {
-                        viewModel.createService()
-                        createServiceViewModel.isOpen = false
-                        viewModel.newServiceUIState = NewServiceUIState.Categories
+                Column {
+                    error?.let { Text(it, fontSize = 14.sp, color = Color.Red, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) }
+                    Button(
+                        onClick = {
+                            viewModel.createService()
+                            createServiceViewModel.isOpen = false
+                            viewModel.newServiceUIState = NewServiceUIState.Categories
+                        },
+                        shape = RoundedCornerShape(20.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        enabled = error == null,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+                        )
+                    ) {
+                        Text("Продолжить", style = MaterialTheme.typography.bodyLarge)
                     }
-                )
+                }
             }
         }
     }

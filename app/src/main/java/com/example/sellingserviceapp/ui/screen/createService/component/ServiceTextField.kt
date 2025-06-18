@@ -39,7 +39,8 @@ fun ServiceTextField(
         disabledContainerColor = Color.Gray,
         disabledPlaceholderColor = Color.Transparent,
         disabledTextColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent
+        disabledIndicatorColor = Color.Transparent,
+        errorIndicatorColor = Color.Transparent
     )
 ) {
     TextField(

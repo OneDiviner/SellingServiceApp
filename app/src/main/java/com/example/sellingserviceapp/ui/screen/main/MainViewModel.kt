@@ -2,6 +2,7 @@ package com.example.sellingserviceapp.ui.screen.main
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,9 +11,12 @@ import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +41,9 @@ class MainViewModel @Inject constructor(
     var isFilterSelected by mutableStateOf<Int?>(null)
     var mainUiState by mutableStateOf<MainUIState>(MainUIState.Init)
 
+    private val _searchQuery = MutableStateFlow<String?>(null)
+    val searchQuery: StateFlow<String?> = _searchQuery
+
     init {
         init()
         getUser()
@@ -59,36 +66,33 @@ class MainViewModel @Inject constructor(
             mainUiState = MainUIState.Loaded
             isRefreshing = false
         }
+        getServiceListByTittle()
     }
 
-    fun getServiceList() {
-        isRefreshing = true
+    fun onSearchChanged(value: String) {
+        _searchQuery.value = value
+    }
+
+    @OptIn(FlowPreview::class)
+    fun getServiceListByTittle() {
         viewModelScope.launch {
-            _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
-            isRefreshing = false
+            searchQuery
+                .debounce(500)
+                .distinctUntilChanged()
+                .collect { query ->
+                    if (_searchQuery.value == "") {
+                        _searchQuery.value = null
+                    }
+                    searchService()
+                }
         }
     }
 
-    fun getServiceListByCategory(categoryId: Int) {
+    fun searchService() {
         isRefreshing = true
         viewModelScope.launch {
-            if (isFilterSelected != null) {
-                _servicesFlow.value = dataManager.fetchServicesByCategory(page = PAGE, size = SIZE, categoryId)
-            } else {
-                getServiceList()
-            }
+            _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE, categoryId =  isFilterSelected, title = _searchQuery.value)
             isRefreshing = false
-        }
-    }
-
-    fun refreshMainScreen() {
-        viewModelScope.launch {
-            isRefreshing = true
-            viewModelScope.launch {
-                _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
-                categories = dataManager.getCategories()
-                isRefreshing = false
-            }
         }
     }
 }
