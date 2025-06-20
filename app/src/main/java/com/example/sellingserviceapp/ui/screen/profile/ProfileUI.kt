@@ -587,19 +587,28 @@ fun ProfileUI(
 @Composable
 fun PickTime(
     title: String = "",
-    time: String,
+    time: String? = null,
     onTimeSelected: (Int, Int) -> Unit,
     onDismissRequest: () -> Unit,
     onDismissButtonCLick: () -> Unit,
     onConfirmButtonClick: () -> Unit,
-    isButtonEnabled: Boolean = false
+    isButtonEnabled: Boolean = false,
+    initHour: String? = null,
+    initMinute: String? = null
 ) {
-    val parts = time.split(":")
-    var hour = "5"
-    var minute = "5"
-    if (parts.size == 2) {
-        hour = parts[0]
-        minute = parts[1]
+    var hour = "1"
+    var minute = "1"
+    var parts = emptyList<String>()
+    if (time != null) {
+        parts = time.split(":")
+        if (parts.size == 2) {
+            hour = parts[0]
+            minute = parts[1]
+        }
+    }
+    if (initHour != null && initMinute != null) {
+        hour = initHour
+        minute = initMinute
     }
 
     AlertDialog(

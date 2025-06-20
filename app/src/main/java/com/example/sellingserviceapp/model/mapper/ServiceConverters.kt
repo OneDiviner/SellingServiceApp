@@ -11,21 +11,6 @@ import kotlinx.coroutines.flow.map
 
 object ServiceConverters {
 
-    private val categoryMap = mapOf(
-        "CATEGORY_REPAIR" to "Ремонт",
-        "CATEGORY_MAINTENANCE" to "Обслуживание",
-        "CATEGORY_EDUCATION" to "Образование"
-    )
-
-    private val subcategoryMap = mapOf(
-        "SUBCATEGORY_REPAIR_CAR" to "Ремонт автомобилей",
-        "SUBCATEGORY_REPAIR_HOUSEHOLD_APPLIANCES" to "Ремонт бытовой техники",
-        "SUBCATEGORY_MAINTENANCE_WINDOW" to "Обслуживание окон",
-        "SUBCATEGORY_MAINTENANCE_DOOR" to "Обслуживание дверей",
-        "SUBCATEGORY_EDUCATION_COURSE" to "Курсы",
-        "SUBCATEGORY_EDUCATION_TUTORING" to "Репетиторство"
-    )
-
     private val priceTypeMap = mapOf(
         "PRICE_TYPE_FOR_OFFER" to "услугу",
         "PRICE_TYPE_FOR_KILOGRAM" to "киллограмм",
@@ -62,9 +47,9 @@ object ServiceConverters {
             updatedAt = updatedAt,
             formats = formatsDtoListToEntityList(formats),
             categoryCode = category,
-            categoryName = categoryMap[category]?: category,
+            categoryName = CategoryMapper.map(category),
             subcategoryCode = subcategory,
-            subcategoryName = subcategoryMap[subcategory]?: subcategory
+            subcategoryName = SubcategoryMapper.map(subcategory)
         )
     }
 
@@ -86,9 +71,9 @@ object ServiceConverters {
             updatedAt = updatedAt,
             formats = formatsDtoListToDomainList(formats),
             categoryCode = category,
-            categoryName = categoryMap[category]?: category,
+            categoryName = CategoryMapper.map(category),
             subcategoryCode = subcategory,
-            subcategoryName = subcategoryMap[subcategory]?: subcategory
+            subcategoryName = SubcategoryMapper.map(subcategory)
         )
     }
 

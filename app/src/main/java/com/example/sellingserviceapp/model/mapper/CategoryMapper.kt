@@ -7,9 +7,18 @@ import com.example.sellingserviceapp.model.mapper.CategoryMapper.toDomain
 import com.example.sellingserviceapp.model.mapper.CategoryMapper.toEntity
 
 private val categoryMap = mapOf(
-    "CATEGORY_REPAIR" to "Ремонт",
-    "CATEGORY_MAINTENANCE" to "Обслуживание",
-    "CATEGORY_EDUCATION" to "Образование"
+    "CATEGORY_REPAIR" to "Ремонт и отделка",
+    "CATEGORY_TECH_REPAIR" to "Ремонт и обслуживание техники",
+    "CATEGORY_EDUCATION" to "Образование",
+    "CATEGORY_CLEANING" to "Уборка",
+    "CATEGORY_CARGO" to "Грузовые перевозки",
+    "CATEGORY_AUTO_SERVICE" to "Автосервис",
+    "CATEGORY_BEAUTY" to "Красота",
+    "CATEGORY_IT" to "IT, дизайн, маркетинг",
+    "CATEGORY_EVENTS" to "Праздники, мероприятия",
+    "CATEGORY_PHOTO_VIDEO" to "Фото и видеосъёмка",
+    "CATEGORY_SECURITY" to "Охрана, безопасность",
+    "CATEGORY_CONSTRUCTION" to "Строительство"
 )
 
 object CategoryMapper {
@@ -27,6 +36,9 @@ object CategoryMapper {
             name = name,
             code = code
         )
+    }
+    fun map(categoryCode: String) : String {
+        return categoryMap[categoryCode]?: categoryCode
     }
 }
 

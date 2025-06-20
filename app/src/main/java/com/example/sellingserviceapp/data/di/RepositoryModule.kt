@@ -14,6 +14,10 @@ import com.example.sellingserviceapp.data.network.authorization.repository.AuthR
 import com.example.sellingserviceapp.data.network.authorization.repository.AuthRepositoryImpl
 import com.example.sellingserviceapp.data.network.booking.BookingRepository
 import com.example.sellingserviceapp.data.network.booking.IBookingRepository
+import com.example.sellingserviceapp.data.network.feedback.repository.FeedbackRepository
+import com.example.sellingserviceapp.data.network.feedback.repository.IFeedbackRepository
+import com.example.sellingserviceapp.data.network.gpt.repository.GPTRepository
+import com.example.sellingserviceapp.data.network.gpt.repository.IGPTRepository
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepository
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepositoryImpl
 import dagger.Binds
@@ -57,4 +61,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindBookingRepository(repository: BookingRepository): IBookingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFeedbackRepository(repository: FeedbackRepository): IFeedbackRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGptRepository(repository: GPTRepository): IGPTRepository
 }

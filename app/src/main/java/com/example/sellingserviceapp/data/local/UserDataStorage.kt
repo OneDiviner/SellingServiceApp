@@ -40,47 +40,7 @@ class UserDataStorage @Inject constructor(
         val AVATAR_BASE64 = stringPreferencesKey("avatar_base64")
     }
 
-    suspend fun saveUser(userData: UserData) {
-        context.dataStore.edit { prefs ->
-            prefs[FIRST_NAME] = userData.firstName
-            prefs[MIDDLE_NAME] = userData.middleName
-            prefs[LAST_NAME] = userData.lastName?: ""
-            prefs[EMAIL] = userData.email
-            prefs[AVATAR_BASE64] = userData.avatarBase64?: ""
-        }
-    }
 
-    suspend fun updateUserData() {
-        coroutineScope {
-            Log.d("DATA_STORAGE", "GET_USER")
-            val user = authRepository.getUser()
-            user.onSuccess { success ->
-                context.dataStore.edit { prefs ->
-                    prefs[FIRST_NAME] = success.firstName
-                    prefs[MIDDLE_NAME] = success.secondName
-                    prefs[LAST_NAME] = success.lastName?: "" // Пометить как Null
-                    prefs[EMAIL] = success.email
-                    prefs[AVATAR_BASE64] = success.avatarPath?: ""
-                }
-            }
-        }
-    }
-
-    fun getUser(): Flow<UserData> {
-        return context.dataStore.data.map { prefs ->
-            UserData(
-                firstName = prefs[FIRST_NAME] ?: "",
-                middleName =  prefs[MIDDLE_NAME] ?: "",
-                lastName = prefs[LAST_NAME] ?: "",
-                email = prefs[EMAIL]?: "",
-                avatarBase64 = prefs[AVATAR_BASE64]?: ""
-            )
-        }
-    }
-
-    suspend fun clearUserData() {
-        context.dataStore.edit { it.clear() }
-    }
 
 }
 

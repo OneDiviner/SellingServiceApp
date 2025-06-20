@@ -1,5 +1,6 @@
 package com.example.sellingserviceapp.model.mapper
 
+import android.util.Log
 import com.example.sellingserviceapp.model.entity.UserEntity
 import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.model.domain.UserDomain
@@ -7,6 +8,7 @@ import com.example.sellingserviceapp.model.mapper.UserConverters.toDomain
 
 object UserConverters {
     fun UserDto.toEntity(avatar: String? = null): UserEntity {
+        Log.d("USER_MAP", "Name = $firstName, SecondName = $secondName, LastName = $lastName")
         return UserEntity(
             id = id,
             firstName = firstName,

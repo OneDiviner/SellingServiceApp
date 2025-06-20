@@ -68,7 +68,6 @@ class LoginViewModel @Inject constructor(
                 Log.d("LOGIN", "SUCCESS")
                 secureTokenStorage.saveTokens(accessToken = success.access.token, refreshToken = success.refresh.token)
 
-                userDataStorage.updateUserData()
                 globalAppState.setMainAppState()
             }.onFailure {
                 Log.d("LOGIN", "FAILURE")

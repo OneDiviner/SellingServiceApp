@@ -41,7 +41,7 @@ class UserDataRepository @Inject constructor(
         val fetchUserDto = authRepository.getUser()
         fetchUserDto.onSuccess { userDto ->
             val userAvatar = fetchUserAvatar(userDto.avatarPath?: "")
-            Log.d("FETCH_USER", "SUCCESS")
+            Log.d("FETCH_USER", "Secondname = ${userDto.secondName}, lastname = ${userDto.lastName}")
             insertUser(userDto, userAvatar)
         }
     }

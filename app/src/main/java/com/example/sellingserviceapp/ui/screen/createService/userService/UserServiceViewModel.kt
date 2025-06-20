@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.manager.DataManager
+import com.example.sellingserviceapp.data.network.gpt.repository.GPTRepository
+import com.example.sellingserviceapp.data.network.gpt.request.GenerateImageForServiceRequest
 import com.example.sellingserviceapp.model.domain.CategoryDomain
 import com.example.sellingserviceapp.model.domain.FormatsDomain
 import com.example.sellingserviceapp.model.domain.PriceTypeDomain
@@ -20,7 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserServiceViewModel @Inject constructor(
-    private val dataManager: DataManager
+    private val dataManager: DataManager,
+    private val gptRepository: GPTRepository
 ): ViewModel() {
 
     var serviceState by mutableStateOf<ServiceState>(ServiceState.Service)
@@ -66,6 +69,28 @@ class UserServiceViewModel @Inject constructor(
     fun onPhotoSelected(serviceId: Int, imageBase64: String?) {
         viewModelScope.launch {
             dataManager.updateServiceImage(serviceId, imageBase64?: "")
+        }
+    }
+
+    fun generateImage() {
+        viewModelScope.launch {
+            val result = gptRepository.generateImageForService(
+                request = GenerateImageForServiceRequest(
+                    category = _serviceFlow.value.categoryName,
+                    subcategory = _serviceFlow.value.subcategoryName,
+                    title = _serviceFlow.value.tittle,
+                    description = _serviceFlow.value.description ?: ""
+                )
+            )
+            result.onSuccess {
+                val imageId = gptRepository.getGeneratedImage(it.fileId)
+                imageId.onSuccess {
+                    dataManager.updateServiceImage(
+                        serviceId = _serviceFlow.value.id,
+                        it
+                    )
+                }
+            }
         }
     }
 }

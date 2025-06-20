@@ -291,8 +291,9 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun getUser(): Result<UserDto> {
         return try {
-            val response = authApiService.getUser()
 
+            val response = authApiService.getUser()
+            Log.d("USER_AUTH_REPOSITORY", "SecondName = ${response.body()?.user?.secondName}, lastName = ${response.body()?.user?.lastName}")
             if (response.isSuccessful) {
                 Result.success(response.body()!!.user)
             } else {

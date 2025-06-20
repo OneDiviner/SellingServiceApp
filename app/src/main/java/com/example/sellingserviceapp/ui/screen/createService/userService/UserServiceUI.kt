@@ -42,6 +42,7 @@ import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.ui.component.circularProgressIndicator.FullScreenCircularProgressIndicator
 import com.example.sellingserviceapp.ui.screen.createService.component.ServiceInfoRow
 import com.example.sellingserviceapp.ui.screen.createService.userService.editService.EditServiceUI
+import com.example.sellingserviceapp.ui.screen.main.service.ServiceUISkeleton
 import com.example.sellingserviceapp.util.extension.imagePicker.ImageContent
 import com.example.sellingserviceapp.util.extension.imagePicker.pickImageLauncher
 import kotlinx.coroutines.flow.Flow
@@ -136,7 +137,9 @@ fun UserServiceUI(
                                     onMoreButtonClick = {
                                         isDropDown = !isDropDown
                                     },
-                                    onPickImageButtonClick = pickImageLauncher,
+                                    onPickImageButtonClick = /*pickImageLauncher*/{
+                                        viewModel.generateImage()
+                                    },
                                     isDropdownExpanded = isDropDown,
                                     onDismissRequest = { isDropDown = false },
                                     onDeleteButtonClick = {
@@ -152,8 +155,16 @@ fun UserServiceUI(
                                 modifier = Modifier.padding(horizontal = 15.dp)
                             ) {
                                 Text(
-                                    service.tittle,
-                                    fontSize = 26.sp,
+                                    modifier = Modifier,
+                                    text = "${service.price}₽ за ${service.priceTypeName}",
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    modifier = Modifier.padding(bottom = 10.dp),
+                                    text =  service.tittle,
+                                    fontSize = 24.sp,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 ServiceInfoRow(
@@ -165,12 +176,8 @@ fun UserServiceUI(
                                     value = service.subcategoryName
                                 )
                                 ServiceInfoRow(
-                                    title = "Цена",
-                                    value = "${service.price} ${service.priceTypeName}"
-                                )
-                                ServiceInfoRow(
                                     title = "Длительность",
-                                    value = service.duration.toString()
+                                    value = "${service.duration.toString()} минут"
                                 )
                                 ServiceInfoRow(
                                     title = "Формат оказания услуги",
@@ -209,7 +216,7 @@ fun UserServiceUI(
 
             }
             is ServiceState.Loading -> {
-                FullScreenCircularProgressIndicator()
+                ServiceUISkeleton()
             }
             is ServiceState.Error -> {
 

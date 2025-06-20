@@ -23,6 +23,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
+//TODO: Если null не делать запрос
+
 open class DataManager @Inject constructor(
     private val userDataRepository: IUserDataRepository,
     private val userServiceDataRepository: IUserServiceDataRepository,
@@ -50,39 +52,6 @@ open class DataManager @Inject constructor(
         title: String? = null
     ): List<ServiceDomain> = coroutineScope { // Используем coroutineScope для структурированного параллелизма
         val requestServicesDtoResult = offerRepository.searchServices(page = page, size = size, title = title, categoryId = categoryId?.toLong())
-        requestServicesDtoResult.fold(
-            onSuccess = { servicesDto ->
-                if (servicesDto.services.isNullOrEmpty()) {
-                    return@fold emptyList<ServiceDomain>()
-                }
-
-                val imageDeferreds = servicesDto.services.map { serviceDto ->
-                    async(Dispatchers.IO) { // async запускает корутину и возвращает Deferred
-                        // Убедитесь, что photoPath это правильный путь
-                        getServiceImage(serviceDto.photoPath ?: serviceDto.id.toString()) // Используем photoPath если есть, иначе id
-                    }
-                }
-                val images = imageDeferreds.awaitAll() // awaitAll дожидается выполнения всех Deferred
-
-                val servicesWithImages = servicesDto.services.mapIndexed { index, serviceDto ->
-                    serviceDto.toDomain(images[index])
-                }
-
-                servicesWithImages
-            },
-            onFailure = { exception ->
-                Log.e("DataManager", "Failed to request services: ${exception.message}")
-                emptyList()
-            }
-        )
-    }
-
-    suspend fun fetchServicesByCategory(
-        page: Int,
-        size: Int,
-        serviceId: Int
-    ): List<ServiceDomain> = coroutineScope {
-        val requestServicesDtoResult = offerRepository.searchServices(page, size, categoryId = serviceId.toLong())
         requestServicesDtoResult.fold(
             onSuccess = { servicesDto ->
                 if (servicesDto.services.isNullOrEmpty()) {
