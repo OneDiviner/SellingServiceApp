@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.network.booking.Status
 import com.example.sellingserviceapp.model.domain.BookingWithData
-import com.example.sellingserviceapp.model.mapper.mapStatusListByExecutor
+import com.example.sellingserviceapp.model.mapper.mapStatusListAsExecutor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,7 +66,7 @@ class OrdersViewModel @Inject constructor(
 
     fun getStatuses() {
         viewModelScope.launch {
-            _statusListFlow.value = mapStatusListByExecutor(dataManager.getBookingStatuses())
+            _statusListFlow.value = mapStatusListAsExecutor(dataManager.getBookingStatuses())
         }
     }
 

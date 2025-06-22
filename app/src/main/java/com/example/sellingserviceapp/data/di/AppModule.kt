@@ -2,6 +2,8 @@ package com.example.sellingserviceapp.data.di
 
 import com.example.sellingserviceapp.data.manager.categoryData.CategoryDataRepository
 import com.example.sellingserviceapp.data.manager.categoryData.ICategoryDataRepository
+import com.example.sellingserviceapp.data.manager.feedbackData.FeedbackDataRepository
+import com.example.sellingserviceapp.data.manager.feedbackData.IFeedbackDataRepository
 import com.example.sellingserviceapp.data.manager.formatData.FormatDataRepository
 import com.example.sellingserviceapp.data.manager.formatData.IFormatDataRepository
 import com.example.sellingserviceapp.data.manager.priceTypeData.IPriceTypeDataRepository
@@ -50,4 +52,8 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindPriceTypeDataRepository(binding: PriceTypeDataRepository): IPriceTypeDataRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFeedbackDataRepository(binding: FeedbackDataRepository) : IFeedbackDataRepository
 }

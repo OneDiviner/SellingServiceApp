@@ -35,6 +35,8 @@ class UserServiceViewModel @Inject constructor(
     var formats by mutableStateOf<List<FormatsDomain>>(emptyList())
     var priceTypes by mutableStateOf<List<PriceTypeDomain>>(emptyList())
 
+    var isGenerating by mutableStateOf(false)
+
     init {
         serviceState = ServiceState.Loading
         viewModelScope.launch {
@@ -73,6 +75,7 @@ class UserServiceViewModel @Inject constructor(
     }
 
     fun generateImage() {
+        isGenerating = true
         viewModelScope.launch {
             val result = gptRepository.generateImageForService(
                 request = GenerateImageForServiceRequest(
@@ -91,6 +94,7 @@ class UserServiceViewModel @Inject constructor(
                     )
                 }
             }
+            isGenerating = false
         }
     }
 }

@@ -53,7 +53,7 @@ fun ServiceInfoRow(
             if (address.isNotBlank()) {
                 FlowRow() {
                     Text(
-                        text = "Адресс: ",
+                        text = "Адрес: ",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onBackground.copy(0.7f)

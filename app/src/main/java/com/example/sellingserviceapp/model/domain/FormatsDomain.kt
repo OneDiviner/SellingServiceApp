@@ -6,4 +6,14 @@ data class FormatsDomain(
     val code: String,
     val address: String?,
     val isPhysical: Boolean
-)
+) {
+    companion object {
+        val TEST = FormatsDomain(
+            id = 1,
+            name = "Выезжаю",
+            code = "",
+            isPhysical = false,
+            address = null
+        )
+    }
+}

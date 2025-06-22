@@ -12,6 +12,7 @@ import com.example.sellingserviceapp.model.dto.UserDto
 import com.example.sellingserviceapp.model.mapper.UserConverters.toDomain
 import com.example.sellingserviceapp.model.mapper.UserConverters.toDto
 import com.example.sellingserviceapp.model.mapper.UserConverters.toEntity
+import com.example.sellingserviceapp.model.mapper.usersDtoListToDomainList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -103,6 +104,14 @@ class UserDataRepository @Inject constructor(
                 avatarPath = success.avatarPath
             )
         }
+    }
+
+    override suspend fun fetchUserList(userIds: List<Int>): List<UserDto> {
+        val getUserListResponse = authRepository.getUsersListById(userIds)
+        getUserListResponse.onSuccess {
+            return it
+        }
+        return  emptyList()
     }
 
 }

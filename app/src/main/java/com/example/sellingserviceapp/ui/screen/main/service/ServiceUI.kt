@@ -26,6 +26,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
@@ -312,6 +316,83 @@ fun ServiceUI(
                                     isOpen = true
                                 }
                             )
+                        }
+                        item {
+                            Text("Отзывы", fontSize = 28.sp, color = MaterialTheme.colorScheme.onBackground)
+                        }
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(30.dp),
+                                modifier = Modifier.padding(horizontal = 15.dp)
+                            ) {
+
+                                viewModel.feedbackList.forEach { feedback ->
+                                    Column {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(15.dp)
+                                        ) {
+                                            ProfileIconButton(
+                                                onClick = {},
+                                                photoBase64 = ""
+                                            )
+                                            Column(
+                                                modifier = Modifier,
+                                                verticalArrangement = Arrangement.spacedBy(1.dp)
+                                            ) {
+                                                Text(
+                                                    modifier = Modifier,
+                                                    text = feedback.user.firstName + feedback.user.firstName,
+                                                    fontSize = 20.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onBackground
+                                                )
+                                                Text(
+                                                    modifier = Modifier,
+                                                    text = feedback.feedback.createdAt,
+                                                    fontSize = 15.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                                )
+                                            }
+                                        }
+                                        Text(
+                                            modifier = Modifier,
+                                            text = feedback.service.categoryName + feedback.service.subcategoryName,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            Icon(
+                                                modifier = Modifier.size(18.dp),
+                                                imageVector = Icons.Default.Star,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                            )
+                                            Text(
+                                                modifier = Modifier,
+                                                text = feedback.feedback.rating.toString(),
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                            )
+                                        }
+                                        Card(
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                            ),
+                                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground.copy(0.1f))
+                                        ) {
+                                            Text(feedback.feedback.comment, modifier = Modifier.padding(10.dp), fontSize = 14.sp)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

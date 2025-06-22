@@ -8,7 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.network.booking.Status
 import com.example.sellingserviceapp.model.domain.BookingWithData
-import com.example.sellingserviceapp.model.mapper.mapStatusListByClient
+import com.example.sellingserviceapp.model.mapper.BookingStatusAsClientMapper
+import com.example.sellingserviceapp.model.mapper.mapStatusListAsClient
 import com.example.sellingserviceapp.ui.screen.order.DialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +56,7 @@ class OffersViewModel @Inject constructor(
 
     fun getStatuses() {
         viewModelScope.launch {
-            _statusListFlow.value = mapStatusListByClient(dataManager.getBookingStatuses())
+            _statusListFlow.value = mapStatusListAsClient(dataManager.getBookingStatuses())
         }
     }
 }

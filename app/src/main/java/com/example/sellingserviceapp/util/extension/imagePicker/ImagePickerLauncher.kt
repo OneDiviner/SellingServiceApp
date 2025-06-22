@@ -7,7 +7,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -20,11 +22,13 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -70,7 +74,10 @@ fun ImageContent(
     onDismissRequest: () -> Unit = {},
     onDeleteButtonClick: () -> Unit = {},
     isEditable: Boolean = true,
-    isPickImage: Boolean = true
+    isPickImage: Boolean = true,
+    isGenerateImage: Boolean = false,
+    isGenerating: Boolean = false,
+    onGenerateImageButtonClick: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         if (photoBase64.isNotBlank()) {
@@ -170,26 +177,66 @@ fun ImageContent(
                 )
             )
         )
-        if (isPickImage) {
-            Button(
-                onClick = onPickImageButtonClick,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 15.dp)
-                    .offset(y = 18.dp)
-                    .size(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Icon(
-                    modifier = Modifier.size(22.dp),
-                    painter = painterResource(R.drawable.add_photo_alternate),
-                    contentDescription = "Изменить фото",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
+        Column(
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 15.dp).offset(y = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(15.dp)
+        ) {
+            if (isGenerateImage) {
+                OutlinedButton(
+                    onClick = onGenerateImageButtonClick,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .zIndex(5f),
+                    contentPadding = PaddingValues(0.dp),
+                    border = _root_ide_package_.androidx.compose.foundation.BorderStroke(1.dp,
+                        MaterialTheme.colorScheme.onBackground.copy(0.5f)),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.background.copy(0.3f)
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isGenerating) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.fillMaxSize(0.7f),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        } else {
+                            Icon(
+                                modifier = Modifier.fillMaxSize(0.7f),
+                                painter = painterResource(R.drawable.aiimage),
+                                contentDescription = "Изменить фото",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                }
+            }
+            if (isPickImage) {
+                Button(
+                    onClick = onPickImageButtonClick,
+                    modifier = Modifier
+                        .size(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        modifier = Modifier.fillMaxSize(0.7f),
+                        painter = painterResource(R.drawable.add_photo_alternate),
+                        contentDescription = "Изменить фото",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
             }
         }
     }

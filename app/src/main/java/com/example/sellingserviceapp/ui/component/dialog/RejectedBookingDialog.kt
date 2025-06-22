@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sellingserviceapp.R
 import com.example.sellingserviceapp.model.domain.BookingWithData
+import com.example.sellingserviceapp.model.mapper.BookingStatusAsExecutorMapper
 import com.example.sellingserviceapp.model.mapper.BookingStatusMapper
 
 @Composable
@@ -135,7 +136,7 @@ fun RejectedBookingDialog(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = BookingStatusMapper.statusReasonByExecutorMap(booking.booking?.statusReason ?: ""),
+                    text = booking.booking?.statusReason ?: "",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground

@@ -164,7 +164,7 @@ fun NewBookingDialog(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = BookingStatusMapper.statusReasonByExecutorMap(booking.booking?.statusReason ?: ""),
+                    text = booking.booking?.statusReason ?: "",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground

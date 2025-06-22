@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.model.mapper.BookingStatusAsClientMapper
 import com.example.sellingserviceapp.model.mapper.BookingStatusMapper
 import com.example.sellingserviceapp.ui.component.dialog.ConfirmedBookingDialog
 import com.example.sellingserviceapp.ui.component.dialog.NewBookingDialog
@@ -92,14 +93,14 @@ fun OffersUI(
             DialogState.RejectedByClientBooking -> {
                 RejectedBookingDialog(
                     booking = viewModel.pickedBooking,
-                    description = "Клиент отменил запись на услугу.",
+                    description = "Вы отменили запись на услугу.",
                     onDismissRequest = {viewModel.isBookingPicked = false}
                 )
             }
             DialogState.RejectedByExecutorBooking -> {
                 RejectedBookingDialog(
                     booking = viewModel.pickedBooking,
-                    description = "Вы отклонили выполнение услуги.",
+                    description = "Исполнитель отклонил выполнение услуги.",
                     onDismissRequest = {viewModel.isBookingPicked = false}
                 )
             }
@@ -176,7 +177,9 @@ fun OffersUI(
                 }
             }
             item {
-                LazyRow {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
                     items(statuses) { item ->
 
                         val isSelected = viewModel.isFilterSelected == item.id
@@ -201,7 +204,7 @@ fun OffersUI(
             items(offers) { offer ->
                 CategoryButton(
                     category = offer.service?.tittle ?: "",
-                    description = BookingStatusMapper.statusReasonByClientMap(offer.booking?.statusReason ?: ""),
+                    description = offer.booking?.statusReason ?: "",
                     onClick = {
                         viewModel.pickedBookingDialogState = BookingStatusMapper.bookingDialogStateMap(offer.booking?.status ?: "")
                         viewModel.pickedBooking = offer

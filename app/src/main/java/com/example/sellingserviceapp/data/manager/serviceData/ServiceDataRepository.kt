@@ -3,6 +3,7 @@ package com.example.sellingserviceapp.data.manager.serviceData
 import com.example.sellingserviceapp.data.network.offer.repository.OfferRepository
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.mapper.ServiceConverters.toDomain
+import com.example.sellingserviceapp.model.mapper.serviceDtoListToDomainList
 import javax.inject.Inject
 
 class ServiceDataRepository @Inject constructor(
@@ -16,6 +17,14 @@ class ServiceDataRepository @Inject constructor(
             return serviceDto.toDomain(image)
         }
         return ServiceDomain.EMPTY
+    }
+
+    override suspend fun fetchServiceList(serviceIds: List<Int>): List<ServiceDomain> {
+        val fetchServiceListResponse = offerRepository.getServicesList(serviceIds)
+        fetchServiceListResponse.onSuccess {
+            return serviceDtoListToDomainList(it)
+        }
+        return emptyList()
     }
 
 }

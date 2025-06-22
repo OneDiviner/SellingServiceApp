@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.model.mapper.BookingStatusAsExecutorMapper
 import com.example.sellingserviceapp.model.mapper.BookingStatusMapper
 import com.example.sellingserviceapp.ui.component.dialog.ConfirmedBookingDialog
 import com.example.sellingserviceapp.ui.component.dialog.NewBookingDialog
@@ -205,7 +206,7 @@ fun OrdersUI(
             items(orders) { order ->
                 CategoryButton(
                     category = order.service?.tittle ?: "",
-                    description = BookingStatusMapper.statusReasonByExecutorMap(order.booking?.statusReason ?: ""),
+                    description = order.booking?.statusReason ?: "",
                     onClick = {
                         viewModel.pickedBookingDialogState = BookingStatusMapper.bookingDialogStateMap(order.booking?.status ?: "")
                         viewModel.pickedBooking = order

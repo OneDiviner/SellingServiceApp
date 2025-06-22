@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IUserDataRepository {
     suspend fun fetchUser()
+    suspend fun fetchUserList(userIds: List<Int>) : List<UserDto>
     suspend fun fetchUserAvatar(avatarPath: String): String?
     suspend fun insertUser(userDto: UserDto, avatar: String?)
     suspend fun getUserFlow(): Flow<UserDomain>

@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sellingserviceapp.data.manager.DataManager
+import com.example.sellingserviceapp.data.network.feedback.model.FeedbackDto
+import com.example.sellingserviceapp.model.FeedbackWithData
 import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +24,15 @@ class ServiceViewModel @Inject constructor(
     var service by mutableStateOf<ServiceDomain>(ServiceDomain.EMPTY)
     var user by mutableStateOf<UserDomain>(UserDomain.EMPTY)
     var serviceUIState by mutableStateOf<ServiceUIState>(ServiceUIState.Init)
+
+    var feedbackList by mutableStateOf(
+        listOf(
+            FeedbackWithData.TEST1,
+            FeedbackWithData.TEST2,
+            FeedbackWithData.TEST3,
+            FeedbackWithData.TEST4
+        )
+    )
 
     fun init(serviceId: Int) {
         serviceUIState = ServiceUIState.Init
