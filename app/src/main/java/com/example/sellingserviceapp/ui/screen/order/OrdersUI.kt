@@ -1,5 +1,10 @@
 package com.example.sellingserviceapp.ui.screen.order
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,21 +42,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.sellingserviceapp.model.mapper.BookingStatusAsExecutorMapper
+import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.mapper.BookingStatusMapper
-import com.example.sellingserviceapp.ui.component.dialog.ConfirmedBookingDialog
-import com.example.sellingserviceapp.ui.component.dialog.NewBookingDialog
-import com.example.sellingserviceapp.ui.component.dialog.RejectedBookingDialog
-import com.example.sellingserviceapp.ui.screen.createService.component.CategoryButton
+import com.example.sellingserviceapp.ui.component.dialog.BookingDialogAsExecutor
+import com.example.sellingserviceapp.ui.screen.offer.BookingListItem
+import com.example.sellingserviceapp.ui.screen.offer.BookingSkeleton
+import com.example.sellingserviceapp.ui.screen.offer.BookingState
 
 sealed class DialogState {
     data object NewBooking: DialogState()
     data object ConfirmedBooking: DialogState()
     data object RejectedByExecutorBooking: DialogState()
     data object RejectedByClientBooking: DialogState()
+    data object Pending: DialogState()
+    data object Completed: DialogState()
+    data object Expired: DialogState()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,154 +74,181 @@ fun OrdersUI(
         viewModel.getBookingAsExecutor()
     }
 
-    if (viewModel.isBookingPicked) {
-        when(viewModel.pickedBookingDialogState) {
-            DialogState.NewBooking -> {
-                NewBookingDialog(
-                    booking = viewModel.pickedBooking,
-                    onDismissRequest = {viewModel.isBookingPicked = false},
-                    onConfirmButtonClick = { id ->
-                        viewModel.isBookingPicked = false
-                        viewModel.confirmBooking(id)
-                    },
-                    onDismissButtonClick = { id ->
-                        viewModel.isBookingPicked = false
-                        viewModel.rejectBooking(id)
-                    }
-                )
-            }
-            DialogState.ConfirmedBooking -> {
-                ConfirmedBookingDialog(
-                    booking = viewModel.pickedBooking,
-                    isReject = false,
-                    onDismissRequest = {viewModel.isBookingPicked = false},
-                    onDismissButtonClick = { id ->
-                        viewModel.isBookingPicked = false
-                    }
-                )
-            }
-            DialogState.RejectedByClientBooking -> {
-                RejectedBookingDialog(
-                    booking = viewModel.pickedBooking,
-                    description = "Клиент отменил запись на услугу.",
-                    onDismissRequest = {viewModel.isBookingPicked = false}
-                )
-            }
-            DialogState.RejectedByExecutorBooking -> {
-                RejectedBookingDialog(
-                    booking = viewModel.pickedBooking,
-                    description = "Вы отклонили выполнение услуги.",
-                    onDismissRequest = {viewModel.isBookingPicked = false}
-                )
-            }
-        }
-    }
-
     val orders by viewModel.bookingsAsExecutorFlow.collectAsState()
     val statuses by viewModel.statusListFlow.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-            .fillMaxSize()
+
+
+    AnimatedContent(
+        targetState = viewModel.orderState,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+        }
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .displayCutoutPadding()
-                .padding(horizontal = 15.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-        ) {
-            stickyHeader {
-                Row(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(bottom = 15.dp)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = onBackButtonClick,
-                            modifier = Modifier
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                contentDescription = "Back",
-                                modifier = Modifier
-                                    .size(28.dp),
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                        Text("Заказы", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
-                    }
-                    Button(
-                        onClick = {
-
+        if (viewModel.isBookingPicked) {
+            when(viewModel.pickedBookingDialogState) {
+                DialogState.NewBooking -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "У вас новый заказа. Подвердите его выполнение.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                        onAcceptBookingButtonClick = { id ->
+                            viewModel.isBookingPicked = false
+                            viewModel.confirmBooking(id)
                         },
-                        shape = RoundedCornerShape(20.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier
-                            .width(150.dp)
-                            .height(32.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize().padding(horizontal = 15.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text("История", fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
+                        onRejectBookingButtonClick = { id ->
+                            viewModel.isBookingPicked = false
+                            viewModel.rejectBooking(id)
                         }
-
-                    }
+                    )
+                }
+                DialogState.ConfirmedBooking -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "Вы подтвердили выполнение заказа.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                    )
+                }
+                DialogState.RejectedByClientBooking -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "Клиент отменил запись на услугу.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                    )
+                }
+                DialogState.RejectedByExecutorBooking -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "Вы отклонили выполнение услуги.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                    )
+                }
+                DialogState.Expired -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "Вы не подтвердили выполнение заказа.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                    )
+                }
+                DialogState.Pending -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "Вы приступили к выполнению заказа.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                    )
+                }
+                DialogState.Completed -> {
+                    BookingDialogAsExecutor(
+                        booking = viewModel.pickedBooking,
+                        dialogState = viewModel.pickedBookingDialogState,
+                        description = "Выполнение заказа завершено.",
+                        onDismissRequest = {viewModel.isBookingPicked = false},
+                    )
                 }
             }
-            item {
-                LazyRow {
-                    items(statuses) { item ->
+        }
+        when(it) {
+            BookingState.Init -> {
+                BookingSkeleton()
+            }
+            BookingState.Loaded -> {
+                Box(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.background, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                        .fillMaxSize()
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .displayCutoutPadding()
+                            .padding(horizontal = 15.dp),
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                    ) {
+                        stickyHeader {
+                            Row(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(bottom = 15.dp)
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
 
-                        val isSelected = viewModel.isFilterSelected == item.id
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(
+                                        onClick = onBackButtonClick,
+                                        modifier = Modifier
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                            contentDescription = "Back",
+                                            modifier = Modifier
+                                                .size(28.dp),
+                                            tint = MaterialTheme.colorScheme.onBackground
+                                        )
+                                    }
+                                    Text("Заказы", fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                        item {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                items(statuses) { item ->
 
-                        FilterChip(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = isSelected,
-                            onClick = {
-                                viewModel.isFilterSelected = if (isSelected) null else item.id
-                                viewModel.getBookingAsExecutor(item.id)
-                            },
-                            label = {Text(item.name?: "")},
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            shape = RoundedCornerShape(18.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
-                        )
+                                    val isSelected = viewModel.isFilterSelected == item.id
+
+                                    FilterChip(
+                                        modifier = Modifier.fillMaxHeight(),
+                                        selected = isSelected,
+                                        onClick = {
+                                            viewModel.isFilterSelected = if (isSelected) null else item.id
+                                            viewModel.getBookingAsExecutor()
+                                        },
+                                        label = {Text(item.name?: "")},
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                        ),
+                                        shape = RoundedCornerShape(18.dp),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(0.15f))
+                                    )
+                                }
+                            }
+                        }
+                        if (orders == emptyList<BookingWithData>()) {
+                            item {
+                                Text(
+                                    "Нет заказов.",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    fontSize = 24.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                        } else {
+                            items(orders) { order ->
+                                BookingListItem(
+                                    offer = order,
+                                    isLoading = viewModel.isLoading,
+                                    onClick = {
+                                        viewModel.pickedBookingDialogState = BookingStatusMapper.bookingDialogStateMap(order.booking?.status ?: "")
+                                        viewModel.pickedBooking = order
+                                        viewModel.isBookingPicked = true
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
-            }
-            items(orders) { order ->
-                CategoryButton(
-                    category = order.service?.tittle ?: "",
-                    description = order.booking?.statusReason ?: "",
-                    onClick = {
-                        viewModel.pickedBookingDialogState = BookingStatusMapper.bookingDialogStateMap(order.booking?.status ?: "")
-                        viewModel.pickedBooking = order
-                        viewModel.isBookingPicked = true
-                    }
-                )
             }
         }
     }

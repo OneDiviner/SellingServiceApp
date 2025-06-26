@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.ui.screen.main
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -28,12 +29,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,6 +50,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -63,6 +69,7 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +85,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.sellingserviceapp.R
@@ -109,13 +117,38 @@ fun MainUI(
     onOrdersButtonClick: () -> Unit
 ) {
 
+    val user by viewModel.userFLow.collectAsState()
+    val services by viewModel.servicesFlow.collectAsState()
+    val searchValue by viewModel.searchQuery.collectAsState()
+    val lazyVerticalGridState = rememberLazyGridState()
+
     LaunchedEffect(viewModel.isFilterSelected) {
         viewModel.searchService()
     }
 
-    val user by viewModel.userFLow.collectAsState()
-    val services by viewModel.servicesFlow.collectAsState()
-    val searchValue by viewModel.searchQuery.collectAsState()
+    val reachedBottom: Boolean by remember {
+        derivedStateOf {
+            val layoutInfo = lazyVerticalGridState.layoutInfo
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            if (layoutInfo.totalItemsCount == 0 || visibleItemsInfo.isEmpty()) {
+                return@derivedStateOf false
+            }
+            val dataSize = services.size
+            if (dataSize == 0) return@derivedStateOf false
+            val lastVisibleItemIndex = visibleItemsInfo.last().index
+            val serviceItemsStartIndex = 2
+            val lastDataItemLayoutIndex = serviceItemsStartIndex + dataSize
+            val numberOfColumns = 2
+            val triggerIndex = (lastDataItemLayoutIndex - (numberOfColumns * 2)).coerceAtLeast(serviceItemsStartIndex)
+            val shouldLoadMore = lastVisibleItemIndex >= triggerIndex && dataSize > 0
+            Log.d("MainUI_Pagination", "reachedBottom: $shouldLoadMore. LastVisibleIdx: $lastVisibleItemIndex, TriggerIdx: $triggerIndex, LastDataLayoutIdx: $lastDataItemLayoutIndex, DataSize: $dataSize, TotalItemsInLayout: ${layoutInfo.totalItemsCount}")
+            shouldLoadMore
+        }
+    }
+
+    LaunchedEffect(reachedBottom) {
+        viewModel.loadMore()
+    }
 
     PullToRefreshBox(
         isRefreshing = viewModel.isRefreshing,
@@ -140,7 +173,8 @@ fun MainUI(
                 MainUIState.Error -> {}
                 MainUIState.Loaded -> {
                     LazyVerticalGrid(
-                        modifier = Modifier.fillMaxSize(),
+                        state = lazyVerticalGridState,
+                        modifier = Modifier.fillMaxSize().padding(bottom = 15.dp),
                         columns = GridCells.Fixed(2),
                         verticalArrangement = Arrangement.spacedBy(15.dp),
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
@@ -288,6 +322,7 @@ fun MainUI(
                                         selected = isSelected,
                                         onClick = {
                                             viewModel.isFilterSelected = if (isSelected) null else category.id
+
                                             //viewModel.getServiceListByCategory(category.id)
                                         },
                                         label = {Text(category.name)},
@@ -300,23 +335,23 @@ fun MainUI(
                                 }
                             }
                         }
-                        items(services.take(2)) { service ->
+                        items(services) { service ->
                             ServiceCardItem(
                                 onClick = { onServiceButtonClick(service.id) },
                                 title = service.tittle,
                                 price = "${service.price}₽ за ${service.priceTypeName}",
                                 subcategory = service.subcategoryName,
                                 photo = service.photo,
-                                isRefreshing = viewModel.isRefreshing
+                                isRefreshing = viewModel.isRefreshing,
                             )
                         }
-                        item(span = { GridItemSpan(maxLineSpan) }) {
+                        /*item(span = { GridItemSpan(maxLineSpan) }) {
                             Card(
                                 modifier = Modifier.height(250.dp)
                             ) {  }
 
-                        }
-                        items(services.drop(2)) { service ->
+                        }*/
+                        /*items(services.drop(2)) { service ->
                             ServiceCardItem(
                                 onClick = { onServiceButtonClick(service.id) },
                                 title = service.tittle,
@@ -325,6 +360,13 @@ fun MainUI(
                                 photo = service.photo,
                                 isRefreshing = viewModel.isRefreshing
                             )
+                        }*/
+                        item(span = {GridItemSpan(maxLineSpan)}) {
+                            if (viewModel.isLoadingMore && viewModel.maxPage > viewModel.currentPage) {
+                                Box(modifier = Modifier.fillMaxWidth().height(50.dp), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(modifier = Modifier.size(30.dp), strokeWidth = 3.dp, color = MaterialTheme.colorScheme.onBackground)
+                                }
+                            }
                         }
                     }
                 }

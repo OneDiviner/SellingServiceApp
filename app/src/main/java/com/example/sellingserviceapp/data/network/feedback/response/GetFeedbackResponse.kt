@@ -7,6 +7,6 @@ import com.google.gson.annotations.SerializedName
 
 data class GetFeedbackResponse(
     @SerializedName("response") val response: Response,
-    @SerializedName("feedback") val feedbackDtoList: List<FeedbackDto>,
+    @SerializedName("feedbacks") val feedbackDtoList: List<FeedbackDto>?,
     @SerializedName("pageable") val pageable: Pageable
 )

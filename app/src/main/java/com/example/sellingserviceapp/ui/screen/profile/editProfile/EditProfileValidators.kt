@@ -35,6 +35,7 @@ object EditProfileValidators {
     }
     fun UserDomain.isChanged(originalUser: UserDomain): UserDomain {
         return UserDomain(
+            id = id,
             firstName = firstName,
             secondName = secondName,
             lastName = lastName,

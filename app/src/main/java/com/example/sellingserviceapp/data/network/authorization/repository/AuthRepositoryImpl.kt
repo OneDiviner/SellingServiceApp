@@ -153,9 +153,11 @@ class AuthRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError(it.message)
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -174,9 +176,11 @@ class AuthRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("Вы вошли в аккаунт.")
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError("Не удалось войти в аккаунт.")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -241,8 +245,10 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = authApiService.resetPassword(RefreshPasswordRequest(resetPasswordToken, password))
             if (response.isSuccessful) {
+                errorHandler.setError(response.body()?.message ?: "")
                 Result.success(response.body()!!)
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {
@@ -258,8 +264,10 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = authApiService.updateAvatar(file)
             if (response.isSuccessful) {
+                errorHandler.setError("Изображение профиля изменено.")
                 Result.success(response.body()!!.user)
             } else {
+                errorHandler.setError("Не удалось изменить изображение.")
                 Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {
@@ -291,7 +299,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun getUser(): Result<UserDto> {
         return try {
-
             val response = authApiService.getUser()
             Log.d("USER_AUTH_REPOSITORY", "SecondName = ${response.body()?.user?.secondName}, lastName = ${response.body()?.user?.lastName}")
             if (response.isSuccessful) {
@@ -316,9 +323,10 @@ class AuthRepositoryImpl @Inject constructor(
                 )
             )
             if (response.isSuccessful) {
+                errorHandler.setError("Данные профиля изменены.")
                 Result.success(response.body()!!.userDto)
             } else {
-                //errorHandler.setError(response.errorBody()?.string() ?: "")
+                errorHandler.setError("Не удалось изменить данные профиля.")
                 Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {

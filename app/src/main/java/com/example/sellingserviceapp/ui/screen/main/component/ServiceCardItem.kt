@@ -82,7 +82,7 @@ fun ServiceCardItem(
     price: String,
     subcategory: String,
     photo: String?,
-    isRefreshing: Boolean = false
+    isRefreshing: Boolean = false,
 ) {
     val imageBitmap = remember(photo) {
         if (!photo.isNullOrEmpty()) {
@@ -191,7 +191,13 @@ fun ServiceCardItem(
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                     )
-                    Text(subcategory, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.7f))
+                    Text(
+                        subcategory,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onBackground.copy(0.7f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

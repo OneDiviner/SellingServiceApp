@@ -1,6 +1,8 @@
 package com.example.sellingserviceapp.ui.screen.main
 
+import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -12,6 +14,7 @@ import com.example.sellingserviceapp.model.domain.ServiceDomain
 import com.example.sellingserviceapp.model.domain.UserDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,8 +29,8 @@ class MainViewModel @Inject constructor(
 ): ViewModel() {
 
     companion object {
-        private const val PAGE = 0
-        const val SIZE = 20
+        private const val INITIAL_PAGE = 0
+        const val SIZE = 6
     }
 
     private val _userFlow = MutableStateFlow<UserDomain>(UserDomain.EMPTY)
@@ -41,8 +44,15 @@ class MainViewModel @Inject constructor(
     var isFilterSelected by mutableStateOf<Int?>(null)
     var mainUiState by mutableStateOf<MainUIState>(MainUIState.Init)
 
+    var currentPage by mutableIntStateOf(INITIAL_PAGE)
+    var maxPage by mutableIntStateOf(0)
+    var isLoadingMore by mutableStateOf(false)
+
     private val _searchQuery = MutableStateFlow<String?>(null)
     val searchQuery: StateFlow<String?> = _searchQuery
+
+    private var currentLoadingJob: Job? = null
+
 
     init {
         init()
@@ -61,7 +71,10 @@ class MainViewModel @Inject constructor(
         isRefreshing = true
         mainUiState = MainUIState.Init
         viewModelScope.launch {
-            _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE)
+            val response = dataManager.requestServices(page = INITIAL_PAGE, size = SIZE)
+            _servicesFlow.value = response.services ?: emptyList()
+            currentPage = response.pageable.page
+            maxPage = response.pageable.pageMax
             categories = dataManager.getCategories()
             mainUiState = MainUIState.Loaded
             isRefreshing = false
@@ -91,8 +104,28 @@ class MainViewModel @Inject constructor(
     fun searchService() {
         isRefreshing = true
         viewModelScope.launch {
-            _servicesFlow.value = dataManager.requestServices(page = PAGE, size = SIZE, categoryId =  isFilterSelected, title = _searchQuery.value)
+            val response = dataManager.requestServices(page = INITIAL_PAGE, size = SIZE, categoryId =  isFilterSelected, title = _searchQuery.value)
+            _servicesFlow.value = response.services ?: emptyList()
+            currentPage = 0
+            maxPage = response.pageable.pageMax
             isRefreshing = false
         }
+    }
+
+    fun loadMore() {
+        currentLoadingJob?.cancel()
+        isLoadingMore = true
+        currentLoadingJob = viewModelScope.launch {
+            if (currentPage <= maxPage) {
+                currentPage ++
+                val response = dataManager.requestServices(currentPage, SIZE, isFilterSelected, _searchQuery.value)
+                val newServices = response.services ?: emptyList()
+                _servicesFlow.value = _servicesFlow.value + newServices
+                maxPage = response.pageable.pageMax
+
+                isLoadingMore = false
+            }
+        }
+        Log.d("LOAD_MORE","PAGE: $currentPage MAX_PAGE: $maxPage")
     }
 }

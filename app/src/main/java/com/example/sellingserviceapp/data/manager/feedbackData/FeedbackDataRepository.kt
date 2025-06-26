@@ -1,5 +1,6 @@
 package com.example.sellingserviceapp.data.manager.feedbackData
 
+import android.util.Log
 import com.example.sellingserviceapp.data.network.booking.CreateBookingRequest
 import com.example.sellingserviceapp.data.network.feedback.model.AvailableFeedbacks
 import com.example.sellingserviceapp.data.network.feedback.model.FeedbackDto
@@ -54,14 +55,16 @@ class FeedbackDataRepository @Inject constructor(
         page: Int,
         size: Int
     ): List<FeedbackDto> {
+        Log.d("GET_FEEDBACK_FOR_SERVICE", serviceId.toString())
         val getFeedbackResponse = feedbackRepository.getFeedbackForService(serviceId, page, size)
         getFeedbackResponse.onSuccess { response ->
-            return response.feedbackDtoList
+            return response.feedbackDtoList ?: emptyList()
         }
         return emptyList()
     }
 
     override suspend fun getFeedbackRating(serviceId: Int): Double {
+        Log.d("SERVICE_VIEW_MODEL_RATING", serviceId.toString())
         val getRatingResponse = feedbackRepository.getFeedbackRating(serviceId)
         getRatingResponse.onSuccess {
             return it.rating
@@ -75,7 +78,7 @@ class FeedbackDataRepository @Inject constructor(
     ): List<FeedbackDto> {
         val getFeedbackResponse = feedbackRepository.getUserFeedback(page, size)
         getFeedbackResponse.onSuccess { response ->
-            return response.feedbackDtoList
+            return response.feedbackDtoList ?: emptyList()
         }
         return emptyList()
     }

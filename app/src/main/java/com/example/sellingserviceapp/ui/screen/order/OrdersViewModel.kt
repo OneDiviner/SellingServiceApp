@@ -9,6 +9,7 @@ import com.example.sellingserviceapp.data.manager.DataManager
 import com.example.sellingserviceapp.data.network.booking.Status
 import com.example.sellingserviceapp.model.domain.BookingWithData
 import com.example.sellingserviceapp.model.mapper.mapStatusListAsExecutor
+import com.example.sellingserviceapp.ui.screen.offer.BookingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,9 @@ class OrdersViewModel @Inject constructor(
     private val dataManager: DataManager
 ): ViewModel() {
 
-    var isRefreshing by mutableStateOf(false)
+    var orderState by mutableStateOf<BookingState>(BookingState.Init)
+
+    var isLoading by mutableStateOf(false)
 
     var isBookingPicked by mutableStateOf(false)
 
@@ -37,7 +40,7 @@ class OrdersViewModel @Inject constructor(
     val statusListFlow: StateFlow<List<Status>> = _statusListFlow.asStateFlow()
 
     init {
-        getStatuses()
+        init()
     }
 
     fun confirmBooking(bookingId: Int) {
@@ -54,19 +57,20 @@ class OrdersViewModel @Inject constructor(
         }
     }
 
-    fun getBookingAsExecutor(statusId: Int? = null) {
+    fun getBookingAsExecutor() {
+        isLoading = true
         viewModelScope.launch {
-            if (isFilterSelected != null) {
-                _bookingsAsExecutorFlow.value = dataManager.getBookingAsExecutor(0, 20, statusId)
-            } else {
-                _bookingsAsExecutorFlow.value = dataManager.getBookingAsExecutor(0, 20)
-            }
+            _bookingsAsExecutorFlow.value = dataManager.getBookingAsExecutor(0, 20, isFilterSelected)
+            isLoading = false
         }
     }
 
-    fun getStatuses() {
+    fun init() {
+        orderState = BookingState.Init
         viewModelScope.launch {
             _statusListFlow.value = mapStatusListAsExecutor(dataManager.getBookingStatuses())
+            _bookingsAsExecutorFlow.value = dataManager.getBookingAsExecutor(0, 20, isFilterSelected)
+            orderState = BookingState.Loaded
         }
     }
 

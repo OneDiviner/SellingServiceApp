@@ -77,7 +77,8 @@ fun ImageContent(
     isPickImage: Boolean = true,
     isGenerateImage: Boolean = false,
     isGenerating: Boolean = false,
-    onGenerateImageButtonClick: () -> Unit = {}
+    onGenerateImageButtonClick: () -> Unit = {},
+    isMoreButton: Boolean = true
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         if (photoBase64.isNotBlank()) {
@@ -121,31 +122,33 @@ fun ImageContent(
                 )
             }
         }
-        IconButton(
-            onClick = onMoreButtonClick,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .systemBarsPadding()
-                .padding(end = 15.dp)
-                .zIndex(3f)
-        ) {
-            Box() {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "More",
-                    modifier = Modifier
-                        .size(28.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-                DropdownMenu(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-                    expanded = isDropdownExpanded,
-                    onDismissRequest = onDismissRequest
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Удалить услугу") },
-                        onClick = onDeleteButtonClick,
+        if (isMoreButton) {
+            IconButton(
+                onClick = onMoreButtonClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .systemBarsPadding()
+                    .padding(end = 15.dp)
+                    .zIndex(3f)
+            ) {
+                Box() {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More",
+                        modifier = Modifier
+                            .size(28.dp),
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
+                    DropdownMenu(
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+                        expanded = isDropdownExpanded,
+                        onDismissRequest = onDismissRequest
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Удалить услугу") },
+                            onClick = onDeleteButtonClick,
+                        )
+                    }
                 }
             }
         }

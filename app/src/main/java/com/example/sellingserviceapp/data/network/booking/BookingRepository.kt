@@ -23,7 +23,7 @@ class BookingRepository @Inject constructor(
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
                 //Добавить обработчик кодов ошибки
-                //errorHandler.setError(response.errorBody()?.string() ?: "")
+                errorHandler.setError("Вы не можете записаться на свои услуги.")
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
         } catch (e: Exception) {
@@ -41,9 +41,11 @@ class BookingRepository @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("Запись создана.")
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError("Не удалось создать запись.")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -65,6 +67,7 @@ class BookingRepository @Inject constructor(
                     Result.success(it.timeTable.days)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -86,6 +89,7 @@ class BookingRepository @Inject constructor(
                     Result.success(it.timeTable)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -104,9 +108,11 @@ class BookingRepository @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("График работы обновлен.")
                     Result.success(it.timeTable)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError("Не удалось обновить ваш график работы.")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -132,6 +138,7 @@ class BookingRepository @Inject constructor(
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -153,6 +160,7 @@ class BookingRepository @Inject constructor(
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -178,6 +186,7 @@ class BookingRepository @Inject constructor(
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -199,6 +208,7 @@ class BookingRepository @Inject constructor(
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -217,9 +227,11 @@ class BookingRepository @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("Вы подтвердили выполнение услуги.")
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -238,9 +250,11 @@ class BookingRepository @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("Вы отклонили выполнение услуги.")
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError(response.errorBody()?.string() ?: "")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }

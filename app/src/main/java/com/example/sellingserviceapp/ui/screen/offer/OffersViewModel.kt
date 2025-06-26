@@ -22,7 +22,6 @@ import javax.inject.Inject
 class OffersViewModel @Inject constructor(
     private val dataManager: DataManager
 ): ViewModel() {
-    var isRefreshing by mutableStateOf(false)
 
     var isFilterSelected by mutableStateOf<Int?>(null)
 
@@ -37,26 +36,36 @@ class OffersViewModel @Inject constructor(
     private val _statusListFlow = MutableStateFlow<List<Status>>(emptyList())
     val statusListFlow: StateFlow<List<Status>> = _statusListFlow.asStateFlow()
 
+    var offerState by mutableStateOf<BookingState>(BookingState.Init)
+
+    var isLoading by mutableStateOf(false)
+
     init {
-        getStatuses()
+        init()
     }
 
-    fun getBookingAsClient(statusId: Int? = null) {
+    fun getBookingAsClient() {
+        isLoading = true
         viewModelScope.launch {
-            viewModelScope.launch {
-                if (isFilterSelected != null) {
-                    _bookingsAsClientFlow.value = dataManager.getBookingAsClient(0, 20, statusId)
-                } else {
-                    _bookingsAsClientFlow.value = dataManager.getBookingAsClient(0, 20)
-                }
-            }
-
+            _bookingsAsClientFlow.value = dataManager.getBookingAsClient(0, 20, isFilterSelected)
+            isLoading = false
         }
     }
 
-    fun getStatuses() {
+    fun init() {
+        offerState = BookingState.Init
         viewModelScope.launch {
             _statusListFlow.value = mapStatusListAsClient(dataManager.getBookingStatuses())
+            _bookingsAsClientFlow.value = dataManager.getBookingAsClient(0, 20, isFilterSelected)
+            offerState = BookingState.Loaded
+        }
+    }
+
+
+
+    fun createFeedback(bookingId: Int, rating: Int, comment: String) {
+        viewModelScope.launch {
+            dataManager.createFeedbackForBooking(bookingId, comment, rating)
         }
     }
 }

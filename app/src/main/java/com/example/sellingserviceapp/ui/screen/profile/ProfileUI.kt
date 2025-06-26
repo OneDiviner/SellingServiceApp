@@ -107,7 +107,8 @@ fun ProfileUI(
     viewModel: ProfileViewModel = hiltViewModel(),
     onMyServiceButtonClick: () -> Unit,
     onOrdersButtonClick: () -> Unit,
-    onOffersButtonClick: () -> Unit
+    onOffersButtonClick: () -> Unit,
+    onFeedbackButtonClick: () -> Unit
 ) {
 
     var isOpen by remember { mutableStateOf(false) }
@@ -234,9 +235,9 @@ fun ProfileUI(
                     )
                     SectionButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {},
-                        icon = painterResource(R.drawable.notifications),
-                        title = "Уведомления"
+                        onClick = onFeedbackButtonClick,
+                        icon = painterResource(R.drawable.chat),
+                        title = "Отзывы"
                     )
                 }
             }

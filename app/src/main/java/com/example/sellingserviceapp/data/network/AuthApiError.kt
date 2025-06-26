@@ -45,6 +45,7 @@ class ErrorHandler @Inject constructor() {
 
 
     fun setError(error: String) {
+        _error.value = ""
         _error.value = error
         Log.d("ERROR_HANDLER", "NEW_ERROR")
     }

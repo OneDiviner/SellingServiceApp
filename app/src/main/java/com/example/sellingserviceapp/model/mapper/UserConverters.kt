@@ -22,6 +22,7 @@ object UserConverters {
     }
     fun UserDto.toDomain(userPhoto: String? = null): UserDomain {
         return UserDomain(
+            id = id,
             email = email,
             firstName = firstName,
             secondName = secondName,
@@ -32,6 +33,7 @@ object UserConverters {
     }
     fun UserEntity.toDomain(): UserDomain {
         return UserDomain(
+            id = id,
             email = email,
             firstName = firstName,
             secondName = secondName,

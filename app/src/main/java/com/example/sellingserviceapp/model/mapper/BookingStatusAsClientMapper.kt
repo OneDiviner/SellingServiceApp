@@ -46,9 +46,9 @@ object BookingStatusAsClientMapper {
     }
 
     fun Booking.codeToName(): Booking {
-        val statusName = bookingStatusAsClientMap[status]?: "NotFound"
+        //val statusName = bookingStatusAsClientMap[status]?: "NotFound"
         val statusReasonName = bookingStatusReasonAsClientMap[statusReason]?: ""
-        return copy(status = statusName, statusReason = statusReasonName)
+        return copy(statusReason = statusReasonName)
     }
 }
 

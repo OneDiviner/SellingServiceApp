@@ -42,14 +42,14 @@ interface FeedbackApiService {
 
     @GET("/api/private/feedback/{offerId}")
     suspend fun getFeedbackForService(
-        @Query("offerId") serviceId: Int = 0,
+        @Path("offerId") serviceId: Int,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10,
     ) : Response<GetFeedbackResponse>
 
     @GET("/api/private/feedback/rating/{offerId}")
     suspend fun getFeedbackRating(
-        @Query("offerId") serviceId: Int
+        @Path("offerId") serviceId: Int
     ) : Response<GetFeedbackRatingResponse>
 
     @GET("/api/private/available-feedbacks")

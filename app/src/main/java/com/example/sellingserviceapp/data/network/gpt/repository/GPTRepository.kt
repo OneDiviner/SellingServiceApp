@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.data.network.gpt.repository
 
 import com.example.sellingserviceapp.data.network.AuthApiError
+import com.example.sellingserviceapp.data.network.ErrorHandler
 import com.example.sellingserviceapp.data.network.gpt.GPTApiService
 import com.example.sellingserviceapp.data.network.gpt.request.GenerateImageForServiceRequest
 import com.example.sellingserviceapp.data.network.gpt.response.GenerateImageForServiceResponse
@@ -9,7 +10,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class GPTRepository @Inject constructor(
-    private val gptApiService: GPTApiService
+    private val gptApiService: GPTApiService,
+    private val errorHandler: ErrorHandler
 ) : IGPTRepository {
     override suspend fun generateImageForService(request: GenerateImageForServiceRequest): Result<GenerateImageForServiceResponse> {
         return try {
@@ -20,6 +22,7 @@ class GPTRepository @Inject constructor(
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError("Ошибка при генерации изображения.")
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
         } catch (e: Exception) {
@@ -35,6 +38,7 @@ class GPTRepository @Inject constructor(
         return try {
             val response = gptApiService.getGeneratedImage(fileId)
             if (response.isSuccessful) {
+                errorHandler.setError("Изображение успешно сгенерировано.")
                 Result.success(
                     response.body()?.byteStream()?.use { stream ->
                         val bytes = stream.readBytes()

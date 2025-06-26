@@ -12,9 +12,11 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,6 +53,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sellingserviceapp.ui.screen.createService.CreateServiceUI
+import com.example.sellingserviceapp.ui.screen.feedback.FeedbackUI
 import com.example.sellingserviceapp.ui.screen.main.MainUI
 import com.example.sellingserviceapp.ui.screen.main.service.ServiceUI
 import com.example.sellingserviceapp.ui.screen.offer.OffersUI
@@ -64,6 +67,7 @@ sealed class AppSheetContentState {
     data object Service: AppSheetContentState()
     data object Orders: AppSheetContentState()
     data object Offers: AppSheetContentState()
+    data object Feedbacks: AppSheetContentState()
 }
 
 @Composable
@@ -78,9 +82,10 @@ fun CustomSnackbar(
         Surface(
             modifier = Modifier
                 .padding(horizontal = 15.dp, vertical = 30.dp)
+                .requiredHeight(80.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceContainer
+            color = MaterialTheme.colorScheme.surfaceContainer.copy(0.85f)
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp),
@@ -233,7 +238,8 @@ fun AppUI(
                         ProfileUI(
                             onMyServiceButtonClick = { viewModel.appSheetContentState = AppSheetContentState.UserServices },
                             onOrdersButtonClick = {  viewModel.appSheetContentState = AppSheetContentState.Orders },
-                            onOffersButtonClick = { viewModel.appSheetContentState = AppSheetContentState.Offers }
+                            onOffersButtonClick = { viewModel.appSheetContentState = AppSheetContentState.Offers },
+                            onFeedbackButtonClick = {viewModel.appSheetContentState = AppSheetContentState.Feedbacks }
                         )
                     }
                     is AppSheetContentState.UserServices -> {
@@ -249,6 +255,9 @@ fun AppUI(
                     }
                     is AppSheetContentState.Offers -> {
                         OffersUI { viewModel.appSheetContentState = AppSheetContentState.Profile }
+                    }
+                    is AppSheetContentState.Feedbacks -> {
+                        FeedbackUI { viewModel.appSheetContentState = AppSheetContentState.Profile }
                     }
                 }
             }

@@ -109,24 +109,16 @@ class OfferRepositoryImpl @Inject constructor(
 
     override suspend fun createServiceRequest(newServiceDto: NewServiceDto): Result<Int> {
         return try {
-            val gson = Gson()
             val response = offerApiService.createServiceRequest(newServiceDto)
 
             if (response.isSuccessful) {
                 response.body()?.let {
-                    //errorHandler.setError(it.response.message)
+                    errorHandler.setError("Услуга успешно создана.")
                     Result.success(it.serviceId)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
-                val errorMessage = response.errorBody()?.string()?.let { errorBody ->
-                    val jsonObject = JsonParser.parseString(errorBody).asJsonObject
-                    val messagesArray = jsonObject.getAsJsonArray("message")
-                    messagesArray[0].asString
-                } ?: ""
-
-
-                errorHandler.setError(errorMessage)
-                Result.failure(AuthApiError.HttpError(response.code(), errorMessage))
+                errorHandler.setError("Ошибка при создании услуги.")
+                Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
         } catch (e: Exception) {
             when (e) {
@@ -143,12 +135,13 @@ class OfferRepositoryImpl @Inject constructor(
                 serviceId = serviceId,
                 request = service
             )
-
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("Услуга обновлена.")
                     Result.success(it.service)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError("Ошибка при обновлении услуги.")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -167,9 +160,11 @@ class OfferRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 response.body()?.let {
+                    errorHandler.setError("Удаление услуги прошло успешно.")
                     Result.success(it)
                 } ?: Result.failure(AuthApiError.EmptyBody())
             } else {
+                errorHandler.setError("Услуга не удалена.")
                 //Добавить обработчик кодов ошибки
                 Result.failure(AuthApiError.HttpError(response.code(), "Ошибка: ${response.code()}"))
             }
@@ -299,8 +294,10 @@ class OfferRepositoryImpl @Inject constructor(
         return try {
             val response = offerApiService.updateServiceImage(serviceId, file)
             if (response.isSuccessful) {
+                errorHandler.setError("Фотография успешно обновлена.")
                 Result.success(response.body()!!.service)
             } else {
+                errorHandler.setError("Ошибка при изменении изображения.")
                 Result.failure(AuthApiError.HttpError(response.code(), "Upload failed: ${response.errorBody()?.string()}"))
             }
         } catch (e: Exception) {

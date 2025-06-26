@@ -34,9 +34,9 @@ object BookingStatusAsExecutorMapper {
     }
 
     fun Booking.codeToName(): Booking {
-        val statusName = bookingStatusAsExecutor[status]?: ""
+        //val statusName = bookingStatusAsExecutor[status]?: ""
         val statusReasonName = bookingStatusReasonAsExecutorMap[statusReason]?: ""
-        return copy(status = statusName, statusReason = statusReasonName)
+        return copy(statusReason = statusReasonName)
     }
 }
 

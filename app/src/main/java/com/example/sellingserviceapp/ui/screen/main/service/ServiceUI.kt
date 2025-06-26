@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.ui.screen.main.service
 
 import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
@@ -50,7 +51,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.sellingserviceapp.model.FeedbackWithData
 import com.example.sellingserviceapp.ui.component.button.LargeButton
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonModel
 import com.example.sellingserviceapp.ui.screen.authentication.state.ButtonState
@@ -199,11 +202,27 @@ fun ServiceUI(
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
-                                    modifier = Modifier.padding(bottom = 10.dp),
+                                    modifier = Modifier,
                                     text =  viewModel.service.tittle,
                                     fontSize = 24.sp,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
+                                Row(
+                                    modifier = Modifier.padding(bottom = 10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = Color.Yellow,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Text(
+                                        modifier = Modifier,
+                                        text = if (viewModel.rating == 0.0) "Нет отзывов" else viewModel.rating.toString(),
+                                        fontSize = 24.sp,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
                                 ServiceInfoRow(
                                     title = "Категория",
                                     value = viewModel.service.categoryName
@@ -318,77 +337,83 @@ fun ServiceUI(
                             )
                         }
                         item {
-                            Text("Отзывы", fontSize = 28.sp, color = MaterialTheme.colorScheme.onBackground)
-                        }
-                        item {
                             Column(
-                                verticalArrangement = Arrangement.spacedBy(30.dp),
+                                verticalArrangement = Arrangement.spacedBy(15.dp),
                                 modifier = Modifier.padding(horizontal = 15.dp)
                             ) {
-
-                                viewModel.feedbackList.forEach { feedback ->
-                                    Column {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(15.dp)
+                                Text("Отзывы", fontSize = 28.sp, color = MaterialTheme.colorScheme.onBackground)
+                                if (viewModel.feedbackList == emptyList<FeedbackWithData>()) {
+                                    Text(
+                                        "Нет отзывов.",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        fontSize = 24.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                } else {
+                                    viewModel.feedbackList.forEach { feedback ->
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
-                                            ProfileIconButton(
-                                                onClick = {},
-                                                photoBase64 = ""
-                                            )
-                                            Column(
-                                                modifier = Modifier,
-                                                verticalArrangement = Arrangement.spacedBy(1.dp)
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(15.dp)
                                             ) {
-                                                Text(
-                                                    modifier = Modifier,
-                                                    text = feedback.user.firstName + feedback.user.firstName,
-                                                    fontSize = 20.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onBackground
+                                                ProfileIconButton(
+                                                    onClick = {},
+                                                    photoBase64 = feedback.user.avatar ?: ""
                                                 )
-                                                Text(
+                                                Column(
                                                     modifier = Modifier,
-                                                    text = feedback.feedback.createdAt,
-                                                    fontSize = 15.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
-                                                )
+                                                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                                                ) {
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                                    ) {
+                                                        Text(
+                                                            modifier = Modifier,
+                                                            text = "${feedback.user.secondName} ${feedback.user.firstName}",
+                                                            fontSize = 20.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = MaterialTheme.colorScheme.onBackground
+                                                        )
+                                                        Row(
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                                        ) {
+                                                            Icon(
+                                                                modifier = Modifier.size(18.dp),
+                                                                imageVector = Icons.Default.Star,
+                                                                contentDescription = null,
+                                                                tint = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                                            )
+                                                            Text(
+                                                                modifier = Modifier,
+                                                                text = feedback.feedback.rating.toString(),
+                                                                fontSize = 15.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                                            )
+                                                        }
+                                                    }
+                                                    Text(
+                                                        modifier = Modifier,
+                                                        text = feedback.feedback.createdAt,
+                                                        fontSize = 15.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
+                                                    )
+                                                }
                                             }
-                                        }
-                                        Text(
-                                            modifier = Modifier,
-                                            text = feedback.service.categoryName + feedback.service.subcategoryName,
-                                            fontSize = 15.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
-                                        )
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                        ) {
-                                            Icon(
-                                                modifier = Modifier.size(18.dp),
-                                                imageVector = Icons.Default.Star,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onBackground.copy(0.8f)
-                                            )
-                                            Text(
-                                                modifier = Modifier,
-                                                text = feedback.feedback.rating.toString(),
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onBackground.copy(0.8f)
-                                            )
-                                        }
-                                        Card(
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                            ),
-                                            border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground.copy(0.1f))
-                                        ) {
-                                            Text(feedback.feedback.comment, modifier = Modifier.padding(10.dp), fontSize = 14.sp)
+                                            Card(
+                                                colors = CardDefaults.cardColors(
+                                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                                                ),
+                                                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground.copy(0.1f))
+                                            ) {
+                                                Text(feedback.feedback.comment, modifier = Modifier.padding(10.dp), fontSize = 14.sp)
+                                            }
                                         }
                                     }
                                 }

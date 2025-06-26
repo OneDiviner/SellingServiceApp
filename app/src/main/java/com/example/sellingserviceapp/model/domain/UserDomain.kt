@@ -1,6 +1,7 @@
 package com.example.sellingserviceapp.model.domain
 
 data class UserDomain(
+    val id: Int,
     val firstName: String,
     val secondName: String,
     val lastName: String?,
@@ -10,6 +11,7 @@ data class UserDomain(
 ) {
     companion object {
         val EMPTY = UserDomain(
+            id = 0,
             email = "",
             firstName = "",
             secondName = "",
